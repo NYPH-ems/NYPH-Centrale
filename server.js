@@ -5,7 +5,7 @@ const path = require("path");
 
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 
 /* =========================================================
@@ -24,7 +24,7 @@ const DISCORD = {
 
   REDIRECT_URI:
     process.env.DISCORD_REDIRECT_URI ||
-    "http://localhost:3000/auth/discord/callback",
+    "http://localhost:8080/auth/discord/callback",
 
 
   SERVER_ID: "1468459512313680040",
@@ -3380,11 +3380,11 @@ app.post(
 
 
     if (
-      (medical_experience && medical_experience.length > 3000) ||
-      (motivation && motivation.length > 3000)
+      (medical_experience && medical_experience.length > 8080) ||
+      (motivation && motivation.length > 8080)
     ) {
       return res.status(400).json({
-        error: "Un des champs dépasse la limite de 3000 caractères."
+        error: "Un des champs dépasse la limite de 8080 caractères."
       });
     }
 
