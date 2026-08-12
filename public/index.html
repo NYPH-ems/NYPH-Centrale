@@ -1,0 +1,3268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NewYork Presbyterian Hospital — NYPH Administration</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #e50914;
+    --red-dark: #a50008;
+    --black: #080808;
+    --black-2: #111;
+    --black-3: #171717;
+    --white: #fff;
+    --gray: #a7a7a7;
+    --border: #292929;
+    --green: #20d66b;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: Inter, Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+  }
+
+  button, input, textarea, select { font: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+
+  /* LOGIN */
+
+  #login {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: radial-gradient(circle at center, #320307 0%, #090909 50%, #050505 100%);
+  }
+
+  .login-card {
+    width: min(520px, 100%);
+    background: rgba(17, 17, 17, .95);
+    border: 1px solid var(--border);
+    padding: 46px 40px 40px;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 25px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(229,9,20,.08);
+    position: relative;
+    overflow: hidden;
+    animation: loginFadeIn .6s ease;
+  }
+
+  .login-card::before {
+    content: "";
+    position: absolute;
+    top: -55%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(229,9,20,.35), transparent 70%);
+    filter: blur(6px);
+    pointer-events: none;
+  }
+
+  .login-card::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--red-dark), var(--red), var(--red-dark));
+  }
+
+  @keyframes loginFadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo {
+    width: 300px; height: 300px; margin: auto;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 44px; font-weight: 900; margin-bottom: 18px;
+    position: relative; z-index: 1;
+  }
+  .logo img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 30px rgba(229,9,20,.35)); }
+
+  .login-tagline {
+    color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: .14em;
+    font-weight: 800; margin-bottom: 16px; position: relative; z-index: 1;
+  }
+
+  .login-card h1 {
+    font-size: 30px; margin-bottom: 8px; position: relative; z-index: 1;
+    background: linear-gradient(90deg, #fff, #ffd7d9);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    letter-spacing: .02em;
+  }
+  .login-card p { color: var(--gray); margin-bottom: 30px; position: relative; z-index: 1; }
+
+  .discord-btn {
+    border: 0; width: 100%; padding: 15px; border-radius: 9px;
+    background: #5865f2; color: white; font-weight: 800; transition: .2s;
+    position: relative; z-index: 1;
+  }
+  .discord-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 10px 30px rgba(88,101,242,.4); }
+
+  /* APP */
+
+  #app { display: none; min-height: 100vh; }
+
+  .sidebar {
+    position: fixed; width: 250px; left: 0; top: 0; bottom: 0;
+    background: #0d0d0d; border-right: 1px solid var(--border); padding: 22px; z-index: 20;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sidebar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .brand {
+    font-weight: 900; font-size: 17px; margin-bottom: 35px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .brand img { width: 120px; height: 120px; object-fit: contain; border-radius: 10px; flex-shrink: 0; }
+  .brand span { color: var(--red); }
+
+  .user {
+    display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 12px;
+    background: var(--black-3); border-radius: 10px; margin-bottom: 25px; text-align: center;
+  }
+
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--red);
+    display: flex; justify-content: center; align-items: center; font-weight: 900; overflow: hidden;
+    flex-shrink: 0; font-size: 13px; border: 3px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .username { font-weight: 800; font-size: 15px; }
+  .role { color: var(--gray); font-size: 12px; }
+
+  nav button {
+    width: 100%; border: 0; background: transparent; color: #bbb;
+    text-align: left; padding: 13px; border-radius: 8px; margin-bottom: 5px;
+  }
+  nav button:hover, nav button.active { color: white; background: var(--red); }
+
+  .nav-section-label {
+    color: #666; font-size: 11px; text-transform: uppercase; font-weight: 800;
+    padding: 10px 13px 6px; letter-spacing: .05em;
+  }
+
+  .logout {
+    margin-top: 20px;
+    width: 100%;
+    background: #1a1a1a; color: #ddd; border: 1px solid var(--border);
+    padding: 11px; border-radius: 8px;
+  }
+
+  .content { margin-left: 250px; padding: 35px; max-width: 1500px; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-title { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; gap: 15px; flex-wrap: wrap; }
+  .page-title h2 { font-size: 30px; }
+  .page-title p { color: var(--gray); margin-top: 6px; }
+  .page-title-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* CARDS */
+
+  .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; margin-bottom: 25px; }
+  .card { background: var(--black-2); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+  .card-label { color: var(--gray); font-size: 13px; margin-bottom: 10px; }
+  .card-value { font-size: 29px; font-weight: 900; }
+
+  .grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 15px; margin-bottom: 25px; }
+  @media(max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* SERVICE */
+
+  .service-box {
+    background: var(--black-2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 25px; margin-bottom: 25px;
+  }
+
+  .service-status { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+  .status-dot {
+    display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #555; margin-right: 7px;
+  }
+  .status-dot.online { background: var(--green); box-shadow: 0 0 12px var(--green); }
+
+  .btn { border: 0; border-radius: 8px; padding: 12px 18px; font-weight: 800; }
+  .btn-red { background: var(--red); color: white; }
+  .btn-dark { background: #222; color: white; border: 1px solid var(--border); }
+  .btn-green { background: var(--green); color: #061b0e; }
+  .btn-outline { background: transparent; color: #ddd; border: 1px solid var(--border); }
+  .btn-sm { padding: 8px 12px; font-size: 13px; }
+
+  .btn-delete {
+    background: #42090d; color: #ff5d67; border: 1px solid #6e1017;
+    padding: 8px 12px; border-radius: 7px; font-weight: 800;
+  }
+  .btn-delete:hover { background: var(--red); color: white; }
+
+  /* Boutons de statut colorés (rendez-vous) */
+  .btn-status { border: 0; border-radius: 7px; padding: 8px 12px; font-weight: 800; font-size: 12px; }
+  .btn-status-blue { background: rgba(64,140,255,.18); color: #6fa8ff; border: 1px solid rgba(64,140,255,.4); }
+  .btn-status-blue:hover { background: #408cff; color: white; }
+  .btn-status-green { background: rgba(32,214,107,.15); color: var(--green); border: 1px solid rgba(32,214,107,.4); }
+  .btn-status-green:hover { background: var(--green); color: #061b0e; }
+  .btn-status-red { background: rgba(229,9,20,.15); color: #ff5d67; border: 1px solid rgba(229,9,20,.4); }
+  .btn-status-red:hover { background: var(--red); color: white; }
+  .btn-status-yellow { background: rgba(255,196,0,.15); color: #ffce3d; border: 1px solid rgba(255,196,0,.4); }
+  .btn-status-yellow:hover { background: #ffce3d; color: #221a00; }
+  .btn-status-gray { background: rgba(167,167,167,.15); color: var(--gray); border: 1px solid rgba(167,167,167,.35); }
+  .btn-status-gray:hover { background: var(--gray); color: #121212; }
+  .btn-status.active-status { outline: 2px solid white; }
+
+  /* TABLE */
+
+  .table-container { background: var(--black-2); border: 1px solid var(--border); border-radius: 12px; overflow: auto; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+  th { color: #999; font-size: 12px; text-transform: uppercase; }
+  td { font-size: 14px; }
+
+  /* Barre de défilement horizontale pour les grands tableaux (discrète) */
+  .table-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  /* Tableau où on veut voir tout le contenu, quitte à être resserré */
+  .no-truncate table { table-layout: auto; }
+  .no-truncate td, .no-truncate th { white-space: normal; overflow: visible; text-overflow: clip; }
+
+  .zoomable { cursor: zoom-in; position: relative; }
+  .zoomable:hover { color: white; text-decoration: underline dotted; }
+
+  /* FORMS */
+
+  .form { background: var(--black-2); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 25px; }
+  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: 13px; color: #bbb; }
+
+  input, textarea, select {
+    width: 100%; background: #0a0a0a; border: 1px solid #303030; color: white;
+    border-radius: 8px; padding: 11px; outline: none;
+  }
+  textarea { min-height: 100px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { border-color: var(--red); }
+  input[type="file"] { padding: 9px; }
+
+  .char-count { font-size: 12px; color: #777; text-align: right; margin-top: 4px; }
+
+  /* TOOLBAR (recherche + filtres) */
+
+  .toolbar {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;
+  }
+  .toolbar input[type="text"] { max-width: 320px; }
+  .toolbar select { max-width: 220px; }
+
+  /* PATIENT CARD */
+
+  .patient-list { display: grid; gap: 12px; }
+
+  .patient {
+    padding: 18px; border: 1px solid var(--border); background: var(--black-2); border-radius: 12px;
+  }
+
+  .patient-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+
+  .patient-name { font-weight: 800; font-size: 16px; }
+
+  .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 800;
+  }
+  .badge-alive { background: rgba(32,214,107,.15); color: var(--green); border: 1px solid rgba(32,214,107,.4); }
+  .badge-dead { background: rgba(229,9,20,.15); color: #ff5d67; border: 1px solid rgba(229,9,20,.4); }
+  .badge-neutral { background: rgba(167,167,167,.15); color: var(--gray); border: 1px solid rgba(167,167,167,.35); }
+
+  .patient-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 14px;
+  }
+
+  .patient-grid div { font-size: 13px; }
+  .patient-grid .k { color: var(--gray); display: block; margin-bottom: 2px; }
+  .patient-grid .v { font-weight: 600; }
+
+  .patient-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* MODAL */
+
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(5,5,5,.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    justify-content: center; align-items: flex-start;
+    padding: 40px 20px; overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    width: min(720px, 100%);
+    background: var(--black-2);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--red);
+    border-radius: 14px;
+    padding: 26px;
+    margin: auto;
+    box-shadow: 0 20px 80px rgba(0,0,0,.6);
+  }
+
+  .modal-box.wide { width: min(880px, 100%); }
+
+  .modal-head {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+  }
+  .modal-head h3 { font-size: 22px; }
+
+  .modal-close {
+    background: #1a1a1a; border: 1px solid var(--border); color: #ddd;
+    width: 34px; height: 34px; border-radius: 8px; font-size: 16px;
+  }
+
+  /* IMAGE LIGHTBOX */
+
+  .lightbox-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 90;
+    background: rgba(0,0,0,.85);
+    justify-content: center; align-items: center;
+    padding: 30px;
+  }
+  .lightbox-overlay.open { display: flex; }
+  .lightbox-overlay img {
+    max-width: 100%; max-height: 90vh; border-radius: 10px; border: 1px solid var(--border);
+  }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 24px;
+    background: #1a1a1a; border: 1px solid var(--border); color: #fff;
+    width: 40px; height: 40px; border-radius: 8px; font-size: 18px;
+  }
+
+  /* TEXT ZOOM MODAL (candidatures) */
+  .text-zoom-body {
+    white-space: pre-wrap; line-height: 1.6; font-size: 15px; color: #eee;
+    max-height: 65vh; overflow-y: auto;
+  }
+
+  /* CARE ITEMS */
+
+  .care-list {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-bottom: 10px;
+  }
+
+  .care-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #0a0a0a;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .care-item.selected { border-color: var(--red); background: rgba(229,9,20,.1); }
+  .care-item input { width: auto; }
+  .care-price { color: var(--gray); }
+
+  .billing-row {
+    display: grid; grid-template-columns: 1fr 140px 40px; gap: 8px; margin-bottom: 8px; align-items: center;
+  }
+
+  .total-box {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px; border-radius: 10px; background: #0a0a0a; border: 1px solid var(--border);
+    margin: 16px 0; flex-wrap: wrap; gap: 12px;
+  }
+  .total-amount { font-size: 24px; font-weight: 900; color: var(--green); }
+
+  .checkbox-line { display: flex; align-items: center; gap: 8px; }
+  .checkbox-line input { width: auto; }
+
+  /* PATIENT SEARCH (autocomplete) */
+
+  .patient-search-box { position: relative; }
+  .patient-search-results {
+    position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px);
+    background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px;
+    max-height: 220px; overflow-y: auto;
+  }
+  .patient-search-results div {
+    padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border);
+  }
+  .patient-search-results div:last-child { border-bottom: none; }
+  .patient-search-results div:hover { background: #1a1a1a; }
+  .patient-search-results div.empty-result { color: #777; cursor: default; }
+  .patient-search-results div.empty-result:hover { background: transparent; }
+
+  .selected-patient-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(229,9,20,.12); border: 1px solid rgba(229,9,20,.4);
+    color: white; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    margin-top: 8px;
+  }
+  .selected-patient-chip button {
+    background: transparent; border: 0; color: #ff9da2; font-weight: 900; padding: 0 2px;
+  }
+
+  /* IMAGE PREVIEW */
+
+  .image-preview-box img {
+    max-width: 240px; max-height: 240px; border-radius: 10px; border: 1px solid var(--border);
+    display: block; object-fit: cover;
+  }
+
+  /* INTERVENTION IMAGE THUMB (details) */
+
+  .intervention-image-row {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .intervention-image-thumb {
+    width: 140px; height: 140px; object-fit: cover; border-radius: 10px;
+    border: 1px solid var(--border); cursor: zoom-in; flex-shrink: 0;
+  }
+
+  /* MINI BAR CHART */
+
+  .week-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding-top: 10px; }
+  .week-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .week-bar { width: 100%; background: var(--red); border-radius: 6px 6px 0 0; min-height: 3px; }
+  .week-bar-label { font-size: 11px; color: var(--gray); }
+  .week-bar-count { font-size: 12px; font-weight: 800; }
+
+  .activity-list { display: flex; flex-direction: column; gap: 10px; }
+  .activity-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 12px 14px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px;
+    cursor: pointer;
+  }
+  .activity-item.static { cursor: default; }
+  .activity-title { font-weight: 700; font-size: 14px; }
+  .activity-sub { color: var(--gray); font-size: 12px; margin-top: 3px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .activity-amount { color: var(--green); font-weight: 800; font-size: 13px; white-space: nowrap; }
+
+  .rank-list { display: flex; flex-direction: column; gap: 8px; }
+  .rank-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px;
+  }
+  .rank-num {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--red); color: white;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; flex-shrink: 0;
+  }
+  .rank-label { flex: 1; font-size: 13px; font-weight: 600; }
+  .rank-count { font-size: 13px; font-weight: 800; color: var(--gray); }
+
+  /* NAV BADGE */
+
+  .nav-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px; border-radius: 20px;
+    background: var(--red); color: white; font-size: 11px; font-weight: 900;
+    margin-left: 6px;
+  }
+
+  /* TABS */
+
+  .tabs { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tab-btn {
+    border: 1px solid var(--border); background: var(--black-2); color: #bbb;
+    padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 13px;
+  }
+  .tab-btn.active { background: var(--red); color: white; border-color: var(--red); }
+
+  .section-divider {
+    border: none; border-top: 1px solid var(--border); margin: 30px 0;
+  }
+
+  /* MOBILE */
+
+  @media(max-width: 900px) {
+    .sidebar { position: relative; width: 100%; bottom: auto; min-height: auto; }
+    .content { margin-left: 0; padding: 20px; }
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media(max-width: 600px) {
+    .cards, .form-grid { grid-template-columns: 1fr; }
+    .service-status { align-items: flex-start; flex-direction: column; }
+    .login-card { padding: 25px; }
+    .billing-row { grid-template-columns: 1fr; }
+  }
+
+  .hidden { display: none !important; }
+  .empty { color: #777; padding: 30px; text-align: center; }
+
+  .toast {
+    position: fixed; right: 20px; bottom: 20px; padding: 14px 18px; background: #1c1c1c;
+    border: 1px solid var(--border); border-left: 4px solid var(--red); border-radius: 8px;
+    display: none; z-index: 200;
+  }
+</style>
+</head>
+<body>
+
+<section id="login">
+  <div class="login-card">
+    <div class="logo">
+      <img src="/images/NewYork Hospital.png" alt="NewYork - Presbyterian Hospital"
+           onerror="var p=this.parentElement; if(p){ p.style.fontSize='44px'; p.textContent='✚'; }">
+    </div>
+    <div class="login-tagline">NewYork · Presbyterian Hospital</div>
+    <h1>Administration NYPH</h1>
+    <p>Connecte-toi avec ton compte Discord pour accéder à l'administration.</p>
+    <button class="discord-btn" onclick="window.location='/auth/discord'">Continuer avec Discord</button>
+  </div>
+</section>
+
+<section id="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/images/NewYork Hospital.png" alt="Logo" onerror="this.style.display='none'">
+    </div>
+
+    <div class="user">
+      <div class="avatar" id="avatar">E</div>
+      <div>
+        <div class="username" id="username">Chargement...</div>
+      </div>
+    </div>
+
+    <nav id="mainNav">
+      <div class="nav-section-label">Services</div>
+      <button data-page="rdv">📅 Rendez-vous</button>
+      <button data-page="candidature">📋 Candidature</button>
+
+      <div id="staffNavSection" class="hidden">
+        <div class="nav-section-label">Espace employé(e)</div>
+        <button data-page="dashboard">📊 Dashboard</button>
+        <button data-page="service">🟢 Service</button>
+        <button data-page="patients">🏥 Patients</button>
+        <button data-page="interventions">🚑 Interventions</button>
+        <button data-page="frais">💰 Frais & Factures</button>
+        <button id="gestionRdvNav" data-page="gestion-rdv">📅 Gestion RDV<span id="gestionRdvBadge" class="nav-badge hidden">0</span></button>
+        <button id="directorNav" data-page="director" class="hidden">👑 Direction</button>
+      </div>
+    </nav>
+
+    <button class="logout" onclick="window.location='/auth/logout'">Déconnexion</button>
+  </aside>
+
+  <main class="content">
+
+    <!-- DASHBOARD -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-title">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Vue générale de l'activité NYPH.</p>
+        </div>
+      </div>
+
+      <div class="service-box" id="profileBox">
+        <div class="card-label" style="margin-bottom:10px;">Profil</div>
+
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <div style="font-size:13px;color:var(--gray)">
+            Membre : <strong style="color:white" id="profileUsername">—</strong>
+          </div>
+          <div id="profileJobStatic" class="hidden" style="font-size:13px;color:var(--gray)">—</div>
+          <div id="profileGradeStatic" class="hidden" style="font-size:13px;color:var(--gray)">—</div>
+        </div>
+
+        <div class="form-grid" id="profileEditGrid" style="margin-top:10px;">
+          <div class="field">
+            <label>Métier</label>
+            <input id="profileJob" placeholder="Ex : Médecin urgentiste">
+          </div>
+          <div class="field">
+            <label>Grade</label>
+            <input id="profileGrade" placeholder="Ex : Chef de service">
+          </div>
+        </div>
+
+        <button class="btn btn-red btn-sm" id="profileSaveBtn" style="margin-top:10px;" onclick="saveProfile()">Enregistrer le profil</button>
+        <div style="color:var(--gray);font-size:11px;margin-top:8px;" id="profileDirectorNote"></div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-label">Effectif NYPH</div>
+          <div class="card-value" id="statMembers">0</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Patients</div>
+          <div class="card-value" id="statPatients">0</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Interventions</div>
+          <div class="card-value" id="statInterventions">0</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Interventions cette semaine</div>
+          <div class="card-value" id="statWeeklyInterventions">0</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <div class="service-box">
+          <div class="card-label" style="margin-bottom:4px;">Activité par semaine</div>
+          <div class="week-chart" id="weekChart"></div>
+        </div>
+
+        <div class="service-box">
+          <div class="card-label" style="margin-bottom:14px;">Top 10 des actes / soins les plus réalisés</div>
+          <div class="rank-list" id="topCareItems">
+            <div class="empty">Aucune donnée pour le moment.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="service-box">
+        <div class="card-label" style="margin-bottom:4px;">Répartition par employé (cette semaine)</div>
+        <div style="color:var(--gray);font-size:12px;margin-bottom:10px;">Se réactualise automatiquement chaque semaine.</div>
+        <div class="rank-list" id="employeeDistribution">
+          <div class="empty">Aucune intervention cette semaine.</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SERVICE (fusionné avec "Mon activité") -->
+    <section class="page" id="page-service">
+      <div class="page-title">
+        <div>
+          <h2>Service</h2>
+          <p>Gestion de ta présence NYPH et de ton activité.</p>
+        </div>
+      </div>
+
+      <div class="service-box">
+        <div class="service-status">
+          <div>
+            <div>
+              <span id="serviceDot" class="status-dot"></span>
+              <strong id="serviceText">Hors service</strong>
+            </div>
+            <div id="serviceStarted" style="color:#999;margin-top:8px;">—</div>
+          </div>
+          <button class="btn btn-red" id="serviceButton" onclick="toggleService()">Prendre mon service</button>
+        </div>
+      </div>
+
+      <div class="cards" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+        <div class="card">
+          <div class="card-label">Total cumulé</div>
+          <div class="card-value" id="personalTotal">0h</div>
+        </div>
+        <div class="card">
+          <div class="card-label">7 derniers jours</div>
+          <div class="card-value" id="personalWeek">0h</div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Début</th>
+              <th>Fin</th>
+              <th>Durée</th>
+              <th id="serviceActionsHeader" class="hidden">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="serviceHistory"></tbody>
+        </table>
+      </div>
+
+      <br>
+
+      <div class="service-box">
+        <div class="card-label" style="margin-bottom:14px;">Services par semaine</div>
+        <div class="toolbar" style="margin-bottom:16px;">
+          <select id="weekSelector" onchange="loadWeekSelection()"></select>
+          <div style="color:var(--gray);font-size:13px;" id="weekSelectorRange">—</div>
+        </div>
+
+        <div class="cards" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:16px;">
+          <div class="card">
+            <div class="card-label">Total sur la semaine sélectionnée</div>
+            <div class="card-value" id="weekSelectionTotal">0h</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Nombre de services</div>
+            <div class="card-value" id="weekSelectionCount">0</div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Durée</th>
+              </tr>
+            </thead>
+            <tbody id="weekSelectionHistory">
+              <tr><td colspan="3" class="empty">Sélectionne une semaine.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PATIENTS -->
+    <section class="page" id="page-patients">
+      <div class="page-title">
+        <div>
+          <h2>Dossiers patients</h2>
+          <p>Gestion des dossiers médicaux NYPH.</p>
+        </div>
+        <div class="page-title-actions">
+          <button class="btn btn-dark" onclick="openInterventionModal()">🚑 Nouvelle Intervention</button>
+          <button class="btn btn-red" onclick="openNewPatientModal()">➕ Nouveau Patient</button>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:260px;margin-bottom:20px;">
+        <div class="card-label">Dossiers médicaux</div>
+        <div class="card-value" id="patientsCount">0</div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="patientSearch" placeholder="Rechercher un patient..." oninput="renderPatients()">
+
+        <select id="filterType" onchange="renderPatients()">
+          <option value="">Tous les types</option>
+          <option value="Patient">Patient</option>
+          <option value="Mort">Mort</option>
+        </select>
+
+        <select id="filterBlood" onchange="renderPatients()">
+          <option value="">Tous les groupes</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option>
+          <option>O+</option><option>O-</option>
+          <option>En attente d'analyse</option>
+        </select>
+      </div>
+
+      <div class="patient-list" id="patientsList"></div>
+    </section>
+
+    <!-- INTERVENTIONS -->
+    <section class="page" id="page-interventions">
+      <div class="page-title">
+        <div>
+          <h2>Interventions</h2>
+          <p>Détail de chaque intervention : consultation, modification, suppression.</p>
+        </div>
+        <div class="page-title-actions">
+          <button class="btn btn-red" onclick="openInterventionModal()">🚑 Nouvelle Intervention</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="interventionSearch" placeholder="Rechercher une intervention..." oninput="renderInterventionsList()">
+      </div>
+
+      <div class="activity-list" id="interventionsList">
+        <div class="empty">Chargement...</div>
+      </div>
+    </section>
+
+    <!-- FRAIS & FACTURES -->
+    <section class="page" id="page-frais">
+      <div class="page-title">
+        <div>
+          <h2>Notes de frais & Factures</h2>
+          <p>Gestion de tes notes de frais et de la facturation NYPH.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- NOTES DE FRAIS -->
+        <div>
+          <div class="form">
+            <div class="card-label" style="margin-bottom:14px;">Ajouter une dépense - aujourd'hui</div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Catégorie</label>
+                <select id="expenseCategory" onchange="onExpenseCategoryChange()">
+                  <option value="">— Sélectionner —</option>
+                  <option>Essence</option>
+                  <option>Menus</option>
+                  <option>Réapprovisionnement</option>
+                  <option>Permis</option>
+                  <option>Autre</option>
+                </select>
+              </div>
+              <div class="field" id="expenseReasonField" style="display:none;">
+                <label>Préciser le motif</label>
+                <input type="text" id="expenseReason" placeholder="Motif">
+              </div>
+              <div class="field">
+                <label>Montant ($)</label>
+                <input type="number" step="0.01" id="expenseAmount" placeholder="0.00">
+              </div>
+            </div>
+            <button class="btn btn-red btn-sm" style="margin-top:14px;" onclick="submitExpense()">Ajouter</button>
+          </div>
+
+          <div class="card-label" style="margin-bottom:14px;">Mes notes de frais</div>
+          <div id="expensesList">
+            <div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>
+          </div>
+        </div>
+
+        <!-- NOUVELLE FACTURE -->
+        <div>
+          <div class="form">
+  <div class="card-label" style="margin-bottom:6px;">Nouvelle facture</div>
+  <div style="color:var(--gray);font-size:12px;margin-bottom:14px;">Enregistrez une ou plusieurs factures de service à destination d'un service partenaire (NYPH).</div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Service destinataire</label>
+      <select id="invoiceService">
+        <option value="">— Sélectionner un service —</option>
+        <option>NYPD</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Matricule</label>
+      <input type="text" id="invoiceMatricule" placeholder="Matricule">
+    </div>
+  </div>
+
+  <br>
+  <div class="card-label" style="margin-bottom:10px;">Motifs (sélection multiple)</div>
+  <div class="care-list" id="invoiceMotifList"></div>
+
+  <br>
+  <div class="card-label" style="margin-bottom:10px;">Lignes libres</div>
+  <div id="invoiceBillingRows"></div>
+  <button type="button" class="btn btn-dark btn-sm" onclick="addInvoiceBillingRow()">+ Ajouter une ligne</button>
+
+  <div class="total-box">
+    <div class="card-label" style="margin-bottom:0;">Total de la facture</div>
+    <div class="total-amount" id="invoiceTotal">$0,00</div>
+  </div>
+
+  <button class="btn btn-red btn-sm" style="margin-top:14px;" onclick="submitInvoice()">Enregistrer la/les facture(s)</button>
+</div>
+
+      </div>
+    </section>
+
+    <!-- GESTION RENDEZ-VOUS (staff) -->
+    <section class="page" id="page-gestion-rdv">
+      <div class="page-title">
+        <div>
+          <h2>Gestion des rendez-vous</h2>
+          <p>Traitement des demandes de rendez-vous des citoyens.</p>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-rdvtab="pending" onclick="switchRdvTab('pending')">RDV à traiter</button>
+        <button class="tab-btn" data-rdvtab="done" onclick="switchRdvTab('done')">RDV traité</button>
+      </div>
+
+      <div class="activity-list" id="gestionRdvList">
+        <div class="empty">Chargement...</div>
+      </div>
+    </section>
+
+    <!-- DIRECTION -->
+    <section class="page" id="page-director">
+      <div class="page-title">
+        <div>
+          <h2>Direction</h2>
+          <p>Gestion de l'activité et des profils du personnel NYPH.</p>
+        </div>
+      </div>
+
+      <div class="table-container table-scroll">
+        <table>
+          <colgroup>
+            <col style="width:22%">
+            <col style="width:18%">
+            <col style="width:18%">
+            <col style="width:10%">
+            <col style="width:12%">
+            <col style="width:20%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Membre</th>
+              <th>Métier</th>
+              <th>Grade</th>
+              <th>Services</th>
+              <th>Total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directorTable"></tbody>
+        </table>
+      </div>
+
+      <br>
+
+      <div id="directorServicesBox" class="table-container hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #292929;">
+          <strong id="directorServicesTitle">Services du membre</strong>
+          <button class="btn btn-dark" onclick="closeDirectorServices()">✕ Fermer</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Membre</th>
+              <th>Début</th>
+              <th>Fin</th>
+              <th>Durée</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directorServicesTable"></tbody>
+        </table>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="page-title">
+        <div>
+          <h2 style="font-size:22px;">Factures NYPH</h2>
+          <p>Toutes les factures enregistrées par le personnel NYPH.</p>
+        </div>
+      </div>
+
+      <div class="table-container table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Employé</th>
+              <th>Service</th>
+              <th>Matricule</th>
+              <th>Motif</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directorInvoicesTable">
+            <tr><td colspan="7" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="page-title">
+        <div>
+          <h2 style="font-size:22px;">Candidatures</h2>
+          <p>Candidatures reçues via l'espace citoyen. Clique sur un texte long pour le zoomer.</p>
+        </div>
+      </div>
+
+      <div class="table-container table-scroll no-truncate">
+        <table>
+          <colgroup>
+            <col style="width:16%">
+            <col style="width:12%">
+            <col style="width:12%">
+            <col style="width:22%">
+            <col style="width:22%">
+            <col style="width:10%">
+            <col style="width:6%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Date de naissance</th>
+              <th>Téléphone</th>
+              <th>Expérience médicale</th>
+              <th>Motivations</th>
+              <th>Reçue le</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="applicationsTable">
+            <tr><td colspan="7" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- RENDEZ-VOUS (citoyen + staff) -->
+    <section class="page" id="page-rdv">
+      <div class="page-title">
+        <div>
+          <h2>Prendre rendez-vous en ligne</h2>
+          <p>Prenez rendez-vous avec l'un de nos médecins.</p>
+        </div>
+      </div>
+
+      <div class="form">
+        <form onsubmit="submitAppointmentForm(event)">
+          <div class="form-grid">
+            <div class="field">
+              <label>Créneau souhaité n°1</label>
+              <input type="datetime-local" id="rdvSlot1" required>
+            </div>
+            <div class="field">
+              <label>Créneau souhaité n°2</label>
+              <input type="datetime-local" id="rdvSlot2">
+            </div>
+            <div class="field">
+              <label>Numéro de téléphone</label>
+              <input type="tel" id="rdvPhone" placeholder="Ex : 555-0100">
+            </div>
+            <div class="field full">
+              <label>Motif</label>
+              <textarea id="rdvMotif" placeholder="Décrivez brièvement le motif de votre rendez-vous"></textarea>
+            </div>
+          </div>
+          <br>
+          <button class="btn btn-red">Prendre rendez-vous</button>
+        </form>
+      </div>
+
+      <div class="card-label" style="margin-bottom:14px;">Mes rendez-vous (<span id="myRdvCount">0</span>)</div>
+
+      <div class="table-container table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Identifiant</th>
+              <th>Créé le</th>
+              <th>Créneau 1</th>
+              <th>Créneau 2</th>
+              <th>Créneau confirmé</th>
+              <th>Téléphone</th>
+              <th>Motif</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="myRdvTable">
+            <tr><td colspan="8" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CANDIDATURE (citoyen) -->
+    <section class="page" id="page-candidature">
+      <div class="page-title">
+        <div>
+          <h2>Candidature</h2>
+          <p>Rejoignez les équipes de NewYork - Presbyterian Hospital.</p>
+        </div>
+      </div>
+
+      <div class="form">
+        <form onsubmit="submitApplicationForm(event)">
+          <div class="card-label" style="margin-bottom:10px;">Candidat</div>
+          <div class="form-grid">
+            <div class="field"><label>Nom</label><input id="appLastName" required></div>
+            <div class="field"><label>Prénom</label><input id="appFirstName" required></div>
+            <div class="field"><label>Date de naissance</label><input type="date" id="appBirthDate"></div>
+            <div class="field"><label>Téléphone</label><input id="appPhone"></div>
+          </div>
+
+          <br>
+          <div class="card-label" style="margin-bottom:10px;">Dites-nous en plus…</div>
+
+          <div class="field full" style="margin-bottom:15px;">
+            <label>Avez-vous des expériences dans le médical ?</label>
+            <textarea id="appExperience" maxlength="3000" oninput="updateAppCharCount('appExperience','appExperienceCount')"></textarea>
+            <div class="char-count"><span id="appExperienceCount">0</span>/3000 caractères</div>
+          </div>
+
+          <div class="field full" style="margin-bottom:15px;">
+            <label>Quelles sont vos motivations, attentes et disponibilités ?</label>
+            <textarea id="appMotivation" maxlength="3000" oninput="updateAppCharCount('appMotivation','appMotivationCount')"></textarea>
+            <div class="char-count"><span id="appMotivationCount">0</span>/3000 caractères</div>
+          </div>
+
+          <button class="btn btn-red">Soumettre la candidature</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</section>
+
+<!-- MODAL : NOUVEAU / MODIFIER PATIENT -->
+<div class="modal-overlay" id="patientModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="patientModalTitle">Nouveau patient</h3>
+      <button class="modal-close" onclick="closeModal('patientModal')">✕</button>
+    </div>
+
+    <form onsubmit="submitPatientForm(event)">
+      <input type="hidden" id="patientId">
+
+      <div class="form-grid">
+        <div class="field"><label>Prénom</label><input id="patientFirst" required></div>
+        <div class="field"><label>Nom</label><input id="patientLast" required></div>
+        <div class="field"><label>Date de naissance</label><input type="date" id="patientBirth"></div>
+        <div class="field">
+          <label>Sexe</label>
+          <select id="patientSex">
+            <option value="">Non renseigné</option>
+            <option>Homme</option>
+            <option>Femme</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field"><label>Numéro de téléphone</label><input id="patientPhone"></div>
+        <div class="field"><label>Contact d'urgence</label><input id="patientEmergency"></div>
+        <div class="field">
+          <label>Groupe sanguin</label>
+          <select id="patientBlood">
+            <option value="">Non renseigné</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option>
+            <option>O+</option><option>O-</option>
+            <option>En attente d'analyse</option>
+          </select>
+        </div>
+        <div class="field"><label>Taille</label><input id="patientHeight" placeholder="Ex : 178 cm"></div>
+        <div class="field"><label>Poids</label><input id="patientWeight" placeholder="Ex : 74 kg"></div>
+        <div class="field full">
+          <label>Allergies / Traitements en cours</label>
+          <textarea id="patientAllergies"></textarea>
+        </div>
+        <div class="field full">
+          <label>Notes</label>
+          <textarea id="patientNotes"></textarea>
+        </div>
+      </div>
+
+      <br>
+      <button class="btn btn-red">Enregistrer</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL : DÉTAILS PATIENT -->
+<div class="modal-overlay" id="detailsModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h3 id="detailsTitle">Dossier patient</h3>
+      <button class="modal-close" onclick="closeModal('detailsModal')">✕</button>
+    </div>
+
+    <div class="patient-grid" id="detailsInfo"></div>
+
+    <div class="patient-actions" style="margin-bottom:20px;">
+      <button class="btn btn-outline btn-sm" id="detailsStatusBtn" onclick="toggleDetailsStatus()"></button>
+      <button class="btn btn-dark btn-sm" onclick="openInterventionModal(currentDetailsPatientId)">🚑 Nouvelle intervention</button>
+      <button class="btn-delete hidden" id="detailsDeleteBtn" onclick="deletePatientFromDetails()">🗑️ Supprimer le dossier</button>
+    </div>
+
+    <div class="card-label" style="margin-bottom:10px;">Interventions</div>
+    <div class="activity-list" id="detailsInterventions"></div>
+  </div>
+</div>
+
+<!-- MODAL : NOUVELLE / MODIFIER INTERVENTION -->
+<div class="modal-overlay" id="interventionModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h3 id="interventionModalTitle">Nouvelle intervention</h3>
+      <button class="modal-close" onclick="closeModal('interventionModal')">✕</button>
+    </div>
+
+    <form onsubmit="submitInterventionForm(event)">
+      <input type="hidden" id="interventionId">
+
+      <div class="form-grid">
+        <div class="field full patient-search-box">
+          <label>Patient (dossier médical)</label>
+          <input type="text" id="interventionPatientSearch" placeholder="Rechercher un patient par nom..."
+                 autocomplete="off" oninput="onInterventionPatientInput()" onfocus="onInterventionPatientInput()">
+          <input type="hidden" id="interventionPatientId" value="">
+          <div id="interventionPatientResults" class="patient-search-results hidden"></div>
+          <div id="interventionPatientChip" class="hidden"></div>
+        </div>
+
+        <div class="field full"><label>Titre de l'intervention</label><input id="interventionTitle" required placeholder="Ex : Accident routier"></div>
+
+        <div class="field full">
+          <label>Détails, prescription, soins réalisés, commentaires</label>
+          <textarea id="interventionComments" maxlength="10000" oninput="updateCommentCount()"></textarea>
+          <div class="char-count"><span id="commentCount">0</span>/10000</div>
+        </div>
+
+        <div class="field full">
+          <label>Image (optionnel)</label>
+          <input type="file" id="interventionImageInput" accept="image/*" onchange="onInterventionImageChange(event)">
+          <div id="interventionImagePreviewBox" class="image-preview-box hidden" style="margin-top:10px;">
+            <img id="interventionImagePreview" alt="Aperçu">
+            <button type="button" class="btn btn-dark btn-sm" style="margin-top:8px;" onclick="removeInterventionImage()">✕ Retirer l'image</button>
+          </div>
+        </div>
+      </div>
+
+      <br>
+
+      <div class="card-label" style="margin-bottom:10px;">Soins communs</div>
+      <div class="care-list" id="careList"></div>
+
+      <br>
+
+      <div class="card-label" style="margin-bottom:10px;">Facturation libre</div>
+      <div id="billingRows"></div>
+      <button type="button" class="btn btn-dark btn-sm" onclick="addBillingRow()">+ Ajouter une ligne</button>
+
+      <div class="total-box">
+        <div>
+          <div class="card-label" style="margin-bottom:6px;">Total de la facture</div>
+          <div class="checkbox-line">
+            <input type="checkbox" id="interventionOfficial">
+            <label for="interventionOfficial" style="margin:0;">Soins pour un fonctionnaire (Frais remboursés)</label>
+          </div>
+        </div>
+        <div class="total-amount" id="interventionTotal">$0,00</div>
+      </div>
+
+      <div style="color:var(--gray);font-size:12px;margin-bottom:14px;" id="interventionAutoInfo"></div>
+
+      <button class="btn btn-red" id="interventionSubmitBtn">Enregistrer l'intervention</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL : DÉTAILS INTERVENTION -->
+<div class="modal-overlay" id="interventionDetailsModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h3 id="interventionDetailsTitle">Intervention</h3>
+      <button class="modal-close" onclick="closeModal('interventionDetailsModal')">✕</button>
+    </div>
+
+    <div class="patient-grid" id="interventionDetailsInfo"></div>
+
+    <div id="interventionDetailsImageBox" class="hidden" style="margin:16px 0;">
+      <div class="intervention-image-row">
+        <img id="interventionDetailsImage" class="intervention-image-thumb" alt="Image de l'intervention"
+             onclick="openImageLightbox(document.getElementById('interventionDetailsImage').src)">
+        <button type="button" class="btn btn-dark btn-sm" onclick="openImageLightbox(document.getElementById('interventionDetailsImage').src)">🔍 Voir en grand</button>
+      </div>
+    </div>
+
+    <div class="card-label" style="margin:16px 0 8px;">Détails, prescription, soins réalisés, commentaires</div>
+    <div id="interventionDetailsComments" style="font-size:14px;color:#ddd;white-space:pre-wrap;line-height:1.5;">—</div>
+
+    <div class="patient-actions" style="margin-top:22px;">
+      <button class="btn btn-dark btn-sm" onclick="editInterventionFromDetails()">✏️ Modifier</button>
+      <button class="btn-delete hidden" id="interventionDeleteBtn" onclick="deleteInterventionFromDetails()">🗑️ Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : TEXTE ZOOMÉ (candidatures) -->
+<div class="modal-overlay" id="textZoomModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="textZoomTitle">Texte</h3>
+      <button class="modal-close" onclick="closeModal('textZoomModal')">✕</button>
+    </div>
+    <div class="text-zoom-body" id="textZoomBody"></div>
+  </div>
+</div>
+
+<!-- MODAL : CONFIRMATION DE SUPPRESSION -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-head">
+      <h3 id="confirmModalTitle">Confirmer la suppression</h3>
+      <button class="modal-close" onclick="closeConfirmModal(false)">✕</button>
+    </div>
+    <div id="confirmModalBody" style="color:#ddd;font-size:14px;line-height:1.6;white-space:pre-wrap;margin-bottom:22px;"></div>
+    <div class="patient-actions" style="justify-content:flex-end;">
+      <button class="btn btn-dark btn-sm" onclick="closeConfirmModal(false)">Annuler</button>
+      <button class="btn-delete btn-sm" onclick="closeConfirmModal(true)">🗑️ Confirmer la suppression</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX IMAGE (voir en grand) -->
+<div class="lightbox-overlay" id="imageLightbox">
+  <button class="lightbox-close" onclick="closeImageLightbox()">✕</button>
+  <img id="imageLightboxImg" alt="Image en grand">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+let currentUser = null;
+let currentService = null;
+let patients = [];
+let careCatalog = [];
+let invoiceCatalog = [];
+let interventions = [];
+let editingPatientId = null;
+let currentDetailsPatientId = null;
+let editingInterventionId = null;
+let currentInterventionDetailsId = null;
+let interventionImageData = null;
+let availableWeeks = [];
+let myAppointments = [];
+let gestionRdvAll = [];
+let gestionRdvTab = "pending";
+let emsMembersForAssign = [];
+let sessionCheckInterval = null;
+
+/* ========================= API ========================= */
+
+async function api(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Erreur serveur");
+  return data;
+}
+
+/* ========================= TOAST ========================= */
+
+function toast(message) {
+  const el = document.getElementById("toast");
+  el.textContent = message;
+  el.style.display = "block";
+  setTimeout(() => { el.style.display = "none"; }, 3000);
+}
+
+/* ========================= FORMAT ========================= */
+
+function duration(seconds) {
+  seconds = Number(seconds || 0);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+}
+
+function date(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleString("fr-FR");
+}
+
+function dateOnly(value) {
+  if (!value) return "—";
+  return new Date(`${value}T00:00:00`).toLocaleDateString("fr-FR");
+}
+
+function money(value) {
+  const n = Number(value || 0);
+  return `$${n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+/* ========================= MODALS ========================= */
+
+function openModal(id) { document.getElementById(id).classList.add("open"); }
+function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+document.querySelectorAll(".modal-overlay").forEach(overlay => {
+  overlay.addEventListener("click", e => {
+    if (e.target !== overlay) return;
+    if (overlay.id === "confirmModal") {
+      closeConfirmModal(false);
+    } else {
+      overlay.classList.remove("open");
+    }
+  });
+});
+
+/* ========================= CONFIRMATION DE SUPPRESSION (design du site) ========================= */
+
+let confirmModalResolver = null;
+
+function askConfirm(message, title = "Confirmer la suppression") {
+  return new Promise(resolve => {
+    confirmModalResolver = resolve;
+    document.getElementById("confirmModalTitle").textContent = title;
+    document.getElementById("confirmModalBody").textContent = message;
+    openModal("confirmModal");
+  });
+}
+
+function closeConfirmModal(result) {
+  closeModal("confirmModal");
+  if (confirmModalResolver) {
+    const resolve = confirmModalResolver;
+    confirmModalResolver = null;
+    resolve(result);
+  }
+}
+
+/* ========================= ZOOM TEXTE (candidatures) ========================= */
+
+function zoomText(title, content) {
+  document.getElementById("textZoomTitle").textContent = title;
+  document.getElementById("textZoomBody").textContent = content || "—";
+  openModal("textZoomModal");
+}
+
+/* ========================= LIGHTBOX ========================= */
+
+function openImageLightbox(src) {
+  if (!src) return;
+  document.getElementById("imageLightboxImg").src = src;
+  document.getElementById("imageLightbox").classList.add("open");
+}
+function closeImageLightbox() {
+  document.getElementById("imageLightbox").classList.remove("open");
+  document.getElementById("imageLightboxImg").src = "";
+}
+document.getElementById("imageLightbox").addEventListener("click", e => {
+  if (e.target.id === "imageLightbox") closeImageLightbox();
+});
+
+/* ========================= NAVIGATION ========================= */
+
+document.querySelectorAll("nav button[data-page]").forEach(button => {
+  button.addEventListener("click", () => {
+    const page = button.dataset.page;
+
+    document.querySelectorAll("nav button[data-page]").forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(`page-${page}`).classList.add("active");
+
+    if (page === "dashboard") loadDashboard();
+    if (page === "service") loadService();
+    if (page === "patients") loadPatients();
+    if (page === "interventions") loadInterventions();
+    if (page === "frais") loadFrais();
+    if (page === "director") { loadDirector(); loadApplications(); loadDirectorInvoices(); }
+    if (page === "gestion-rdv") loadGestionRdv();
+    if (page === "rdv") loadMyAppointments();
+    if (page === "candidature") { /* nothing to preload */ }
+  });
+});
+
+function goToPage(page) {
+  document.querySelectorAll("nav button[data-page]").forEach(b => b.classList.remove("active"));
+  const navBtn = document.querySelector(`nav button[data-page="${page}"]`);
+  if (navBtn) navBtn.classList.add("active");
+
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const pageEl = document.getElementById(`page-${page}`);
+  if (pageEl) pageEl.classList.add("active");
+}
+
+/* ========================= SESSION LIVE CHECK =========================
+   Vérifie régulièrement auprès du serveur (qui interroge Discord) que
+   l'utilisateur possède toujours les rôles nécessaires. Si le rôle NYPH
+   (ou citoyen) a été retiré sur Discord entre-temps, on déconnecte
+   immédiatement la personne côté site, sans qu'elle ait besoin de
+   recharger la page elle-même.
+*/
+
+function startSessionWatcher() {
+  if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+  sessionCheckInterval = setInterval(checkSessionStillValid, 20000);
+}
+
+async function checkSessionStillValid() {
+  try {
+    const response = await fetch("/api/session/check");
+    if (response.status === 401 || response.status === 403) {
+      clearInterval(sessionCheckInterval);
+      window.location.reload();
+      return;
+    }
+    const data = await response.json().catch(() => ({}));
+    // Si le rôle a changé (perte du rôle NYPH/Directeur/Citoyen),
+    // le serveur a déjà détruit la session : on recharge pour
+    // repartir sur l'écran de connexion.
+    if (data && data.roleChanged) {
+      window.location.reload();
+    }
+  } catch {
+    /* pas de coupure de connexion pour une erreur réseau ponctuelle */
+  }
+}
+
+/* ========================= USER ========================= */
+
+async function loadUser() {
+  try {
+    const data = await api("/api/me");
+    currentUser = data.user;
+
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    const displayName = currentUser.nickname || currentUser.username;
+
+    document.getElementById("username").textContent = displayName;
+
+    const avatar = document.getElementById("avatar");
+    if (currentUser.avatar) {
+      avatar.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${currentUser.discord_id}/${currentUser.avatar}.png" alt="Avatar">`;
+    } else {
+      avatar.textContent = displayName.charAt(0).toUpperCase();
+    }
+
+    if (currentUser.is_ems || currentUser.is_director) {
+      /* Staff : accès complet (Services + Espace employé(e)) */
+      document.getElementById("staffNavSection").classList.remove("hidden");
+
+      document.getElementById("profileUsername").textContent = displayName;
+      document.getElementById("profileJob").value = currentUser.job || "";
+      document.getElementById("profileGrade").value = currentUser.grade || "";
+      document.getElementById("profileJobStatic").textContent = currentUser.job || "—";
+      document.getElementById("profileGradeStatic").textContent = currentUser.grade || "—";
+
+      /* Seul le Directeur peut modifier son profil depuis le Dashboard */
+      const isDirector = !!currentUser.is_director;
+      document.getElementById("profileEditGrid").classList.toggle("hidden", !isDirector);
+      document.getElementById("profileJobStatic").classList.toggle("hidden", isDirector);
+      document.getElementById("profileGradeStatic").classList.toggle("hidden", isDirector);
+      document.getElementById("profileSaveBtn").classList.toggle("hidden", !isDirector);
+
+      document.getElementById("profileDirectorNote").textContent =
+        isDirector
+          ? "En tant que Directeur, tu peux aussi modifier le profil des autres employés depuis l'onglet Direction."
+          : "Seul le Directeur peut modifier le métier et le grade.";
+
+      if (currentUser.is_director) {
+        document.getElementById("directorNav").classList.remove("hidden");
+        document.getElementById("serviceActionsHeader").classList.remove("hidden");
+      }
+
+      const catalogData = await api("/api/care-catalog");
+      careCatalog = catalogData.catalog;
+      invoiceCatalog = catalogData.catalog;
+      renderCareList();
+      renderInvoiceMotifOptions();
+
+      // Page par défaut pour le personnel : Dashboard
+      goToPage("dashboard");
+
+      await loadPatients();
+      await loadDashboard();
+      await loadService();
+      await refreshGestionRdvBadge();
+
+    } else {
+      /* Citoyen : accès uniquement à l'espace Services */
+      document.getElementById("staffNavSection").classList.add("hidden");
+
+      goToPage("rdv");
+
+      await loadMyAppointments();
+    }
+
+    startSessionWatcher();
+
+  } catch {
+    document.getElementById("login").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+  }
+}
+
+async function saveProfile() {
+  try {
+    await api("/api/me", {
+      method: "PUT",
+      body: JSON.stringify({
+        job: document.getElementById("profileJob").value,
+        grade: document.getElementById("profileGrade").value
+      })
+    });
+    toast("Profil mis à jour.");
+    document.getElementById("profileJobStatic").textContent = document.getElementById("profileJob").value || "—";
+    document.getElementById("profileGradeStatic").textContent = document.getElementById("profileGrade").value || "—";
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= DASHBOARD ========================= */
+
+async function loadDashboard() {
+  try {
+    const data = await api("/api/dashboard");
+
+    document.getElementById("statMembers").textContent = data.members;
+    document.getElementById("statPatients").textContent = data.patients;
+    document.getElementById("statInterventions").textContent = data.interventions;
+    document.getElementById("statWeeklyInterventions").textContent = data.weeklyInterventionsCount;
+
+    const chart = document.getElementById("weekChart");
+    chart.innerHTML = "";
+    const max = Math.max(1, ...data.weeklyActivity.map(d => d.count));
+
+    data.weeklyActivity.forEach(day => {
+      const wrap = document.createElement("div");
+      wrap.className = "week-bar-wrap";
+      const heightPct = Math.max(4, (day.count / max) * 100);
+      wrap.innerHTML = `
+        <div class="week-bar-count">${day.count}</div>
+        <div class="week-bar" style="height:${heightPct}%;"></div>
+        <div class="week-bar-label">${day.label}</div>
+      `;
+      chart.appendChild(wrap);
+    });
+
+    const topCareBox = document.getElementById("topCareItems");
+    topCareBox.innerHTML = "";
+
+    if (!data.topCareItems.length) {
+      topCareBox.innerHTML = `<div class="empty">Aucune donnée pour le moment.</div>`;
+    }
+
+    data.topCareItems.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = "rank-row";
+      row.innerHTML = `
+        <div class="rank-num">${index + 1}</div>
+        <div class="rank-label">${escapeHtml(item.key)}</div>
+        <div class="rank-count">${item.count} interv.</div>
+      `;
+      topCareBox.appendChild(row);
+    });
+
+    const employeeBox = document.getElementById("employeeDistribution");
+    employeeBox.innerHTML = "";
+
+    if (!data.employeeDistribution.length) {
+      employeeBox.innerHTML = `<div class="empty">Aucune intervention cette semaine.</div>`;
+    }
+
+    data.employeeDistribution.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = "rank-row";
+      row.innerHTML = `
+        <div class="rank-num">${index + 1}</div>
+        <div class="rank-label">${escapeHtml(item.name)}</div>
+        <div class="rank-count">${item.count} interv.</div>
+      `;
+      employeeBox.appendChild(row);
+    });
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+/* ========================= SERVICE (+ activité) ========================= */
+
+async function loadService() {
+  try {
+    const data = await api("/api/service/current");
+    currentService = data.service;
+    updateServiceUI();
+
+    const stats = await api("/api/stats");
+
+    document.getElementById("personalTotal").textContent = duration(stats.totalSeconds);
+    document.getElementById("personalWeek").textContent = duration(stats.weekSeconds);
+
+    const tbody = document.getElementById("serviceHistory");
+    tbody.innerHTML = "";
+
+    stats.services.forEach(service => {
+      const tr = document.createElement("tr");
+      let actions = "";
+      if (currentUser?.is_director) {
+        actions = `<td><button class="btn-delete" onclick="deleteService(${service.id})">🗑️ Supprimer</button></td>`;
+      }
+      tr.innerHTML = `
+        <td>${date(service.started_at)}</td>
+        <td>${date(service.ended_at)}</td>
+        <td>${duration(service.duration)}</td>
+        ${actions}
+      `;
+      tbody.appendChild(tr);
+    });
+
+    await loadAvailableWeeks();
+
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function updateServiceUI() {
+  const online = !!currentService;
+
+  document.getElementById("serviceDot").classList.toggle("online", online);
+  document.getElementById("serviceText").textContent = online ? "En service" : "Hors service";
+  document.getElementById("serviceStarted").textContent = online ? `Début : ${date(currentService.started_at)}` : "—";
+
+  const text = online ? "Terminer mon service" : "Prendre mon service";
+  const btn = document.getElementById("serviceButton");
+  btn.textContent = text;
+  btn.className = online ? "btn btn-dark" : "btn btn-red";
+}
+
+async function toggleService() {
+  try {
+    if (currentService) {
+      await api("/api/service/stop", { method: "POST" });
+      toast("Service terminé.");
+    } else {
+      await api("/api/service/start", { method: "POST" });
+      toast("Service commencé.");
+    }
+    await loadService();
+    await loadDashboard();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteService(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer le service #${id} ?\n\nCette action est définitive.`);
+  if (!ok) return;
+
+  try {
+    await api(`/api/director/services/${id}`, { method: "DELETE" });
+    toast("Service supprimé.");
+    await loadService();
+    await loadDashboard();
+    await loadDirector();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ---- Services par semaine (sélecteur, à partir de la semaine 33) ---- */
+
+async function loadAvailableWeeks() {
+  try {
+    const data = await api("/api/stats/weeks");
+    availableWeeks = data.weeks;
+
+    const select = document.getElementById("weekSelector");
+    select.innerHTML = "";
+
+    availableWeeks.forEach(w => {
+      const option = document.createElement("option");
+      option.value = `${w.year}-${w.week}`;
+      option.textContent = `Semaine ${w.week} (${w.year})`;
+      select.appendChild(option);
+    });
+
+    if (availableWeeks.length) {
+      select.value = `${data.current.year}-${data.current.week}`;
+      await loadWeekSelection();
+    }
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function loadWeekSelection() {
+  const select = document.getElementById("weekSelector");
+  if (!select.value) return;
+
+  const [year, week] = select.value.split("-").map(Number);
+
+  try {
+    const data = await api(`/api/stats/week?year=${year}&week=${week}`);
+
+    document.getElementById("weekSelectorRange").textContent =
+      `Du ${dateOnly(data.weekStart)} au ${dateOnly(new Date(new Date(data.weekEnd).getTime() - 86400000).toISOString().slice(0,10))}`;
+
+    document.getElementById("weekSelectionTotal").textContent = duration(data.totalSeconds);
+    document.getElementById("weekSelectionCount").textContent = data.services.length;
+
+    const tbody = document.getElementById("weekSelectionHistory");
+    tbody.innerHTML = "";
+
+    if (!data.services.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="empty">Aucun service pris cette semaine-là.</td></tr>`;
+      return;
+    }
+
+    data.services.forEach(service => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${date(service.started_at)}</td>
+        <td>${date(service.ended_at)}</td>
+        <td>${duration(service.duration)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= PATIENTS ========================= */
+
+async function loadPatients() {
+  try {
+    const data = await api("/api/patients");
+    patients = data.patients;
+
+    const countEl = document.getElementById("patientsCount");
+    if (countEl) countEl.textContent = patients.length;
+
+    renderPatients();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function renderPatients() {
+  const listEl = document.getElementById("patientsList");
+  if (!listEl) return;
+
+  const search = document.getElementById("patientSearch").value.trim().toLowerCase();
+  const type = document.getElementById("filterType").value;
+  const blood = document.getElementById("filterBlood").value;
+
+  const filtered = patients.filter(p => {
+    const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
+    if (search && !fullName.includes(search)) return false;
+    if (type && (p.status || "Patient") !== type) return false;
+    if (blood && p.blood_type !== blood) return false;
+    return true;
+  });
+
+  listEl.innerHTML = "";
+
+  if (!filtered.length) {
+    listEl.innerHTML = `<div class="empty">Aucun dossier patient ne correspond.</div>`;
+    return;
+  }
+
+  filtered.forEach(patient => {
+    const isDead = patient.status === "Mort";
+    const item = document.createElement("div");
+    item.className = "patient";
+    item.innerHTML = `
+      <div class="patient-head">
+        <div class="patient-name">N°${patient.id} - ${escapeHtml(patient.first_name)} ${escapeHtml(patient.last_name)}</div>
+        <span class="badge ${isDead ? "badge-dead" : "badge-alive"}">${isDead ? "Mort" : "Patient"}</span>
+      </div>
+      <div class="patient-grid">
+        <div><span class="k">Date d'enregistrement</span><span class="v">${date(patient.created_at)}</span></div>
+        <div><span class="k">Date de naissance</span><span class="v">${escapeHtml(patient.birth_date || "—")}</span></div>
+        <div><span class="k">Sexe</span><span class="v">${escapeHtml(patient.sex || "—")}</span></div>
+        <div><span class="k">Numéro de téléphone</span><span class="v">${escapeHtml(patient.phone || "—")}</span></div>
+        <div><span class="k">Contact d'urgence</span><span class="v">${escapeHtml(patient.emergency_contact || "—")}</span></div>
+        <div><span class="k">Groupe sanguin</span><span class="v">${escapeHtml(patient.blood_type || "—")}</span></div>
+        <div><span class="k">Taille</span><span class="v">${escapeHtml(patient.height || "—")}</span></div>
+        <div><span class="k">Poids</span><span class="v">${escapeHtml(patient.weight || "—")}</span></div>
+        <div style="grid-column:1/-1;"><span class="k">Allergies / Traitements en cours</span><span class="v">${escapeHtml(patient.allergies || "—")}</span></div>
+      </div>
+      <div class="patient-actions">
+        <button class="btn btn-dark btn-sm" onclick="openEditPatientModal(${patient.id})">Modifier</button>
+        <button class="btn btn-red btn-sm" onclick="openDetailsModal(${patient.id})">Voir les détails</button>
+        ${currentUser?.is_director ? `<button class="btn-delete btn-sm" onclick="deletePatient(${patient.id})">🗑️ Supprimer le dossier</button>` : ""}
+      </div>
+    `;
+    listEl.appendChild(item);
+  });
+}
+
+/* ---- Suppression d'un dossier patient (doublons), Directeur uniquement ---- */
+
+async function deletePatient(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer le dossier patient N°${id} ?\n\nCette action est définitive et supprimera aussi les interventions liées.`);
+  if (!ok) return;
+
+  try {
+    await api(`/api/patients/${id}`, { method: "DELETE" });
+    toast("Dossier patient supprimé.");
+    await loadPatients();
+    await loadDashboard();
+    if (document.getElementById("page-interventions").classList.contains("active")) {
+      await loadInterventions();
+    }
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deletePatientFromDetails() {
+  if (!currentDetailsPatientId) return;
+  await deletePatient(currentDetailsPatientId);
+  if (!document.getElementById("detailsModal").classList.contains("open")) return;
+  closeModal("detailsModal");
+}
+
+/* ---- Nouveau / Modifier patient ---- */
+
+function resetPatientForm() {
+  editingPatientId = null;
+  document.getElementById("patientId").value = "";
+  ["patientFirst","patientLast","patientBirth","patientPhone","patientEmergency","patientHeight","patientWeight","patientAllergies","patientNotes"]
+    .forEach(id => document.getElementById(id).value = "");
+  document.getElementById("patientSex").value = "";
+  document.getElementById("patientBlood").value = "";
+}
+
+function openNewPatientModal() {
+  resetPatientForm();
+  document.getElementById("patientModalTitle").textContent = "Nouveau patient";
+  openModal("patientModal");
+}
+
+function openEditPatientModal(id) {
+  const patient = patients.find(p => p.id === id);
+  if (!patient) return;
+
+  editingPatientId = id;
+  document.getElementById("patientId").value = id;
+  document.getElementById("patientModalTitle").textContent = "Modifier le patient";
+
+  document.getElementById("patientFirst").value = patient.first_name || "";
+  document.getElementById("patientLast").value = patient.last_name || "";
+  document.getElementById("patientBirth").value = patient.birth_date || "";
+  document.getElementById("patientSex").value = patient.sex || "";
+  document.getElementById("patientPhone").value = patient.phone || "";
+  document.getElementById("patientEmergency").value = patient.emergency_contact || "";
+  document.getElementById("patientBlood").value = patient.blood_type || "";
+  document.getElementById("patientHeight").value = patient.height || "";
+  document.getElementById("patientWeight").value = patient.weight || "";
+  document.getElementById("patientAllergies").value = patient.allergies || "";
+  document.getElementById("patientNotes").value = patient.notes || "";
+
+  openModal("patientModal");
+}
+
+async function submitPatientForm(event) {
+  event.preventDefault();
+
+  const payload = {
+    first_name: document.getElementById("patientFirst").value,
+    last_name: document.getElementById("patientLast").value,
+    birth_date: document.getElementById("patientBirth").value,
+    sex: document.getElementById("patientSex").value,
+    phone: document.getElementById("patientPhone").value,
+    emergency_contact: document.getElementById("patientEmergency").value,
+    blood_type: document.getElementById("patientBlood").value,
+    height: document.getElementById("patientHeight").value,
+    weight: document.getElementById("patientWeight").value,
+    allergies: document.getElementById("patientAllergies").value,
+    notes: document.getElementById("patientNotes").value
+  };
+
+  try {
+    if (editingPatientId) {
+      await api(`/api/patients/${editingPatientId}`, { method: "PUT", body: JSON.stringify(payload) });
+      toast("Dossier patient modifié.");
+    } else {
+      await api("/api/patients", { method: "POST", body: JSON.stringify(payload) });
+      toast("Dossier patient créé.");
+    }
+
+    closeModal("patientModal");
+    await loadPatients();
+    await loadDashboard();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ---- Détails patient ---- */
+
+async function openDetailsModal(id) {
+  try {
+    const data = await api(`/api/patients/${id}`);
+    const p = data.patient;
+    currentDetailsPatientId = id;
+
+    document.getElementById("detailsTitle").textContent = `${p.first_name} ${p.last_name}`;
+
+    const isDead = p.status === "Mort";
+    const btn = document.getElementById("detailsStatusBtn");
+    btn.textContent = isDead ? "Marquer comme Patient" : "☠ Marquer comme Mort";
+
+    document.getElementById("detailsInfo").innerHTML = `
+      <div><span class="k">Statut</span><span class="v">${isDead ? "Mort" : "Patient"}</span></div>
+      <div><span class="k">Date d'enregistrement</span><span class="v">${date(p.created_at)}</span></div>
+      <div><span class="k">Date de naissance</span><span class="v">${escapeHtml(p.birth_date || "—")}</span></div>
+      <div><span class="k">Sexe</span><span class="v">${escapeHtml(p.sex || "—")}</span></div>
+      <div><span class="k">Téléphone</span><span class="v">${escapeHtml(p.phone || "—")}</span></div>
+      <div><span class="k">Contact d'urgence</span><span class="v">${escapeHtml(p.emergency_contact || "—")}</span></div>
+      <div><span class="k">Groupe sanguin</span><span class="v">${escapeHtml(p.blood_type || "—")}</span></div>
+      <div><span class="k">Taille</span><span class="v">${escapeHtml(p.height || "—")}</span></div>
+      <div><span class="k">Poids</span><span class="v">${escapeHtml(p.weight || "—")}</span></div>
+      <div style="grid-column:1/-1;"><span class="k">Allergies / Traitements en cours</span><span class="v">${escapeHtml(p.allergies || "—")}</span></div>
+    `;
+
+    document.getElementById("detailsDeleteBtn").classList.toggle("hidden", !currentUser?.is_director);
+
+    const box = document.getElementById("detailsInterventions");
+    box.innerHTML = "";
+
+    if (!data.interventions.length) {
+      box.innerHTML = `<div class="empty">Aucune intervention enregistrée.</div>`;
+    }
+
+    data.interventions.forEach(i => {
+      const div = document.createElement("div");
+      div.className = "activity-item";
+      div.onclick = () => openInterventionDetails(i.id);
+      div.innerHTML = `
+        <div>
+          <div class="activity-title">${escapeHtml(i.title)}</div>
+          <div class="activity-sub">${escapeHtml(i.creator || "—")} · ${date(i.created_at)}${i.is_official ? " · Fonctionnaire (remboursé)" : ""}</div>
+        </div>
+        <div class="activity-amount">${money(i.total)}</div>
+      `;
+      box.appendChild(div);
+    });
+
+    openModal("detailsModal");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function toggleDetailsStatus() {
+  if (!currentDetailsPatientId) return;
+  const patient = patients.find(p => p.id === currentDetailsPatientId);
+  if (!patient) return;
+
+  const newStatus = patient.status === "Mort" ? "Patient" : "Mort";
+
+  const ok = await askConfirm(
+    `Confirmer le changement de statut en "${newStatus}" ?`,
+    newStatus === "Mort" ? "☠ Marquer comme mort" : "Confirmer le changement de statut"
+  );
+  if (!ok) return;
+
+  try {
+    await api(`/api/patients/${currentDetailsPatientId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: newStatus })
+    });
+    toast("Statut mis à jour.");
+    await loadPatients();
+    await openDetailsModal(currentDetailsPatientId);
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= INTERVENTIONS ========================= */
+
+function renderCareList() {
+  const box = document.getElementById("careList");
+  box.innerHTML = "";
+
+  careCatalog.forEach(item => {
+    const label = document.createElement("label");
+    label.className = "care-item";
+    label.dataset.key = item.key;
+    label.innerHTML = `
+      <span>
+        <input type="checkbox" value="${escapeHtml(item.key)}" onchange="onCareToggle(this)">
+        ${escapeHtml(item.key)}
+      </span>
+      <span class="care-price">${money(item.price)}</span>
+    `;
+    box.appendChild(label);
+  });
+}
+
+function onCareToggle(checkbox) {
+  checkbox.closest(".care-item").classList.toggle("selected", checkbox.checked);
+  updateInterventionTotal();
+}
+
+function addBillingRow(label = "", amount = "") {
+  const row = document.createElement("div");
+  row.className = "billing-row";
+  row.innerHTML = `
+    <input type="text" placeholder="Description" value="${escapeHtml(label)}" oninput="updateInterventionTotal()">
+    <input type="number" step="0.01" placeholder="Montant $" value="${escapeHtml(amount)}" oninput="updateInterventionTotal()">
+    <button type="button" class="btn-delete" onclick="this.parentElement.remove(); updateInterventionTotal();">✕</button>
+  `;
+  document.getElementById("billingRows").appendChild(row);
+}
+
+function getSelectedCareItems() {
+  return Array.from(document.querySelectorAll("#careList input[type=checkbox]:checked")).map(c => c.value);
+}
+
+function getBillingLines() {
+  return Array.from(document.querySelectorAll("#billingRows .billing-row")).map(row => {
+    const inputs = row.querySelectorAll("input");
+    return { label: inputs[0].value, amount: Number(inputs[1].value) || 0 };
+  }).filter(l => l.label || l.amount);
+}
+
+function updateInterventionTotal() {
+  let total = 0;
+
+  getSelectedCareItems().forEach(key => {
+    const found = careCatalog.find(c => c.key === key);
+    if (found) total += found.price;
+  });
+
+  getBillingLines().forEach(l => { total += l.amount; });
+
+  document.getElementById("interventionTotal").textContent = money(total);
+}
+
+function updateCommentCount() {
+  const val = document.getElementById("interventionComments").value;
+  document.getElementById("commentCount").textContent = val.length;
+}
+
+/* ---- Recherche patient (autocomplete) — uniquement les patients avec un dossier médical ---- */
+
+function onInterventionPatientInput() {
+  const search = document.getElementById("interventionPatientSearch").value.trim().toLowerCase();
+  const box = document.getElementById("interventionPatientResults");
+
+  if (!search) {
+    box.classList.add("hidden");
+    box.innerHTML = "";
+    return;
+  }
+
+  const matches = patients
+    .filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(search))
+    .slice(0, 8);
+
+  box.innerHTML = "";
+
+  if (!matches.length) {
+    box.innerHTML = `<div class="empty-result">Aucun dossier patient trouvé.</div>`;
+    box.classList.remove("hidden");
+    return;
+  }
+
+  matches.forEach(p => {
+    const div = document.createElement("div");
+    div.textContent = `N°${p.id} - ${p.first_name} ${p.last_name}`;
+    div.onclick = () => selectInterventionPatient(p);
+    box.appendChild(div);
+  });
+
+  box.classList.remove("hidden");
+}
+
+function selectInterventionPatient(patient) {
+  document.getElementById("interventionPatientId").value = patient.id;
+  document.getElementById("interventionPatientSearch").value = "";
+  document.getElementById("interventionPatientResults").classList.add("hidden");
+
+  const chip = document.getElementById("interventionPatientChip");
+  chip.classList.remove("hidden");
+  chip.innerHTML = `
+    <div class="selected-patient-chip">
+      Dossier lié : N°${patient.id} - ${escapeHtml(patient.first_name)} ${escapeHtml(patient.last_name)}
+      <button type="button" onclick="clearInterventionPatient()">✕</button>
+    </div>
+  `;
+}
+
+function clearInterventionPatient() {
+  document.getElementById("interventionPatientId").value = "";
+  document.getElementById("interventionPatientChip").classList.add("hidden");
+  document.getElementById("interventionPatientChip").innerHTML = "";
+}
+
+document.addEventListener("click", e => {
+  const box = document.getElementById("interventionPatientResults");
+  if (box && !e.target.closest(".patient-search-box")) {
+    box.classList.add("hidden");
+  }
+});
+
+/* ---- Image ---- */
+
+function onInterventionImageChange(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 4 * 1024 * 1024) {
+    toast("Image trop lourde (4 Mo max).");
+    event.target.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    interventionImageData = reader.result;
+    document.getElementById("interventionImagePreview").src = interventionImageData;
+    document.getElementById("interventionImagePreviewBox").classList.remove("hidden");
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeInterventionImage() {
+  interventionImageData = null;
+  document.getElementById("interventionImageInput").value = "";
+  document.getElementById("interventionImagePreviewBox").classList.add("hidden");
+}
+
+/* ---- Ouverture / soumission du formulaire ---- */
+
+async function openInterventionModal(patientId, interventionId) {
+  if (!patients.length) {
+    await loadPatients();
+  }
+
+  editingInterventionId = null;
+  interventionImageData = null;
+
+  document.getElementById("interventionId").value = "";
+  document.getElementById("interventionModalTitle").textContent = "Nouvelle intervention";
+  document.getElementById("interventionSubmitBtn").textContent = "Enregistrer l'intervention";
+  document.getElementById("interventionTitle").value = "";
+  document.getElementById("interventionComments").value = "";
+  document.getElementById("interventionOfficial").checked = false;
+  document.getElementById("interventionPatientSearch").value = "";
+  document.getElementById("billingRows").innerHTML = "";
+  document.getElementById("interventionImageInput").value = "";
+  document.getElementById("interventionImagePreviewBox").classList.add("hidden");
+  clearInterventionPatient();
+
+  document.querySelectorAll("#careList input[type=checkbox]").forEach(c => {
+    c.checked = false;
+    c.closest(".care-item").classList.remove("selected");
+  });
+
+  updateCommentCount();
+  updateInterventionTotal();
+
+  document.getElementById("interventionAutoInfo").textContent =
+    `La date, l'heure et le membre créateur (${currentUser?.nickname || currentUser?.username || "—"}) seront ajoutés automatiquement.`;
+
+  if (patientId) {
+    const patient = patients.find(p => p.id === patientId);
+    if (patient) selectInterventionPatient(patient);
+  }
+
+  if (interventionId) {
+    try {
+      const data = await api(`/api/interventions/${interventionId}`);
+      fillInterventionForm(data.intervention);
+    } catch (e) {
+      toast(e.message);
+      return;
+    }
+  }
+
+  openModal("interventionModal");
+}
+
+function fillInterventionForm(intervention) {
+  editingInterventionId = intervention.id;
+  document.getElementById("interventionId").value = intervention.id;
+  document.getElementById("interventionModalTitle").textContent = "Modifier l'intervention";
+  document.getElementById("interventionSubmitBtn").textContent = "Enregistrer les modifications";
+
+  document.getElementById("interventionTitle").value = intervention.title || "";
+  document.getElementById("interventionComments").value = intervention.comments || "";
+  document.getElementById("interventionOfficial").checked = !!intervention.is_official;
+  updateCommentCount();
+
+  document.getElementById("billingRows").innerHTML = "";
+  (intervention.free_billing || []).forEach(line => addBillingRow(line.label, line.amount));
+
+  document.querySelectorAll("#careList input[type=checkbox]").forEach(c => {
+    const checked = (intervention.care_items || []).includes(c.value);
+    c.checked = checked;
+    c.closest(".care-item").classList.toggle("selected", checked);
+  });
+
+  if (intervention.patient_id) {
+    const patient = patients.find(p => p.id === intervention.patient_id) || {
+      id: intervention.patient_id,
+      first_name: intervention.first_name || "Patient",
+      last_name: intervention.last_name || ""
+    };
+    selectInterventionPatient(patient);
+  } else {
+    clearInterventionPatient();
+  }
+
+  if (intervention.image) {
+    interventionImageData = intervention.image;
+    document.getElementById("interventionImagePreview").src = intervention.image;
+    document.getElementById("interventionImagePreviewBox").classList.remove("hidden");
+  } else {
+    interventionImageData = null;
+    document.getElementById("interventionImagePreviewBox").classList.add("hidden");
+  }
+
+  document.getElementById("interventionAutoInfo").textContent =
+    `Créée le ${date(intervention.created_at)} par ${intervention.creator || "—"}.` +
+    (intervention.updated_at ? ` Dernière modification le ${date(intervention.updated_at)}.` : "");
+
+  updateInterventionTotal();
+}
+
+async function submitInterventionForm(event) {
+  event.preventDefault();
+
+  const patientIdValue = document.getElementById("interventionPatientId").value;
+
+  const payload = {
+    patient_id: patientIdValue || null,
+    title: document.getElementById("interventionTitle").value,
+    comments: document.getElementById("interventionComments").value,
+    care_items: getSelectedCareItems(),
+    free_billing: getBillingLines(),
+    is_official: document.getElementById("interventionOfficial").checked,
+    image: interventionImageData
+  };
+
+  try {
+    if (editingInterventionId) {
+      await api(`/api/interventions/${editingInterventionId}`, { method: "PUT", body: JSON.stringify(payload) });
+      toast("Intervention modifiée.");
+    } else {
+      await api("/api/interventions", { method: "POST", body: JSON.stringify(payload) });
+      toast("Intervention enregistrée.");
+    }
+
+    closeModal("interventionModal");
+    await loadDashboard();
+
+    if (document.getElementById("page-interventions").classList.contains("active")) {
+      await loadInterventions();
+    }
+
+    if (currentDetailsPatientId && document.getElementById("detailsModal").classList.contains("open")) {
+      await openDetailsModal(currentDetailsPatientId);
+    }
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ---- Liste des interventions (page dédiée) ---- */
+
+async function loadInterventions() {
+  try {
+    const data = await api("/api/interventions");
+    interventions = data.interventions;
+    renderInterventionsList();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function renderInterventionsList() {
+  const listEl = document.getElementById("interventionsList");
+  if (!listEl) return;
+
+  const search = (document.getElementById("interventionSearch")?.value || "").trim().toLowerCase();
+
+  const filtered = interventions.filter(i => {
+    if (!search) return true;
+    const patientName = i.first_name ? `${i.first_name} ${i.last_name}`.toLowerCase() : "";
+    return i.title.toLowerCase().includes(search) || patientName.includes(search) || (i.creator || "").toLowerCase().includes(search);
+  });
+
+  listEl.innerHTML = "";
+
+  if (!filtered.length) {
+    listEl.innerHTML = `<div class="empty">Aucune intervention ne correspond.</div>`;
+    return;
+  }
+
+  filtered.forEach(i => {
+    const patientName = i.first_name ? `${i.first_name} ${i.last_name}` : "Sans patient";
+    const div = document.createElement("div");
+    div.className = "activity-item";
+    div.onclick = () => openInterventionDetails(i.id);
+    div.innerHTML = `
+      <div>
+        <div class="activity-title">${escapeHtml(i.title)}</div>
+        <div class="activity-sub">${escapeHtml(patientName)} · ${escapeHtml(i.creator || "—")} · ${date(i.created_at)}${i.is_official ? " · Fonctionnaire (remboursé)" : ""}</div>
+      </div>
+      <div class="activity-amount">${money(i.total)}</div>
+    `;
+    listEl.appendChild(div);
+  });
+}
+
+/* ---- Détails / modification / suppression d'une intervention ---- */
+
+async function openInterventionDetails(id) {
+  try {
+    const data = await api(`/api/interventions/${id}`);
+    const i = data.intervention;
+    currentInterventionDetailsId = id;
+
+    document.getElementById("interventionDetailsTitle").textContent = i.title;
+
+    const patientLine = i.patient_id
+      ? `N°${i.patient_id} - ${i.first_name} ${i.last_name}`
+      : "Aucun patient lié";
+
+    document.getElementById("interventionDetailsInfo").innerHTML = `
+      <div><span class="k">Patient</span><span class="v">${escapeHtml(patientLine)}</span></div>
+      <div><span class="k">Créée par</span><span class="v">${escapeHtml(i.creator || "—")}</span></div>
+      <div><span class="k">Date et heure</span><span class="v">${date(i.created_at)}</span></div>
+      <div><span class="k">Total facturé</span><span class="v">${money(i.total)}</span></div>
+      <div><span class="k">Fonctionnaire (remboursé)</span><span class="v">${i.is_official ? "Oui" : "Non"}</span></div>
+      ${i.updated_at ? `<div><span class="k">Modifiée le</span><span class="v">${date(i.updated_at)} par ${escapeHtml(i.updater || "—")}</span></div>` : ""}
+    `;
+
+    const imgBox = document.getElementById("interventionDetailsImageBox");
+    if (i.image) {
+      document.getElementById("interventionDetailsImage").src = i.image;
+      imgBox.classList.remove("hidden");
+    } else {
+      imgBox.classList.add("hidden");
+    }
+
+    document.getElementById("interventionDetailsComments").textContent = i.comments || "—";
+
+    document.getElementById("interventionDeleteBtn").classList.toggle("hidden", !currentUser?.is_director);
+
+    openModal("interventionDetailsModal");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function editInterventionFromDetails() {
+  if (!currentInterventionDetailsId) return;
+  const id = currentInterventionDetailsId;
+  closeModal("interventionDetailsModal");
+  await openInterventionModal(null, id);
+}
+
+async function deleteInterventionFromDetails() {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+  if (!currentInterventionDetailsId) return;
+
+  const ok = await askConfirm("Voulez-vous vraiment supprimer cette intervention ?\n\nCette action est définitive.");
+  if (!ok) return;
+
+  try {
+    await api(`/api/interventions/${currentInterventionDetailsId}`, { method: "DELETE" });
+    toast("Intervention supprimée.");
+    closeModal("interventionDetailsModal");
+    await loadDashboard();
+
+    if (document.getElementById("page-interventions").classList.contains("active")) {
+      await loadInterventions();
+    }
+    if (currentDetailsPatientId && document.getElementById("detailsModal").classList.contains("open")) {
+      await openDetailsModal(currentDetailsPatientId);
+    }
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= FRAIS & FACTURES ========================= */
+
+async function loadFrais() {
+  await Promise.all([loadExpenses(), loadMyInvoices()]);
+}
+
+/* ---- Notes de frais ---- */
+
+function onExpenseCategoryChange() {
+  const category = document.getElementById("expenseCategory").value;
+  document.getElementById("expenseReasonField").style.display = category === "Autre" ? "flex" : "none";
+}
+
+async function submitExpense() {
+  const category = document.getElementById("expenseCategory").value;
+  const reason = document.getElementById("expenseReason").value;
+  const amount = Number(document.getElementById("expenseAmount").value);
+
+  if (!category) { toast("Sélectionne une catégorie."); return; }
+  if (category === "Autre" && !reason.trim()) { toast("Précise le motif."); return; }
+  if (!amount || amount <= 0) { toast("Montant invalide."); return; }
+
+  try {
+    await api("/api/expenses", {
+      method: "POST",
+      body: JSON.stringify({ category, reason, amount })
+    });
+    toast("Dépense ajoutée.");
+    document.getElementById("expenseCategory").value = "";
+    document.getElementById("expenseReason").value = "";
+    document.getElementById("expenseAmount").value = "";
+    document.getElementById("expenseReasonField").style.display = "none";
+    await loadExpenses();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function loadExpenses() {
+  try {
+    const data = await api("/api/expenses");
+    renderExpenses(data.expenses);
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function renderExpenses(expenses) {
+  const box = document.getElementById("expensesList");
+  box.innerHTML = "";
+
+  if (!expenses.length) {
+    box.innerHTML = `<div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>`;
+    return;
+  }
+
+  const groups = {};
+  expenses.forEach(e => {
+    const day = (e.created_at || "").slice(0, 10);
+    if (!groups[day]) groups[day] = [];
+    groups[day].push(e);
+  });
+
+  Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(day => {
+    const dayBox = document.createElement("div");
+    dayBox.className = "table-container";
+    dayBox.style.marginBottom = "14px";
+
+    const rows = groups[day].map(e => `
+      <div class="activity-item static">
+        <div>
+          <div class="activity-title">${escapeHtml(e.category)}${e.reason ? " — " + escapeHtml(e.reason) : ""}</div>
+          <div class="activity-sub">${date(e.created_at)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="activity-amount">${money(e.amount)}</div>
+          <button class="btn-delete btn-sm" onclick="deleteExpense(${e.id})">🗑️</button>
+        </div>
+      </div>
+    `).join("");
+
+    dayBox.innerHTML = `
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+        <strong>${dateOnly(day)}</strong>
+        <span style="color:var(--gray);font-size:13px;">${money(groups[day].reduce((sum, e) => sum + Number(e.amount || 0), 0))}</span>
+      </div>
+      <div class="activity-list" style="padding:12px;">${rows}</div>
+    `;
+
+    box.appendChild(dayBox);
+  });
+}
+
+async function deleteExpense(id) {
+  const ok = await askConfirm("Voulez-vous vraiment supprimer cette note de frais ?\n\nCette action est définitive.");
+  if (!ok) return;
+
+  try {
+    await api(`/api/expenses/${id}`, { method: "DELETE" });
+    toast("Note de frais supprimée.");
+    await loadExpenses();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ---- Factures NYPH ---- */
+
+function renderInvoiceMotifOptions() {
+  const box = document.getElementById("invoiceMotifList");
+  box.innerHTML = "";
+  invoiceCatalog.forEach(item => {
+    const label = document.createElement("label");
+    label.className = "care-item";
+    label.innerHTML = `
+      <span><input type="checkbox" value="${escapeHtml(item.key)}" onchange="onInvoiceMotifToggle(this)"> ${escapeHtml(item.key)}</span>
+      <span class="care-price">${money(item.price)}</span>
+    `;
+    box.appendChild(label);
+  });
+}
+
+function onInvoiceMotifToggle(checkbox) {
+  checkbox.closest(".care-item").classList.toggle("selected", checkbox.checked);
+  updateInvoiceTotal();
+}
+
+function addInvoiceBillingRow(label = "", amount = "") {
+  const row = document.createElement("div");
+  row.className = "billing-row";
+  row.innerHTML = `
+    <input type="text" placeholder="Description" value="${escapeHtml(label)}" oninput="updateInvoiceTotal()">
+    <input type="number" step="0.01" placeholder="Montant $" value="${escapeHtml(amount)}" oninput="updateInvoiceTotal()">
+    <button type="button" class="btn-delete" onclick="this.parentElement.remove(); updateInvoiceTotal();">✕</button>
+  `;
+  document.getElementById("invoiceBillingRows").appendChild(row);
+}
+
+function getSelectedInvoiceMotifs() {
+  return Array.from(document.querySelectorAll("#invoiceMotifList input[type=checkbox]:checked")).map(c => c.value);
+}
+
+function getInvoiceBillingLines() {
+  return Array.from(document.querySelectorAll("#invoiceBillingRows .billing-row")).map(row => {
+    const inputs = row.querySelectorAll("input");
+    return { motif: inputs[0].value, amount: Number(inputs[1].value) || 0 };
+  }).filter(l => l.motif || l.amount);
+}
+
+function updateInvoiceTotal() {
+  let total = 0;
+  getSelectedInvoiceMotifs().forEach(key => {
+    const found = invoiceCatalog.find(c => c.key === key);
+    if (found) total += found.price;
+  });
+  getInvoiceBillingLines().forEach(l => { total += l.amount; });
+  document.getElementById("invoiceTotal").textContent = money(total);
+}
+
+async function submitInvoice() {
+  const service = document.getElementById("invoiceService").value;
+  const matricule = document.getElementById("invoiceMatricule").value;
+  if (!service) { toast("Sélectionne un service destinataire."); return; }
+
+  const items = [];
+  getSelectedInvoiceMotifs().forEach(key => {
+    const found = invoiceCatalog.find(c => c.key === key);
+    if (found) items.push({ motif: found.key, amount: found.price });
+  });
+  getInvoiceBillingLines().forEach(l => {
+    if (l.motif && l.amount > 0) items.push({ motif: l.motif, amount: l.amount });
+  });
+
+  if (!items.length) { toast("Sélectionne au moins un motif ou ajoute une ligne."); return; }
+
+  try {
+    await api("/api/invoices", { method: "POST", body: JSON.stringify({ service, matricule, items }) });
+    toast("Facture(s) enregistrée(s).");
+    document.getElementById("invoiceService").value = "";
+    document.getElementById("invoiceMatricule").value = "";
+    document.querySelectorAll("#invoiceMotifList input[type=checkbox]").forEach(c => {
+      c.checked = false;
+      c.closest(".care-item").classList.remove("selected");
+    });
+    document.getElementById("invoiceBillingRows").innerHTML = "";
+    updateInvoiceTotal();
+    await loadMyInvoices();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function loadMyInvoices() {
+  try {
+    const data = await api("/api/invoices");
+    renderMyInvoices(data.invoices);
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function renderMyInvoices(invoicesList) {
+  const box = document.getElementById("myInvoicesList");
+  box.innerHTML = "";
+
+  if (!invoicesList.length) {
+    box.innerHTML = `<div class="empty">Aucune facture pour le moment.</div>`;
+    return;
+  }
+
+  invoicesList.forEach(inv => {
+    const div = document.createElement("div");
+    div.className = "activity-item static";
+    div.innerHTML = `
+      <div>
+        <div class="activity-title">${escapeHtml(inv.service)} · ${escapeHtml(inv.motif)}</div>
+        <div class="activity-sub">${inv.matricule ? "Matricule " + escapeHtml(inv.matricule) + " · " : ""}${date(inv.created_at)}</div>
+      </div>
+      <div class="activity-amount">${money(inv.amount)}</div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+/* ---- Direction : toutes les factures ---- */
+
+async function loadDirectorInvoices() {
+  if (!currentUser?.is_director) return;
+
+  try {
+    const data = await api("/api/director/invoices");
+    const tbody = document.getElementById("directorInvoicesTable");
+    tbody.innerHTML = "";
+
+    if (!data.invoices.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune facture enregistrée.</td></tr>`;
+      return;
+    }
+
+    data.invoices.forEach(inv => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(inv.employee || "—")}</td>
+        <td>${escapeHtml(inv.service)}</td>
+        <td>${escapeHtml(inv.matricule || "—")}</td>
+        <td>${escapeHtml(inv.motif)}</td>
+        <td>${money(inv.amount)}</td>
+        <td>${date(inv.created_at)}</td>
+        <td><button class="btn-delete" onclick="deleteInvoice(${inv.id})">🗑️ Supprimer</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteInvoice(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer la facture #${id} ?\n\nCette action est définitive.`);
+  if (!ok) return;
+
+  try {
+    await api(`/api/invoices/${id}`, { method: "DELETE" });
+    toast("Facture supprimée.");
+    await loadDirectorInvoices();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= DIRECTION ========================= */
+
+async function loadDirector() {
+  if (!currentUser?.is_director) return;
+
+  try {
+    const data = await api("/api/director/users");
+    emsMembersForAssign = data.users;
+    const tbody = document.getElementById("directorTable");
+    tbody.innerHTML = "";
+
+    data.users.forEach(user => {
+      const displayName = user.nickname || user.username;
+      const tr = document.createElement("tr");
+
+      const jobInput = document.createElement("input");
+      jobInput.type = "text";
+      jobInput.value = user.job || "";
+      jobInput.placeholder = "Métier";
+      jobInput.id = `directorJob-${user.id}`;
+
+      const gradeInput = document.createElement("input");
+      gradeInput.type = "text";
+      gradeInput.value = user.grade || "";
+      gradeInput.placeholder = "Grade";
+      gradeInput.id = `directorGrade-${user.id}`;
+
+      const tdName = document.createElement("td");
+      tdName.textContent = displayName;
+      tdName.style.whiteSpace = "normal";
+
+      const tdJob = document.createElement("td");
+      tdJob.appendChild(jobInput);
+
+      const tdGrade = document.createElement("td");
+      tdGrade.appendChild(gradeInput);
+
+      const tdServices = document.createElement("td");
+      tdServices.textContent = user.service_count;
+
+      const tdTotal = document.createElement("td");
+      tdTotal.textContent = duration(user.total_seconds);
+
+      const tdActions = document.createElement("td");
+      tdActions.style.display = "flex";
+      tdActions.style.gap = "8px";
+      tdActions.style.flexWrap = "wrap";
+      tdActions.style.whiteSpace = "normal";
+
+      const saveBtn = document.createElement("button");
+      saveBtn.className = "btn btn-dark btn-sm";
+      saveBtn.textContent = "💾 Enregistrer";
+      saveBtn.addEventListener("click", () => saveDirectorProfile(user.id));
+
+      const servicesBtn = document.createElement("button");
+      servicesBtn.className = "btn btn-dark btn-sm";
+      servicesBtn.textContent = "Voir les services";
+      servicesBtn.addEventListener("click", () => loadDirectorServices(user.discord_id, displayName));
+
+      tdActions.appendChild(saveBtn);
+      tdActions.appendChild(servicesBtn);
+
+      tr.appendChild(tdName);
+      tr.appendChild(tdJob);
+      tr.appendChild(tdGrade);
+      tr.appendChild(tdServices);
+      tr.appendChild(tdTotal);
+      tr.appendChild(tdActions);
+
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function saveDirectorProfile(userId) {
+  const job = document.getElementById(`directorJob-${userId}`).value;
+  const grade = document.getElementById(`directorGrade-${userId}`).value;
+
+  try {
+    await api(`/api/director/users/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify({ job, grade })
+    });
+    toast("Profil de l'employé mis à jour.");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function loadDirectorServices(discordId, username) {
+  if (!currentUser?.is_director) return;
+
+  try {
+    const data = await api(`/api/director/services/${discordId}`);
+
+    const box = document.getElementById("directorServicesBox");
+    const tbody = document.getElementById("directorServicesTable");
+    const title = document.getElementById("directorServicesTitle");
+
+    tbody.innerHTML = "";
+    if (title) title.textContent = `Services de ${username}`;
+    box.classList.remove("hidden");
+
+    if (!data.services || !data.services.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun service pour ${escapeHtml(username)}.</td></tr>`;
+      return;
+    }
+
+    data.services.forEach(service => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>#${service.id}</td>
+        <td>${escapeHtml(username)}</td>
+        <td>${date(service.started_at)}</td>
+        <td>${date(service.ended_at)}</td>
+        <td>${duration(service.duration)}</td>
+        <td><button class="btn-delete" onclick="deleteService(${service.id})">🗑️ Supprimer</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function closeDirectorServices() {
+  const box = document.getElementById("directorServicesBox");
+  const tbody = document.getElementById("directorServicesTable");
+  const title = document.getElementById("directorServicesTitle");
+
+  if (box) box.classList.add("hidden");
+  if (tbody) tbody.innerHTML = "";
+  if (title) title.textContent = "Services du membre";
+}
+
+/* ---- Candidatures (Direction) ---- */
+
+async function loadApplications() {
+  if (!currentUser?.is_director) return;
+
+  try {
+    const data = await api("/api/applications");
+    const tbody = document.getElementById("applicationsTable");
+    tbody.innerHTML = "";
+
+    if (!data.applications.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune candidature reçue.</td></tr>`;
+      return;
+    }
+
+    data.applications.forEach(a => {
+      const tr = document.createElement("tr");
+      const experienceShort = (a.medical_experience || "—");
+      const motivationShort = (a.motivation || "—");
+      tr.innerHTML = `
+        <td style="white-space:normal;">${escapeHtml(a.last_name)} ${escapeHtml(a.first_name)}</td>
+        <td style="white-space:normal;">${escapeHtml(a.birth_date || "—")}</td>
+        <td style="white-space:normal;">${escapeHtml(a.phone || "—")}</td>
+        <td class="zoomable" style="white-space:normal;" data-field="experience" data-id="${a.id}">${escapeHtml(experienceShort)}</td>
+        <td class="zoomable" style="white-space:normal;" data-field="motivation" data-id="${a.id}">${escapeHtml(motivationShort)}</td>
+        <td style="white-space:normal;">${date(a.created_at)}</td>
+        <td style="white-space:normal;"><button class="btn-delete" onclick="deleteApplication(${a.id})">🗑️ Supprimer</button></td>
+      `;
+      tbody.appendChild(tr);
+
+      tr.querySelector('[data-field="experience"]').addEventListener("click", () => {
+        zoomText(`Expérience médicale — ${a.first_name} ${a.last_name}`, a.medical_experience);
+      });
+      tr.querySelector('[data-field="motivation"]').addEventListener("click", () => {
+        zoomText(`Motivations — ${a.first_name} ${a.last_name}`, a.motivation);
+      });
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteApplication(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm("Voulez-vous vraiment supprimer cette candidature ?\n\nCette action est définitive.");
+  if (!ok) return;
+
+  try {
+    await api(`/api/applications/${id}`, { method: "DELETE" });
+    toast("Candidature supprimée.");
+    await loadApplications();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= GESTION RDV (staff) ========================= */
+
+/* Statuts disponibles pour un rendez-vous, en plus de l'ancien
+   système À traiter / Traité (qui reste géré par l'onglet actif) */
+const RDV_STATUS_BUTTONS = [
+  { value: "En cours",              label: "🔵 En cours",              css: "btn-status-blue" },
+  { value: "RDV fait",               label: "✅ RDV fait",              css: "btn-status-green" },
+  { value: "Ne s'est pas présenté", label: "🚫 Ne s'est pas présenté", css: "btn-status-gray" },
+  { value: "Annulé",                label: "❌ Annulé",                css: "btn-status-red" },
+  { value: "Reporté",               label: "🕒 Reporté",               css: "btn-status-yellow" }
+];
+
+/* Métadonnées d'affichage (emoji + couleur) pour TOUS les statuts
+   possibles d'un rendez-vous, utilisées uniquement pour l'affichage
+   (aucun impact sur la logique des onglets à traiter / traité,
+   qui reste basée sur la valeur brute "Traité" en base). */
+const RDV_STATUS_META = {
+  "A traiter":               { emoji: "⏳", label: "À traiter",              css: "btn-status-gray" },
+  "Traité":                  { emoji: "✅", label: "Traité",                 css: "btn-status-green" },
+  "En cours":                { emoji: "🔵", label: "En cours",               css: "btn-status-blue" },
+  "RDV fait":                { emoji: "✅", label: "RDV fait",               css: "btn-status-green" },
+  "Ne s'est pas présenté":  { emoji: "🚫", label: "Ne s'est pas présenté",  css: "btn-status-gray" },
+  "Annulé":                  { emoji: "❌", label: "Annulé",                 css: "btn-status-red" },
+  "Reporté":                 { emoji: "🕒", label: "Reporté",                css: "btn-status-yellow" }
+};
+
+function rdvStatusBadgeHtml(status) {
+  const meta = RDV_STATUS_META[status] || { emoji: "•", label: status || "—", css: "btn-status-gray" };
+  return `<span class="btn-status ${meta.css}" style="cursor:default;display:inline-block;">${meta.emoji} ${escapeHtml(meta.label)}</span>`;
+}
+
+function switchRdvTab(tab) {
+  gestionRdvTab = tab;
+  document.querySelectorAll("#page-gestion-rdv .tab-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.rdvtab === tab);
+  });
+  renderGestionRdv();
+}
+
+async function loadGestionRdv() {
+  try {
+    const data = await api("/api/appointments");
+    gestionRdvAll = data.appointments;
+
+    if (!emsMembersForAssign.length) {
+      try {
+        const d = await api("/api/staff-members");
+        emsMembersForAssign = d.users;
+      } catch {}
+    }
+
+    renderGestionRdv();
+    updateGestionRdvBadge();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function refreshGestionRdvBadge() {
+  try {
+    const data = await api("/api/appointments");
+    gestionRdvAll = data.appointments;
+    updateGestionRdvBadge();
+  } catch {}
+}
+
+function updateGestionRdvBadge() {
+  const pendingCount = gestionRdvAll.filter(a => a.status === "A traiter" || !a.status).length;
+  const badge = document.getElementById("gestionRdvBadge");
+  if (!badge) return;
+  badge.textContent = pendingCount;
+  badge.classList.toggle("hidden", pendingCount === 0);
+}
+
+function renderGestionRdv() {
+  const listEl = document.getElementById("gestionRdvList");
+  if (!listEl) return;
+
+  const filtered = gestionRdvAll.filter(a => {
+    const isPending = a.status === "A traiter" || !a.status;
+    return gestionRdvTab === "done" ? !isPending : isPending;
+  });
+
+  listEl.innerHTML = "";
+
+  if (!filtered.length) {
+    listEl.innerHTML = `<div class="empty">Aucun rendez-vous ici.</div>`;
+    return;
+  }
+
+  filtered.forEach(a => {
+    const div = document.createElement("div");
+    div.className = "activity-item static";
+    div.style.flexDirection = "column";
+    div.style.alignItems = "stretch";
+    div.style.cursor = "default";
+
+    const statusButtons = RDV_STATUS_BUTTONS.map(s => `
+      <button
+        class="btn-status ${s.css} ${a.status === s.value ? "active-status" : ""}"
+        onclick="markRdvStatus(${a.id}, '${s.value.replace(/'/g, "\\'")}')"
+      >${s.label}</button>
+    `).join("");
+
+    const isPending = a.status === "A traiter" || !a.status;
+
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+        <div>
+          <div class="activity-title">#${a.id} · ${escapeHtml(a.requester || "Citoyen")}</div>
+          <div class="activity-sub">Créé le ${date(a.created_at)} · ${rdvStatusBadgeHtml(a.status)}</div>
+        </div>
+      </div>
+      <div class="patient-grid" style="margin-bottom:12px;">
+        <div><span class="k">Créneau 1</span><span class="v">${date(a.slot1)}</span></div>
+        <div><span class="k">Créneau 2</span><span class="v">${a.slot2 ? date(a.slot2) : "—"}</span></div>
+        <div><span class="k">Téléphone</span><span class="v">${escapeHtml(a.phone || "—")}</span></div>
+        <div><span class="k">Motif</span><span class="v">${escapeHtml(a.motif || "—")}</span></div>
+      </div>
+      <div class="form-grid" style="margin-bottom:10px;">
+        <div class="field">
+          <label>Créneau confirmé</label>
+          <select id="rdvConfirmed-${a.id}">
+            <option value="">Aucun</option>
+            <option value="slot1" ${a.confirmed_slot && a.confirmed_slot === a.slot1 ? "selected" : ""}>Créneau 1 — ${date(a.slot1)}</option>
+            ${a.slot2 ? `<option value="slot2" ${a.confirmed_slot && a.confirmed_slot === a.slot2 ? "selected" : ""}>Créneau 2 — ${date(a.slot2)}</option>` : ""}
+          </select>
+        </div>
+        <div class="field">
+          <label>Assigné à</label>
+          <select id="rdvAssign-${a.id}">
+            <option value="">Non assigné</option>
+            ${emsMembersForAssign.map(m => `<option value="${m.id}" ${a.assigned_to === m.id ? "selected" : ""}>${escapeHtml(m.nickname || m.username)}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div class="patient-actions" style="margin-bottom:10px;">
+        ${statusButtons}
+      </div>
+      <div class="patient-actions">
+        <button class="btn btn-dark btn-sm" onclick="saveRdvAssignment(${a.id})">💾 Enregistrer</button>
+        ${isPending
+          ? `<button class="btn btn-green btn-sm" onclick="markRdvStatus(${a.id}, 'Traité')">✔ Marquer traité</button>`
+          : `<button class="btn btn-outline btn-sm" onclick="markRdvStatus(${a.id}, 'A traiter')">↺ Remettre à traiter</button>`}
+        ${currentUser?.is_director ? `<button class="btn-delete btn-sm" onclick="deleteAppointment(${a.id})">🗑️ Supprimer</button>` : ""}
+      </div>
+    `;
+    listEl.appendChild(div);
+  });
+}
+
+async function saveRdvAssignment(id) {
+  const confirmedEl = document.getElementById(`rdvConfirmed-${id}`);
+  const assignEl = document.getElementById(`rdvAssign-${id}`);
+  const appointment = gestionRdvAll.find(a => a.id === id);
+
+  let confirmedValue = null;
+  if (confirmedEl.value === "slot1") confirmedValue = appointment?.slot1 || null;
+  if (confirmedEl.value === "slot2") confirmedValue = appointment?.slot2 || null;
+
+  try {
+    await api(`/api/appointments/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        confirmed_slot: confirmedValue,
+        assigned_to: assignEl.value || null
+      })
+    });
+    toast("Rendez-vous mis à jour.");
+    await loadGestionRdv();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function markRdvStatus(id, status) {
+  try {
+    await api(`/api/appointments/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status })
+    });
+    toast("Statut mis à jour.");
+    await loadGestionRdv();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteAppointment(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer le rendez-vous #${id} ?\n\nCette action est définitive.`);
+  if (!ok) return;
+
+  try {
+    await api(`/api/appointments/${id}`, { method: "DELETE" });
+    toast("Rendez-vous supprimé.");
+    await loadGestionRdv();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= RENDEZ-VOUS (citoyen + staff) ========================= */
+
+async function loadMyAppointments() {
+  try {
+    const data = await api("/api/appointments");
+
+    // Le staff (EMS/Directeur) reçoit tous les rendez-vous via cette
+    // route (utilisée aussi par "Gestion RDV") : on ne garde ici que
+    // les rendez-vous du membre connecté pour la liste "Mes rendez-vous".
+    myAppointments = (currentUser?.is_ems || currentUser?.is_director)
+      ? data.appointments.filter(a => a.user_id === currentUser.id)
+      : data.appointments;
+
+    document.getElementById("myRdvCount").textContent = myAppointments.length;
+    const tbody = document.getElementById("myRdvTable");
+    tbody.innerHTML = "";
+
+    if (!myAppointments.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="empty">Aucun rendez-vous pour le moment.</td></tr>`;
+      return;
+    }
+
+    myAppointments.forEach(a => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>#${a.id}</td>
+        <td>${date(a.created_at)}</td>
+        <td>${date(a.slot1)}</td>
+        <td>${a.slot2 ? date(a.slot2) : "—"}</td>
+        <td>${a.confirmed_slot ? date(a.confirmed_slot) : "—"}</td>
+        <td>${escapeHtml(a.phone || "—")}</td>
+        <td style="white-space:normal;max-width:220px;">${escapeHtml(a.motif || "—")}</td>
+        <td>${rdvStatusBadgeHtml(a.status)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function submitAppointmentForm(event) {
+  event.preventDefault();
+
+  const payload = {
+    slot1: document.getElementById("rdvSlot1").value,
+    slot2: document.getElementById("rdvSlot2").value || null,
+    phone: document.getElementById("rdvPhone").value || null,
+    motif: document.getElementById("rdvMotif").value
+  };
+
+  try {
+    await api("/api/appointments", { method: "POST", body: JSON.stringify(payload) });
+    toast("Rendez-vous demandé.");
+    document.getElementById("rdvSlot1").value = "";
+    document.getElementById("rdvSlot2").value = "";
+    document.getElementById("rdvPhone").value = "";
+    document.getElementById("rdvMotif").value = "";
+    await loadMyAppointments();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= CANDIDATURE (citoyen) ========================= */
+
+function updateAppCharCount(fieldId, countId) {
+  document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
+}
+
+async function submitApplicationForm(event) {
+  event.preventDefault();
+
+  const payload = {
+    last_name: document.getElementById("appLastName").value,
+    first_name: document.getElementById("appFirstName").value,
+    birth_date: document.getElementById("appBirthDate").value,
+    phone: document.getElementById("appPhone").value,
+    medical_experience: document.getElementById("appExperience").value,
+    motivation: document.getElementById("appMotivation").value
+  };
+
+  try {
+    await api("/api/applications", { method: "POST", body: JSON.stringify(payload) });
+    toast("Candidature envoyée.");
+    event.target.reset();
+    document.getElementById("appExperienceCount").textContent = "0";
+    document.getElementById("appMotivationCount").textContent = "0";
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= START ========================= */
+
+loadUser();
+
+</script>
+</body>
+</html>
