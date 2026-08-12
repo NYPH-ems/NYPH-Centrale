@@ -2546,8 +2546,11 @@ async function loadExpenses() {
 }
 
 function renderExpenses(expenses) {
-  const box = document.getElementById("expensesList");
-  box.innerHTML = "";
+    const box = document.getElementById("expensesList");
+
+    if (!box) return;
+
+    box.innerHTML = "";
 
   if (!expenses.length) {
     box.innerHTML = `<div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>`;
