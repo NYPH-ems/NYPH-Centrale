@@ -830,12 +830,11 @@
             <button class="btn btn-red btn-sm" style="margin-top:14px;" onclick="submitExpense()">Ajouter</button>
           </div>
 
+          <div class="card-label" style="margin-bottom:14px;">Mes notes de frais</div>
           <div id="expensesList">
-  <div class="empty">
-    Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.
-    NE RIEN MARQUER ICI !! INDISPONIBLE POUR LE MOMENT !
-  </div>
-</div>
+            <div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>
+          </div>
+        </div>
 
         <!-- NOUVELLE FACTURE -->
         <div>
@@ -2546,11 +2545,8 @@ async function loadExpenses() {
 }
 
 function renderExpenses(expenses) {
-    const box = document.getElementById("expensesList");
-
-    if (!box) return;
-
-    box.innerHTML = "";
+  const box = document.getElementById("expensesList");
+  box.innerHTML = "";
 
   if (!expenses.length) {
     box.innerHTML = `<div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>`;
