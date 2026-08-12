@@ -84,7 +84,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 const db = new Database(
-  path.join(__dirname, "database.db")
+  path.join(
+    process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname,
+    "database.db"
+  )
 );
 
 
