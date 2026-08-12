@@ -1,11 +1,12 @@
 const express = require("express");
 const session = require("express-session");
-const Database = require("better-sqlite3");
-const path = require("path");
+const Database = require("better-sqlite3");const path = require("path");
+const app = express();const PORT = process.env.PORT || 8080;
 
-
-const app = express();
-const PORT = process.env.PORT || 8080;
+app.use(express.json());
+// Sert le dossier publicapp.use(express.static(path.join(__dirname, "public")));
+// Page principaleapp.get("/", (req, res) => {res.sendFile(path.join(__dirname, "index.html"));})
+app.listen(PORT, "0.0.0.0", () => {console.log(Serveur lancé sur le port ${PORT});});
 
 
 /* =========================================================
@@ -24,7 +25,7 @@ const DISCORD = {
 
   REDIRECT_URI:
     process.env.DISCORD_REDIRECT_URI ||
-    "http://localhost:8080/auth/discord/callback",
+    "http://localhost:3000/auth/discord/callback",
 
 
   SERVER_ID: "1468459512313680040",
@@ -84,10 +85,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 const db = new Database(
-  path.join(
-    process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname,
-    "database.db"
-  )
+  path.join(__dirname, "database.db")
 );
 
 
@@ -3380,11 +3378,11 @@ app.post(
 
 
     if (
-      (medical_experience && medical_experience.length > 8080) ||
-      (motivation && motivation.length > 8080)
+      (medical_experience && medical_experience.length > 3000) ||
+      (motivation && motivation.length > 3000)
     ) {
       return res.status(400).json({
-        error: "Un des champs dépasse la limite de 8080 caractères."
+        error: "Un des champs dépasse la limite de 3000 caractères."
       });
     }
 
