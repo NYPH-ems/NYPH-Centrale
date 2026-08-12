@@ -6,7 +6,9 @@ const app = express();const PORT = process.env.PORT || 8080;
 app.use(express.json());
 // Sert le dossier publicapp.use(express.static(path.join(__dirname, "public")));
 // Page principaleapp.get("/", (req, res) => {res.sendFile(path.join(__dirname, "index.html"));})
-app.listen(PORT, "0.0.0.0", () => {console.log(Serveur lancé sur le port ${PORT});});
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Serveur lancé sur le port ${PORT}`);
+});
 
 
 /* =========================================================
