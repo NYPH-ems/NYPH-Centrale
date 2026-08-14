@@ -231,12 +231,6 @@
   }
   .btn-delete:hover { background: var(--red); color: white; }
 
-  .btn-icon {
-    background: #1a1a1a; color: #ddd; border: 1px solid var(--border);
-    padding: 6px 9px; border-radius: 7px; font-size: 13px;
-  }
-  .btn-icon:hover { background: var(--red); color: white; border-color: var(--red); }
-
   /* Boutons de statut colorés (rendez-vous) */
   .btn-status { border: 0; border-radius: 7px; padding: 8px 12px; font-weight: 800; font-size: 12px; }
   .btn-status-blue { background: rgba(64,140,255,.18); color: #6fa8ff; border: 1px solid rgba(64,140,255,.4); }
@@ -259,11 +253,13 @@
   th { color: #999; font-size: 12px; text-transform: uppercase; }
   td { font-size: 14px; }
 
+  /* Barre de défilement horizontale pour les grands tableaux (discrète) */
   .table-scroll {
     overflow-x: auto;
     overflow-y: hidden;
   }
 
+  /* Tableau où on veut voir tout le contenu, quitte à être resserré */
   .no-truncate table { table-layout: auto; }
   .no-truncate td, .no-truncate th { white-space: normal; overflow: visible; text-overflow: clip; }
 
@@ -285,7 +281,6 @@
   textarea { min-height: 100px; resize: vertical; }
   input:focus, textarea:focus, select:focus { border-color: var(--red); }
   input[type="file"] { padding: 9px; }
-  input[type="checkbox"] { width: auto; }
 
   .char-count { font-size: 12px; color: #777; text-align: right; margin-top: 4px; }
 
@@ -353,7 +348,6 @@
   }
 
   .modal-box.wide { width: min(880px, 100%); }
-  .modal-box.xwide { width: min(1100px, 100%); }
 
   .modal-head {
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
@@ -384,7 +378,7 @@
     width: 40px; height: 40px; border-radius: 8px; font-size: 18px;
   }
 
-  /* TEXT ZOOM MODAL (candidatures / motifs facture) */
+  /* TEXT ZOOM MODAL (candidatures) */
   .text-zoom-body {
     white-space: pre-wrap; line-height: 1.6; font-size: 15px; color: #eee;
     max-height: 65vh; overflow-y: auto;
@@ -868,44 +862,43 @@
         <!-- NOUVELLE FACTURE -->
         <div>
           <div class="form">
-            <div class="card-label" style="margin-bottom:6px;">Nouvelle facture</div>
-            <div style="color:var(--gray);font-size:12px;margin-bottom:14px;">Enregistrez une ou plusieurs factures de service à destination d'un service partenaire (LSMC).</div>
-            <div class="form-grid">
-              <div class="field">
-                <label>Service destinataire</label>
-                <select id="invoiceService">
-                  <option value="">— Sélectionner un service —</option>
-                  <option>NYPD</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Matricule</label>
-                <input type="text" id="invoiceMatricule" placeholder="Matricule">
-              </div>
-            </div>
+  <div class="card-label" style="margin-bottom:6px;">Nouvelle facture</div>
+  <div style="color:var(--gray);font-size:12px;margin-bottom:14px;">Enregistrez une ou plusieurs factures de service à destination d'un service partenaire (LSMC).</div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Service destinataire</label>
+      <select id="invoiceService">
+        <option value="">— Sélectionner un service —</option>
+        <option>NYPD</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Matricule</label>
+      <input type="text" id="invoiceMatricule" placeholder="Matricule">
+    </div>
+  </div>
 
-            <br>
-            <div class="card-label" style="margin-bottom:10px;">Motifs (sélection multiple)</div>
-            <div class="care-list" id="invoiceMotifList"></div>
+  <br>
+  <div class="card-label" style="margin-bottom:10px;">Motifs (sélection multiple)</div>
+  <div class="care-list" id="invoiceMotifList"></div>
 
-            <br>
-            <div class="card-label" style="margin-bottom:10px;">Lignes libres</div>
-            <div id="invoiceBillingRows"></div>
-            <button type="button" class="btn btn-dark btn-sm" onclick="addInvoiceBillingRow()">+ Ajouter une ligne</button>
+  <br>
+  <div class="card-label" style="margin-bottom:10px;">Lignes libres</div>
+  <div id="invoiceBillingRows"></div>
+  <button type="button" class="btn btn-dark btn-sm" onclick="addInvoiceBillingRow()">+ Ajouter une ligne</button>
 
-            <div class="total-box">
-              <div class="card-label" style="margin-bottom:0;">Total de la facture</div>
-              <div class="total-amount" id="invoiceTotal">$0,00</div>
-            </div>
+  <div class="total-box">
+    <div class="card-label" style="margin-bottom:0;">Total de la facture</div>
+    <div class="total-amount" id="invoiceTotal">$0,00</div>
+  </div>
 
-            <button class="btn btn-red btn-sm" style="margin-top:14px;" onclick="submitInvoice()">Enregistrer la/les facture(s)</button>
-          </div>
+  <button class="btn btn-red btn-sm" style="margin-top:14px;" onclick="submitInvoice()">Enregistrer la/les facture(s)</button>
+</div>
 
-          <div class="card-label" style="margin:20px 0 14px;">Mes factures</div>
-          <div class="activity-list" id="myInvoicesList">
-            <div class="empty">Aucune facture pour le moment.</div>
-          </div>
-        </div>
+<div class="card-label" style="margin:20px 0 14px;">Mes factures</div>
+<div class="activity-list" id="myInvoicesList">
+  <div class="empty">Aucune facture pour le moment.</div>
+</div>
 
       </div>
     </section>
@@ -938,20 +931,54 @@
         </div>
       </div>
 
-      <!-- Résumé Personnel, réduit : le détail complet s'ouvre dans une fenêtre dédiée -->
-      <div class="service-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <div>
-            <div class="card-label" style="margin-bottom:6px;">Personnel LSMC</div>
-            <div class="card-value" id="directorMembersCount" style="font-size:22px;">0 membre(s)</div>
-          </div>
-          <button class="btn btn-dark btn-sm" onclick="openModal('directorMembersModal')">👥 Voir le détail du personnel</button>
+      <div class="table-container table-scroll">
+        <table>
+          <colgroup>
+            <col style="width:22%">
+            <col style="width:18%">
+            <col style="width:18%">
+            <col style="width:10%">
+            <col style="width:12%">
+            <col style="width:20%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Membre</th>
+              <th>Métier</th>
+              <th>Grade</th>
+              <th>Services</th>
+              <th>Total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directorTable"></tbody>
+        </table>
+      </div>
+
+      <br>
+
+      <div id="directorServicesBox" class="table-container hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #292929;">
+          <strong id="directorServicesTitle">Services du membre</strong>
+          <button class="btn btn-dark" onclick="closeDirectorServices()">✕ Fermer</button>
         </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Membre</th>
+              <th>Début</th>
+              <th>Fin</th>
+              <th>Durée</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directorServicesTable"></tbody>
+        </table>
       </div>
 
       <hr class="section-divider">
 
-      <!-- Résumé Factures LSMC, réduit -->
       <div class="page-title">
         <div>
           <h2 style="font-size:22px;">Factures LSMC</h2>
@@ -959,19 +986,27 @@
         </div>
       </div>
 
-      <div class="service-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <div>
-            <div class="card-label" style="margin-bottom:6px;">Factures enregistrées</div>
-            <div class="card-value" id="directorInvoicesCount" style="font-size:22px;">0 facture(s)</div>
-          </div>
-          <button class="btn btn-dark btn-sm" onclick="openModal('directorInvoicesModal')">🧾 Voir le détail des factures</button>
-        </div>
+      <div class="table-container table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Employé</th>
+              <th>Service</th>
+              <th>Matricule</th>
+              <th>Motif</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directorInvoicesTable">
+            <tr><td colspan="7" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <hr class="section-divider">
 
-      <!-- Résumé Notes de frais, réduit -->
       <div class="page-title">
         <div>
           <h2 style="font-size:22px;">Notes de frais du personnel</h2>
@@ -979,14 +1014,22 @@
         </div>
       </div>
 
-      <div class="service-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <div>
-            <div class="card-label" style="margin-bottom:6px;">Notes de frais enregistrées</div>
-            <div class="card-value" id="directorExpensesCount" style="font-size:22px;">0 note(s)</div>
-          </div>
-          <button class="btn btn-dark btn-sm" onclick="openModal('directorExpensesModal')">💵 Voir le détail des frais</button>
-        </div>
+      <div class="table-container table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Employé</th>
+              <th>Catégorie</th>
+              <th>Motif</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directorExpensesTable">
+            <tr><td colspan="6" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <hr class="section-divider">
@@ -1298,7 +1341,7 @@
   </div>
 </div>
 
-<!-- MODAL : TEXTE ZOOMÉ (candidatures / motifs facture) -->
+<!-- MODAL : TEXTE ZOOMÉ (candidatures) -->
 <div class="modal-overlay" id="textZoomModal">
   <div class="modal-box">
     <div class="modal-head">
@@ -1324,120 +1367,6 @@
   </div>
 </div>
 
-<!-- MODAL : DÉTAIL PERSONNEL (Direction) — remplace l'ancien tableau affiché en pleine page -->
-<div class="modal-overlay" id="directorMembersModal">
-  <div class="modal-box xwide">
-    <div class="modal-head">
-      <h3>Personnel LSMC</h3>
-      <button class="modal-close" onclick="closeModal('directorMembersModal')">✕</button>
-    </div>
-
-    <div class="table-container table-scroll">
-      <table>
-        <colgroup>
-          <col style="width:22%">
-          <col style="width:18%">
-          <col style="width:18%">
-          <col style="width:10%">
-          <col style="width:12%">
-          <col style="width:20%">
-        </colgroup>
-        <thead>
-          <tr>
-            <th>Membre</th>
-            <th>Métier</th>
-            <th>Grade</th>
-            <th>Services</th>
-            <th>Total</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="directorTable"></tbody>
-      </table>
-    </div>
-
-    <br>
-
-    <div id="directorServicesBox" class="table-container hidden">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #292929;">
-        <strong id="directorServicesTitle">Services du membre</strong>
-        <button class="btn btn-dark" onclick="closeDirectorServices()">✕ Fermer</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Membre</th>
-            <th>Début</th>
-            <th>Fin</th>
-            <th>Durée</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="directorServicesTable"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL : DÉTAIL FACTURES LSMC (Direction) -->
-<div class="modal-overlay" id="directorInvoicesModal">
-  <div class="modal-box xwide">
-    <div class="modal-head">
-      <h3>Factures LSMC</h3>
-      <button class="modal-close" onclick="closeModal('directorInvoicesModal')">✕</button>
-    </div>
-
-    <div class="table-container table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Employé</th>
-            <th>Service</th>
-            <th>Matricule</th>
-            <th>Motif</th>
-            <th>Montant</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="directorInvoicesTable">
-          <tr><td colspan="7" class="empty">Chargement...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL : DÉTAIL NOTES DE FRAIS (Direction) — case à cocher "remboursé" -->
-<div class="modal-overlay" id="directorExpensesModal">
-  <div class="modal-box xwide">
-    <div class="modal-head">
-      <h3>Notes de frais du personnel</h3>
-      <button class="modal-close" onclick="closeModal('directorExpensesModal')">✕</button>
-    </div>
-
-    <div class="table-container table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Employé</th>
-            <th>Catégorie</th>
-            <th>Motif</th>
-            <th>Montant</th>
-            <th>Date</th>
-            <th>Remboursé</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="directorExpensesTable">
-          <tr><td colspan="7" class="empty">Chargement...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
 <!-- LIGHTBOX IMAGE (voir en grand) -->
 <div class="lightbox-overlay" id="imageLightbox">
   <button class="lightbox-close" onclick="closeImageLightbox()">✕</button>
@@ -1447,28 +1376,6 @@
 <div class="toast" id="toast"></div>
 
 <script>
-
-/* =====================================================================
-   NOTE SUR LES ENDPOINTS API
-   Le script ci-dessous complète la partie manquante par rapport à ce
-   qui avait déjà été fourni (jusqu'à loadWeekSelection). Les endpoints
-   /api/me, /api/care-catalog, /api/dashboard, /api/service/*,
-   /api/stats*, /api/director/services/:id existaient déjà.
-   Les endpoints suivants sont NOUVEAUX ou supposés, à adapter côté
-   back-end si les noms ne correspondent pas exactement :
-     - /api/patients [GET,POST] , /api/patients/:id [GET,PUT,DELETE]
-     - /api/interventions [GET,POST] , /api/interventions/:id [GET,PUT,DELETE]
-     - /api/expenses [GET,POST] , /api/expenses/:id [DELETE]
-     - /api/invoices [GET,POST] , /api/invoices/:id [DELETE]
-     - /api/appointments [GET,POST] (RDV du citoyen connecté)
-     - /api/director/members [GET] , /api/director/members/:id [PUT]
-     - /api/director/invoices [GET]
-     - /api/director/expenses [GET]
-     - /api/director/expenses/:id/reimburse [PUT] { reimbursed: bool }  <-- NOUVEAU (case à cocher "remboursé")
-     - /api/director/appointments [GET] , /api/director/appointments/:id [PUT] { status }
-     - /api/director/applications [GET] , /api/director/applications/:id [DELETE]
-     - /api/applications [POST]
-   ===================================================================== */
 
 let currentUser = null;
 let currentService = null;
@@ -1483,15 +1390,9 @@ let currentInterventionDetailsId = null;
 let interventionImageData = null;
 let availableWeeks = [];
 let myAppointments = [];
-let myExpenses = [];
-let myInvoices = [];
 let gestionRdvAll = [];
 let gestionRdvTab = "pending";
 let emsMembersForAssign = [];
-let directorInvoicesGrouped = [];
-let directorExpensesAll = [];
-let directorMembersAll = [];
-let applicationsAll = [];
 let sessionCheckInterval = null;
 
 /* ========================= API ========================= */
@@ -1539,17 +1440,20 @@ function money(value) {
   return `$${n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-function truncate(text, max) {
-  const s = String(text ?? "");
-  return s.length > max ? s.slice(0, max) + "…" : s;
-}
-
+/* Extrait un tableau d'une réponse API, que celle-ci renvoie directement
+   un tableau ou un objet { cleAttendue: [...] }. Évite les crashs
+   "Cannot read properties of undefined (reading 'length')" quand le
+   back-end ne renvoie pas exactement la forme attendue. */
 function asArray(data, key) {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data[key])) return data[key];
   return [];
 }
 
+/* Regroupe des lignes de facture créées en une seule soumission
+   (même employé, service, matricule, même minute de création) en une
+   seule ligne affichée : motifs concaténés, montant total, et la liste
+   des ids d'origine pour la suppression groupée. */
 function groupInvoiceRows(rows, keyFields) {
   const groups = new Map();
   rows.forEach(r => {
@@ -1592,7 +1496,7 @@ document.querySelectorAll(".modal-overlay").forEach(overlay => {
   });
 });
 
-/* ========================= CONFIRMATION DE SUPPRESSION ========================= */
+/* ========================= CONFIRMATION DE SUPPRESSION (design du site) ========================= */
 
 let confirmModalResolver = null;
 
@@ -1614,7 +1518,7 @@ function closeConfirmModal(result) {
   }
 }
 
-/* ========================= ZOOM TEXTE (candidatures / motifs facture) ========================= */
+/* ========================= ZOOM TEXTE (candidatures) ========================= */
 
 function zoomText(title, content) {
   document.getElementById("textZoomTitle").textContent = title;
@@ -1657,7 +1561,7 @@ document.querySelectorAll("nav button[data-page]").forEach(button => {
     if (page === "director") { loadDirector(); loadApplications(); loadDirectorInvoices(); loadDirectorExpenses(); }
     if (page === "gestion-rdv") loadGestionRdv();
     if (page === "rdv") loadMyAppointments();
-    if (page === "candidature") { /* rien à précharger */ }
+    if (page === "candidature") { /* nothing to preload */ }
   });
 });
 
@@ -1671,7 +1575,13 @@ function goToPage(page) {
   if (pageEl) pageEl.classList.add("active");
 }
 
-/* ========================= SESSION LIVE CHECK ========================= */
+/* ========================= SESSION LIVE CHECK =========================
+   Vérifie régulièrement auprès du serveur (qui interroge Discord) que
+   l'utilisateur possède toujours les rôles nécessaires. Si le rôle LSMC
+   (ou citoyen) a été retiré sur Discord entre-temps, on déconnecte
+   immédiatement la personne côté site, sans qu'elle ait besoin de
+   recharger la page elle-même.
+*/
 
 function startSessionWatcher() {
   if (sessionCheckInterval) clearInterval(sessionCheckInterval);
@@ -1854,7 +1764,6 @@ async function loadDashboard() {
     console.error(e);
   }
 }
-
 /* ========================= SERVICE (+ activité) ========================= */
 
 async function loadService() {
@@ -1938,8 +1847,7 @@ async function deleteService(id) {
     toast(e.message);
   }
 }
-
-/* ---- Services par semaine ---- */
+/* ---- Services par semaine (sélecteur, à partir de la semaine 33) ---- */
 
 async function loadAvailableWeeks() {
   try {
@@ -2007,8 +1915,11 @@ async function loadWeekSelection() {
 async function loadPatients() {
   try {
     const data = await api("/api/patients");
-    patients = asArray(data, "patients");
-    document.getElementById("patientsCount").textContent = patients.length;
+    patients = data.patients;
+
+    const countEl = document.getElementById("patientsCount");
+    if (countEl) countEl.textContent = patients.length;
+
     renderPatients();
   } catch (e) {
     toast(e.message);
@@ -2016,86 +1927,129 @@ async function loadPatients() {
 }
 
 function renderPatients() {
-  const search = (document.getElementById("patientSearch")?.value || "").toLowerCase();
-  const type = document.getElementById("filterType")?.value || "";
-  const blood = document.getElementById("filterBlood")?.value || "";
+  const listEl = document.getElementById("patientsList");
+  if (!listEl) return;
 
-  const list = document.getElementById("patientsList");
-  list.innerHTML = "";
+  const search = document.getElementById("patientSearch").value.trim().toLowerCase();
+  const type = document.getElementById("filterType").value;
+  const blood = document.getElementById("filterBlood").value;
 
   const filtered = patients.filter(p => {
-    const fullName = `${p.first_name || ""} ${p.last_name || ""}`.toLowerCase();
+    const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
     if (search && !fullName.includes(search)) return false;
     if (type && (p.status || "Patient") !== type) return false;
-    if (blood && (p.blood_type || "") !== blood) return false;
+    if (blood && p.blood_type !== blood) return false;
     return true;
   });
 
+  listEl.innerHTML = "";
+
   if (!filtered.length) {
-    list.innerHTML = `<div class="empty">Aucun patient ne correspond à cette recherche.</div>`;
+    listEl.innerHTML = `<div class="empty">Aucun dossier patient ne correspond.</div>`;
     return;
   }
 
-  filtered.forEach(p => {
-    const isDead = p.status === "Mort";
-    const div = document.createElement("div");
-    div.className = "patient";
-    div.innerHTML = `
+  filtered.forEach(patient => {
+    const isDead = patient.status === "Mort";
+    const item = document.createElement("div");
+    item.className = "patient";
+    item.innerHTML = `
       <div class="patient-head">
-        <div class="patient-name">${escapeHtml(p.first_name)} ${escapeHtml(p.last_name)}</div>
-        <span class="badge ${isDead ? "badge-dead" : "badge-alive"}">${isDead ? "Décédé(e)" : "Patient"}</span>
+        <div class="patient-name">N°${patient.id} - ${escapeHtml(patient.first_name)} ${escapeHtml(patient.last_name)}</div>
+        <span class="badge ${isDead ? "badge-dead" : "badge-alive"}">${isDead ? "Mort" : "Patient"}</span>
       </div>
       <div class="patient-grid">
-        <div><span class="k">Naissance</span><span class="v">${p.birth_date ? dateOnly(p.birth_date) : "—"}</span></div>
-        <div><span class="k">Sexe</span><span class="v">${escapeHtml(p.sex || "—")}</span></div>
-        <div><span class="k">Groupe sanguin</span><span class="v">${escapeHtml(p.blood_type || "—")}</span></div>
-        <div><span class="k">Téléphone</span><span class="v">${escapeHtml(p.phone || "—")}</span></div>
+        <div><span class="k">Date d'enregistrement</span><span class="v">${date(patient.created_at)}</span></div>
+        <div><span class="k">Date de naissance</span><span class="v">${escapeHtml(patient.birth_date || "—")}</span></div>
+        <div><span class="k">Sexe</span><span class="v">${escapeHtml(patient.sex || "—")}</span></div>
+        <div><span class="k">Numéro de téléphone</span><span class="v">${escapeHtml(patient.phone || "—")}</span></div>
+        <div><span class="k">Contact d'urgence</span><span class="v">${escapeHtml(patient.emergency_contact || "—")}</span></div>
+        <div><span class="k">Groupe sanguin</span><span class="v">${escapeHtml(patient.blood_type || "—")}</span></div>
+        <div><span class="k">Taille</span><span class="v">${escapeHtml(patient.height || "—")}</span></div>
+        <div><span class="k">Poids</span><span class="v">${escapeHtml(patient.weight || "—")}</span></div>
+        <div style="grid-column:1/-1;"><span class="k">Allergies / Traitements en cours</span><span class="v">${escapeHtml(patient.allergies || "—")}</span></div>
       </div>
       <div class="patient-actions">
-        <button class="btn btn-dark btn-sm" onclick="openPatientDetails(${p.id})">📄 Détails</button>
-        <button class="btn btn-outline btn-sm" onclick="editPatient(${p.id})">✏️ Modifier</button>
+        <button class="btn btn-dark btn-sm" onclick="openEditPatientModal(${patient.id})">Modifier</button>
+        <button class="btn btn-red btn-sm" onclick="openDetailsModal(${patient.id})">Voir les détails</button>
+        ${currentUser?.is_director ? `<button class="btn-delete btn-sm" onclick="deletePatient(${patient.id})">🗑️ Supprimer le dossier</button>` : ""}
       </div>
     `;
-    list.appendChild(div);
+    listEl.appendChild(item);
   });
+}
+
+/* ---- Suppression d'un dossier patient (doublons), Directeur uniquement ---- */
+
+async function deletePatient(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer le dossier patient N°${id} ?\n\nCette action est définitive et supprimera aussi les interventions liées.`);
+  if (!ok) return;
+
+  try {
+    await api(`/api/patients/${id}`, { method: "DELETE" });
+    toast("Dossier patient supprimé.");
+    await loadPatients();
+    await loadDashboard();
+    if (document.getElementById("page-interventions").classList.contains("active")) {
+      await loadInterventions();
+    }
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deletePatientFromDetails() {
+  if (!currentDetailsPatientId) return;
+  await deletePatient(currentDetailsPatientId);
+  if (!document.getElementById("detailsModal").classList.contains("open")) return;
+  closeModal("detailsModal");
+}
+
+/* ---- Nouveau / Modifier patient ---- */
+
+function resetPatientForm() {
+  editingPatientId = null;
+  document.getElementById("patientId").value = "";
+  ["patientFirst","patientLast","patientBirth","patientPhone","patientEmergency","patientHeight","patientWeight","patientAllergies","patientNotes"]
+    .forEach(id => document.getElementById(id).value = "");
+  document.getElementById("patientSex").value = "";
+  document.getElementById("patientBlood").value = "";
 }
 
 function openNewPatientModal() {
-  editingPatientId = null;
+  resetPatientForm();
   document.getElementById("patientModalTitle").textContent = "Nouveau patient";
-  document.getElementById("patientId").value = "";
-  ["patientFirst","patientLast","patientBirth","patientPhone","patientEmergency",
-   "patientHeight","patientWeight","patientAllergies","patientNotes"].forEach(id => {
-    document.getElementById(id).value = "";
-  });
-  document.getElementById("patientSex").value = "";
-  document.getElementById("patientBlood").value = "";
   openModal("patientModal");
 }
 
-function editPatient(id) {
-  const p = patients.find(x => x.id === id);
-  if (!p) return;
+function openEditPatientModal(id) {
+  const patient = patients.find(p => p.id === id);
+  if (!patient) return;
+
   editingPatientId = id;
+  document.getElementById("patientId").value = id;
   document.getElementById("patientModalTitle").textContent = "Modifier le patient";
-  document.getElementById("patientId").value = p.id;
-  document.getElementById("patientFirst").value = p.first_name || "";
-  document.getElementById("patientLast").value = p.last_name || "";
-  document.getElementById("patientBirth").value = p.birth_date || "";
-  document.getElementById("patientSex").value = p.sex || "";
-  document.getElementById("patientPhone").value = p.phone || "";
-  document.getElementById("patientEmergency").value = p.emergency_contact || "";
-  document.getElementById("patientBlood").value = p.blood_type || "";
-  document.getElementById("patientHeight").value = p.height || "";
-  document.getElementById("patientWeight").value = p.weight || "";
-  document.getElementById("patientAllergies").value = p.allergies || "";
-  document.getElementById("patientNotes").value = p.notes || "";
-  closeModal("detailsModal");
+
+  document.getElementById("patientFirst").value = patient.first_name || "";
+  document.getElementById("patientLast").value = patient.last_name || "";
+  document.getElementById("patientBirth").value = patient.birth_date || "";
+  document.getElementById("patientSex").value = patient.sex || "";
+  document.getElementById("patientPhone").value = patient.phone || "";
+  document.getElementById("patientEmergency").value = patient.emergency_contact || "";
+  document.getElementById("patientBlood").value = patient.blood_type || "";
+  document.getElementById("patientHeight").value = patient.height || "";
+  document.getElementById("patientWeight").value = patient.weight || "";
+  document.getElementById("patientAllergies").value = patient.allergies || "";
+  document.getElementById("patientNotes").value = patient.notes || "";
+
   openModal("patientModal");
 }
 
 async function submitPatientForm(event) {
   event.preventDefault();
+
   const payload = {
     first_name: document.getElementById("patientFirst").value,
     last_name: document.getElementById("patientLast").value,
@@ -2113,11 +2067,12 @@ async function submitPatientForm(event) {
   try {
     if (editingPatientId) {
       await api(`/api/patients/${editingPatientId}`, { method: "PUT", body: JSON.stringify(payload) });
-      toast("Patient mis à jour.");
+      toast("Dossier patient modifié.");
     } else {
       await api("/api/patients", { method: "POST", body: JSON.stringify(payload) });
-      toast("Patient créé.");
+      toast("Dossier patient créé.");
     }
+
     closeModal("patientModal");
     await loadPatients();
     await loadDashboard();
@@ -2126,78 +2081,83 @@ async function submitPatientForm(event) {
   }
 }
 
-function openPatientDetails(id) {
-  const p = patients.find(x => x.id === id);
-  if (!p) return;
-  currentDetailsPatientId = id;
+/* ---- Détails patient ---- */
 
-  document.getElementById("detailsTitle").textContent = `${p.first_name} ${p.last_name}`;
-
-  const isDead = p.status === "Mort";
-  const info = document.getElementById("detailsInfo");
-  info.innerHTML = `
-    <div><span class="k">Naissance</span><span class="v">${p.birth_date ? dateOnly(p.birth_date) : "—"}</span></div>
-    <div><span class="k">Sexe</span><span class="v">${escapeHtml(p.sex || "—")}</span></div>
-    <div><span class="k">Groupe sanguin</span><span class="v">${escapeHtml(p.blood_type || "—")}</span></div>
-    <div><span class="k">Taille</span><span class="v">${escapeHtml(p.height || "—")}</span></div>
-    <div><span class="k">Poids</span><span class="v">${escapeHtml(p.weight || "—")}</span></div>
-    <div><span class="k">Téléphone</span><span class="v">${escapeHtml(p.phone || "—")}</span></div>
-    <div><span class="k">Contact d'urgence</span><span class="v">${escapeHtml(p.emergency_contact || "—")}</span></div>
-    <div><span class="k">Allergies / Traitements</span><span class="v">${escapeHtml(p.allergies || "—")}</span></div>
-    <div><span class="k">Notes</span><span class="v">${escapeHtml(p.notes || "—")}</span></div>
-  `;
-
-  const statusBtn = document.getElementById("detailsStatusBtn");
-  statusBtn.textContent = isDead ? "✅ Marquer comme vivant" : "☠️ Marquer comme décédé(e)";
-
-  document.getElementById("detailsDeleteBtn").classList.toggle("hidden", !currentUser?.is_director);
-
-  const list = document.getElementById("detailsInterventions");
-  const own = interventions.filter(i => i.patient_id === id);
-  list.innerHTML = own.length
-    ? ""
-    : `<div class="empty">Aucune intervention pour ce patient.</div>`;
-  own.forEach(i => {
-    const item = document.createElement("div");
-    item.className = "activity-item";
-    item.onclick = () => openInterventionDetails(i.id);
-    item.innerHTML = `
-      <div>
-        <div class="activity-title">${escapeHtml(i.title)}</div>
-        <div class="activity-sub">${date(i.created_at)} · ${escapeHtml(i.employee_name || "")}</div>
-      </div>
-      <div class="activity-amount">${money(i.total)}</div>
-    `;
-    list.appendChild(item);
-  });
-
-  openModal("detailsModal");
-}
-
-async function toggleDetailsStatus() {
-  const p = patients.find(x => x.id === currentDetailsPatientId);
-  if (!p) return;
-  const newStatus = p.status === "Mort" ? "Patient" : "Mort";
+async function openDetailsModal(id) {
   try {
-    await api(`/api/patients/${p.id}`, { method: "PUT", body: JSON.stringify({ status: newStatus }) });
-    toast("Statut mis à jour.");
-    await loadPatients();
-    openPatientDetails(p.id);
+    const data = await api(`/api/patients/${id}`);
+    const p = data.patient;
+    currentDetailsPatientId = id;
+
+    document.getElementById("detailsTitle").textContent = `${p.first_name} ${p.last_name}`;
+
+    const isDead = p.status === "Mort";
+    const btn = document.getElementById("detailsStatusBtn");
+    btn.textContent = isDead ? "Marquer comme Patient" : "☠ Marquer comme Mort";
+
+    document.getElementById("detailsInfo").innerHTML = `
+      <div><span class="k">Statut</span><span class="v">${isDead ? "Mort" : "Patient"}</span></div>
+      <div><span class="k">Date d'enregistrement</span><span class="v">${date(p.created_at)}</span></div>
+      <div><span class="k">Date de naissance</span><span class="v">${escapeHtml(p.birth_date || "—")}</span></div>
+      <div><span class="k">Sexe</span><span class="v">${escapeHtml(p.sex || "—")}</span></div>
+      <div><span class="k">Téléphone</span><span class="v">${escapeHtml(p.phone || "—")}</span></div>
+      <div><span class="k">Contact d'urgence</span><span class="v">${escapeHtml(p.emergency_contact || "—")}</span></div>
+      <div><span class="k">Groupe sanguin</span><span class="v">${escapeHtml(p.blood_type || "—")}</span></div>
+      <div><span class="k">Taille</span><span class="v">${escapeHtml(p.height || "—")}</span></div>
+      <div><span class="k">Poids</span><span class="v">${escapeHtml(p.weight || "—")}</span></div>
+      <div style="grid-column:1/-1;"><span class="k">Allergies / Traitements en cours</span><span class="v">${escapeHtml(p.allergies || "—")}</span></div>
+    `;
+
+    document.getElementById("detailsDeleteBtn").classList.toggle("hidden", !currentUser?.is_director);
+
+    const box = document.getElementById("detailsInterventions");
+    box.innerHTML = "";
+
+    if (!data.interventions.length) {
+      box.innerHTML = `<div class="empty">Aucune intervention enregistrée.</div>`;
+    }
+
+    data.interventions.forEach(i => {
+      const div = document.createElement("div");
+      div.className = "activity-item";
+      div.onclick = () => openInterventionDetails(i.id);
+      div.innerHTML = `
+        <div>
+          <div class="activity-title">${escapeHtml(i.title)}</div>
+          <div class="activity-sub">${escapeHtml(i.creator || "—")} · ${date(i.created_at)}${i.is_official ? " · Fonctionnaire (remboursé)" : ""}</div>
+        </div>
+        <div class="activity-amount">${money(i.total)}</div>
+      `;
+      box.appendChild(div);
+    });
+
+    openModal("detailsModal");
   } catch (e) {
     toast(e.message);
   }
 }
 
-async function deletePatientFromDetails() {
-  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
-  const ok = await askConfirm("Voulez-vous vraiment supprimer ce dossier patient ?\n\nCette action est définitive.");
+async function toggleDetailsStatus() {
+  if (!currentDetailsPatientId) return;
+  const patient = patients.find(p => p.id === currentDetailsPatientId);
+  if (!patient) return;
+
+  const newStatus = patient.status === "Mort" ? "Patient" : "Mort";
+
+  const ok = await askConfirm(
+    `Confirmer le changement de statut en "${newStatus}" ?`,
+    newStatus === "Mort" ? "☠ Marquer comme mort" : "Confirmer le changement de statut"
+  );
   if (!ok) return;
+
   try {
-    await api(`/api/patients/${currentDetailsPatientId}`, { method: "DELETE" });
-    toast("Dossier supprimé.");
-    closeModal("detailsModal");
+    await api(`/api/patients/${currentDetailsPatientId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: newStatus })
+    });
+    toast("Statut mis à jour.");
     await loadPatients();
-    await loadDashboard();
+    await openDetailsModal(currentDetailsPatientId);
   } catch (e) {
     toast(e.message);
   }
@@ -2205,192 +2165,116 @@ async function deletePatientFromDetails() {
 
 /* ========================= INTERVENTIONS ========================= */
 
-async function loadInterventions() {
-  try {
-    const data = await api("/api/interventions");
-    interventions = asArray(data, "interventions");
-    renderInterventionsList();
-  } catch (e) {
-    toast(e.message);
-  }
-}
-
-function renderInterventionsList() {
-  const search = (document.getElementById("interventionSearch")?.value || "").toLowerCase();
-  const list = document.getElementById("interventionsList");
-  list.innerHTML = "";
-
-  const filtered = interventions.filter(i => {
-    if (!search) return true;
-    const hay = `${i.title || ""} ${i.patient_name || ""} ${i.employee_name || ""}`.toLowerCase();
-    return hay.includes(search);
-  });
-
-  if (!filtered.length) {
-    list.innerHTML = `<div class="empty">Aucune intervention pour le moment.</div>`;
-    return;
-  }
-
-  filtered.forEach(i => {
-    const item = document.createElement("div");
-    item.className = "activity-item";
-    item.onclick = () => openInterventionDetails(i.id);
-    item.innerHTML = `
-      <div>
-        <div class="activity-title">${escapeHtml(i.title)}</div>
-        <div class="activity-sub">${date(i.created_at)} · ${escapeHtml(i.patient_name || "Sans dossier")} · ${escapeHtml(i.employee_name || "")}</div>
-      </div>
-      <div class="activity-amount">${money(i.total)}</div>
-    `;
-    list.appendChild(item);
-  });
-}
-
-function openInterventionDetails(id) {
-  const i = interventions.find(x => x.id === id);
-  if (!i) return;
-  currentInterventionDetailsId = id;
-
-  document.getElementById("interventionDetailsTitle").textContent = i.title;
-
-  document.getElementById("interventionDetailsInfo").innerHTML = `
-    <div><span class="k">Patient</span><span class="v">${escapeHtml(i.patient_name || "Sans dossier")}</span></div>
-    <div><span class="k">Employé(e)</span><span class="v">${escapeHtml(i.employee_name || "—")}</span></div>
-    <div><span class="k">Date</span><span class="v">${date(i.created_at)}</span></div>
-    <div><span class="k">Total</span><span class="v">${money(i.total)}</span></div>
-  `;
-
-  const imgBox = document.getElementById("interventionDetailsImageBox");
-  if (i.image) {
-    document.getElementById("interventionDetailsImage").src = i.image;
-    imgBox.classList.remove("hidden");
-  } else {
-    imgBox.classList.add("hidden");
-  }
-
-  document.getElementById("interventionDetailsComments").textContent = i.comments || "—";
-  document.getElementById("interventionDeleteBtn").classList.toggle(
-    "hidden",
-    !(currentUser?.is_director || i.employee_id === currentUser?.id)
-  );
-
-  openModal("interventionDetailsModal");
-}
-
-function editInterventionFromDetails() {
-  const i = interventions.find(x => x.id === currentInterventionDetailsId);
-  if (!i) return;
-  closeModal("interventionDetailsModal");
-  openInterventionModal(i.patient_id, i);
-}
-
-async function deleteInterventionFromDetails() {
-  const ok = await askConfirm("Voulez-vous vraiment supprimer cette intervention ?\n\nCette action est définitive.");
-  if (!ok) return;
-  try {
-    await api(`/api/interventions/${currentInterventionDetailsId}`, { method: "DELETE" });
-    toast("Intervention supprimée.");
-    closeModal("interventionDetailsModal");
-    await loadInterventions();
-    await loadDashboard();
-  } catch (e) {
-    toast(e.message);
-  }
-}
-
-/* ---- Modale intervention (création / édition) ---- */
-
-let selectedCareIds = new Set();
-
 function renderCareList() {
   const box = document.getElementById("careList");
   box.innerHTML = "";
+
   careCatalog.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "care-item";
-    div.dataset.id = item.id;
-    div.innerHTML = `
-      <span>${escapeHtml(item.name)}</span>
+    const label = document.createElement("label");
+    label.className = "care-item";
+    label.dataset.key = item.key;
+    label.innerHTML = `
+      <span>
+        <input type="checkbox" value="${escapeHtml(item.key)}" onchange="onCareToggle(this)">
+        ${escapeHtml(item.key)}
+      </span>
       <span class="care-price">${money(item.price)}</span>
     `;
-    div.onclick = () => {
-      if (selectedCareIds.has(item.id)) {
-        selectedCareIds.delete(item.id);
-        div.classList.remove("selected");
-      } else {
-        selectedCareIds.add(item.id);
-        div.classList.add("selected");
-      }
-      calcInterventionTotal();
-    };
-    box.appendChild(div);
+    box.appendChild(label);
   });
 }
 
-function addBillingRow(description = "", amount = "") {
-  const container = document.getElementById("billingRows");
+function onCareToggle(checkbox) {
+  checkbox.closest(".care-item").classList.toggle("selected", checkbox.checked);
+  updateInterventionTotal();
+}
+
+function addBillingRow(label = "", amount = "") {
   const row = document.createElement("div");
   row.className = "billing-row";
   row.innerHTML = `
-    <input type="text" placeholder="Description" value="${escapeHtml(description)}" oninput="calcInterventionTotal()">
-    <input type="number" step="0.01" placeholder="Montant" value="${escapeHtml(amount)}" oninput="calcInterventionTotal()">
-    <button type="button" class="btn-icon" onclick="this.parentElement.remove(); calcInterventionTotal();">✕</button>
+    <input type="text" placeholder="Description" value="${escapeHtml(label)}" oninput="updateInterventionTotal()">
+    <input type="number" step="0.01" placeholder="Montant $" value="${escapeHtml(amount)}" oninput="updateInterventionTotal()">
+    <button type="button" class="btn-delete" onclick="this.parentElement.remove(); updateInterventionTotal();">✕</button>
   `;
-  container.appendChild(row);
+  document.getElementById("billingRows").appendChild(row);
 }
 
-function calcInterventionTotal() {
+function getSelectedCareItems() {
+  return Array.from(document.querySelectorAll("#careList input[type=checkbox]:checked")).map(c => c.value);
+}
+
+function getBillingLines() {
+  return Array.from(document.querySelectorAll("#billingRows .billing-row")).map(row => {
+    const inputs = row.querySelectorAll("input");
+    return { label: inputs[0].value, amount: Number(inputs[1].value) || 0 };
+  }).filter(l => l.label || l.amount);
+}
+
+function updateInterventionTotal() {
   let total = 0;
-  selectedCareIds.forEach(id => {
-    const item = careCatalog.find(c => c.id === id);
-    if (item) total += Number(item.price || 0);
+
+  getSelectedCareItems().forEach(key => {
+    const found = careCatalog.find(c => c.key === key);
+    if (found) total += found.price;
   });
-  document.querySelectorAll("#billingRows .billing-row").forEach(row => {
-    const amount = Number(row.querySelectorAll("input")[1].value || 0);
-    total += amount;
-  });
-  if (document.getElementById("interventionOfficial")?.checked) total = 0;
+
+  getBillingLines().forEach(l => { total += l.amount; });
+
   document.getElementById("interventionTotal").textContent = money(total);
-  return total;
 }
 
-document.getElementById("interventionOfficial")?.addEventListener("change", calcInterventionTotal);
+function updateCommentCount() {
+  const val = document.getElementById("interventionComments").value;
+  document.getElementById("commentCount").textContent = val.length;
+}
+
+/* ---- Recherche patient (autocomplete) — uniquement les patients avec un dossier médical ---- */
 
 function onInterventionPatientInput() {
-  const query = document.getElementById("interventionPatientSearch").value.toLowerCase();
+  const search = document.getElementById("interventionPatientSearch").value.trim().toLowerCase();
   const box = document.getElementById("interventionPatientResults");
+
+  if (!search) {
+    box.classList.add("hidden");
+    box.innerHTML = "";
+    return;
+  }
+
+  const matches = patients
+    .filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(search))
+    .slice(0, 8);
+
   box.innerHTML = "";
 
-  if (!query) { box.classList.add("hidden"); return; }
-
-  const matches = patients.filter(p =>
-    `${p.first_name} ${p.last_name}`.toLowerCase().includes(query)
-  ).slice(0, 8);
-
   if (!matches.length) {
-    box.innerHTML = `<div class="empty-result">Aucun patient trouvé.</div>`;
-  } else {
-    matches.forEach(p => {
-      const div = document.createElement("div");
-      div.textContent = `${p.first_name} ${p.last_name}`;
-      div.onclick = () => selectInterventionPatient(p);
-      box.appendChild(div);
-    });
+    box.innerHTML = `<div class="empty-result">Aucun dossier patient trouvé.</div>`;
+    box.classList.remove("hidden");
+    return;
   }
+
+  matches.forEach(p => {
+    const div = document.createElement("div");
+    div.textContent = `N°${p.id} - ${p.first_name} ${p.last_name}`;
+    div.onclick = () => selectInterventionPatient(p);
+    box.appendChild(div);
+  });
+
   box.classList.remove("hidden");
 }
 
-function selectInterventionPatient(p) {
-  document.getElementById("interventionPatientId").value = p.id;
+function selectInterventionPatient(patient) {
+  document.getElementById("interventionPatientId").value = patient.id;
   document.getElementById("interventionPatientSearch").value = "";
   document.getElementById("interventionPatientResults").classList.add("hidden");
+
   const chip = document.getElementById("interventionPatientChip");
   chip.classList.remove("hidden");
   chip.innerHTML = `
-    <span class="selected-patient-chip">
-      ${escapeHtml(p.first_name)} ${escapeHtml(p.last_name)}
+    <div class="selected-patient-chip">
+      Dossier lié : N°${patient.id} - ${escapeHtml(patient.first_name)} ${escapeHtml(patient.last_name)}
       <button type="button" onclick="clearInterventionPatient()">✕</button>
-    </span>
+    </div>
   `;
 }
 
@@ -2400,9 +2284,25 @@ function clearInterventionPatient() {
   document.getElementById("interventionPatientChip").innerHTML = "";
 }
 
+document.addEventListener("click", e => {
+  const box = document.getElementById("interventionPatientResults");
+  if (box && !e.target.closest(".patient-search-box")) {
+    box.classList.add("hidden");
+  }
+});
+
+/* ---- Image ---- */
+
 function onInterventionImageChange(event) {
   const file = event.target.files[0];
   if (!file) return;
+
+  if (file.size > 4 * 1024 * 1024) {
+    toast("Image trop lourde (4 Mo max).");
+    event.target.value = "";
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = () => {
     interventionImageData = reader.result;
@@ -2418,167 +2318,468 @@ function removeInterventionImage() {
   document.getElementById("interventionImagePreviewBox").classList.add("hidden");
 }
 
-function updateCommentCount() {
-  const el = document.getElementById("interventionComments");
-  document.getElementById("commentCount").textContent = el.value.length;
-}
+/* ---- Ouverture / soumission du formulaire ---- */
 
-function openInterventionModal(patientId = null, existing = null) {
-  editingInterventionId = existing ? existing.id : null;
-  selectedCareIds = new Set();
-  interventionImageData = existing?.image || null;
-
-  document.getElementById("interventionModalTitle").textContent = existing ? "Modifier l'intervention" : "Nouvelle intervention";
-  document.getElementById("interventionId").value = existing ? existing.id : "";
-  document.getElementById("interventionTitle").value = existing?.title || "";
-  document.getElementById("interventionComments").value = existing?.comments || "";
-  updateCommentCount();
-  document.getElementById("interventionOfficial").checked = !!existing?.official;
-
-  clearInterventionPatient();
-  const pid = existing?.patient_id || patientId;
-  if (pid) {
-    const p = patients.find(x => x.id === pid);
-    if (p) selectInterventionPatient(p);
+async function openInterventionModal(patientId, interventionId) {
+  if (!patients.length) {
+    await loadPatients();
   }
 
-  if (existing?.image) {
-    document.getElementById("interventionImagePreview").src = existing.image;
+  editingInterventionId = null;
+  interventionImageData = null;
+
+  document.getElementById("interventionId").value = "";
+  document.getElementById("interventionModalTitle").textContent = "Nouvelle intervention";
+  document.getElementById("interventionSubmitBtn").textContent = "Enregistrer l'intervention";
+  document.getElementById("interventionTitle").value = "";
+  document.getElementById("interventionComments").value = "";
+  document.getElementById("interventionOfficial").checked = false;
+  document.getElementById("interventionPatientSearch").value = "";
+  document.getElementById("billingRows").innerHTML = "";
+  document.getElementById("interventionImageInput").value = "";
+  document.getElementById("interventionImagePreviewBox").classList.add("hidden");
+  clearInterventionPatient();
+
+  document.querySelectorAll("#careList input[type=checkbox]").forEach(c => {
+    c.checked = false;
+    c.closest(".care-item").classList.remove("selected");
+  });
+
+  updateCommentCount();
+  updateInterventionTotal();
+
+  document.getElementById("interventionAutoInfo").textContent =
+    `La date, l'heure et le membre créateur (${currentUser?.nickname || currentUser?.username || "—"}) seront ajoutés automatiquement.`;
+
+  if (patientId) {
+    const patient = patients.find(p => p.id === patientId);
+    if (patient) selectInterventionPatient(patient);
+  }
+
+  if (interventionId) {
+    try {
+      const data = await api(`/api/interventions/${interventionId}`);
+      fillInterventionForm(data.intervention);
+    } catch (e) {
+      toast(e.message);
+      return;
+    }
+  }
+
+  openModal("interventionModal");
+}
+
+function fillInterventionForm(intervention) {
+  editingInterventionId = intervention.id;
+  document.getElementById("interventionId").value = intervention.id;
+  document.getElementById("interventionModalTitle").textContent = "Modifier l'intervention";
+  document.getElementById("interventionSubmitBtn").textContent = "Enregistrer les modifications";
+
+  document.getElementById("interventionTitle").value = intervention.title || "";
+  document.getElementById("interventionComments").value = intervention.comments || "";
+  document.getElementById("interventionOfficial").checked = !!intervention.is_official;
+  updateCommentCount();
+
+  document.getElementById("billingRows").innerHTML = "";
+  (intervention.free_billing || []).forEach(line => addBillingRow(line.label, line.amount));
+
+  document.querySelectorAll("#careList input[type=checkbox]").forEach(c => {
+    const checked = (intervention.care_items || []).includes(c.value);
+    c.checked = checked;
+    c.closest(".care-item").classList.toggle("selected", checked);
+  });
+
+  if (intervention.patient_id) {
+    const patient = patients.find(p => p.id === intervention.patient_id) || {
+      id: intervention.patient_id,
+      first_name: intervention.first_name || "Patient",
+      last_name: intervention.last_name || ""
+    };
+    selectInterventionPatient(patient);
+  } else {
+    clearInterventionPatient();
+  }
+
+  if (intervention.image) {
+    interventionImageData = intervention.image;
+    document.getElementById("interventionImagePreview").src = intervention.image;
     document.getElementById("interventionImagePreviewBox").classList.remove("hidden");
   } else {
+    interventionImageData = null;
     document.getElementById("interventionImagePreviewBox").classList.add("hidden");
   }
 
-  document.getElementById("billingRows").innerHTML = "";
-  (existing?.billing_rows || []).forEach(r => addBillingRow(r.description, r.amount));
+  document.getElementById("interventionAutoInfo").textContent =
+    `Créée le ${date(intervention.created_at)} par ${intervention.creator || "—"}.` +
+    (intervention.updated_at ? ` Dernière modification le ${date(intervention.updated_at)}.` : "");
 
-  renderCareList();
-  (existing?.care_ids || []).forEach(id => {
-    selectedCareIds.add(id);
-    const el = document.querySelector(`#careList .care-item[data-id="${id}"]`);
-    if (el) el.classList.add("selected");
-  });
-
-  calcInterventionTotal();
-  openModal("interventionModal");
+  updateInterventionTotal();
 }
 
 async function submitInterventionForm(event) {
   event.preventDefault();
 
-  const billingRows = Array.from(document.querySelectorAll("#billingRows .billing-row")).map(row => {
-    const inputs = row.querySelectorAll("input");
-    return { description: inputs[0].value, amount: Number(inputs[1].value || 0) };
-  });
+  const patientIdValue = document.getElementById("interventionPatientId").value;
 
   const payload = {
-    patient_id: document.getElementById("interventionPatientId").value || null,
+    patient_id: patientIdValue || null,
     title: document.getElementById("interventionTitle").value,
     comments: document.getElementById("interventionComments").value,
-    image: interventionImageData,
-    care_ids: Array.from(selectedCareIds),
-    billing_rows: billingRows,
-    official: document.getElementById("interventionOfficial").checked,
-    total: calcInterventionTotal()
+    care_items: getSelectedCareItems(),
+    free_billing: getBillingLines(),
+    is_official: document.getElementById("interventionOfficial").checked,
+    image: interventionImageData
   };
 
   try {
     if (editingInterventionId) {
       await api(`/api/interventions/${editingInterventionId}`, { method: "PUT", body: JSON.stringify(payload) });
-      toast("Intervention mise à jour.");
+      toast("Intervention modifiée.");
     } else {
       await api("/api/interventions", { method: "POST", body: JSON.stringify(payload) });
       toast("Intervention enregistrée.");
     }
+
     closeModal("interventionModal");
-    await loadInterventions();
     await loadDashboard();
-    if (document.getElementById("page-patients").classList.contains("active")) await loadPatients();
+
+    if (document.getElementById("page-interventions").classList.contains("active")) {
+      await loadInterventions();
+    }
+
+    if (currentDetailsPatientId && document.getElementById("detailsModal").classList.contains("open")) {
+      await openDetailsModal(currentDetailsPatientId);
+    }
   } catch (e) {
     toast(e.message);
   }
 }
 
-/* ========================= FRAIS & FACTURES (employé) ========================= */
+/* ---- Liste des interventions (page dédiée) ---- */
+
+async function loadInterventions() {
+  try {
+    const data = await api("/api/interventions");
+    interventions = data.interventions;
+    renderInterventionsList();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function renderInterventionsList() {
+  const listEl = document.getElementById("interventionsList");
+  if (!listEl) return;
+
+  const search = (document.getElementById("interventionSearch")?.value || "").trim().toLowerCase();
+
+  const filtered = interventions.filter(i => {
+    if (!search) return true;
+    const patientName = i.first_name ? `${i.first_name} ${i.last_name}`.toLowerCase() : "";
+    return i.title.toLowerCase().includes(search) || patientName.includes(search) || (i.creator || "").toLowerCase().includes(search);
+  });
+
+  listEl.innerHTML = "";
+
+  if (!filtered.length) {
+    listEl.innerHTML = `<div class="empty">Aucune intervention ne correspond.</div>`;
+    return;
+  }
+
+  filtered.forEach(i => {
+    const patientName = i.first_name ? `${i.first_name} ${i.last_name}` : "Sans patient";
+    const div = document.createElement("div");
+    div.className = "activity-item";
+    div.onclick = () => openInterventionDetails(i.id);
+    div.innerHTML = `
+      <div>
+        <div class="activity-title">${escapeHtml(i.title)}</div>
+        <div class="activity-sub">${escapeHtml(patientName)} · ${escapeHtml(i.creator || "—")} · ${date(i.created_at)}${i.is_official ? " · Fonctionnaire (remboursé)" : ""}</div>
+      </div>
+      <div class="activity-amount">${money(i.total)}</div>
+    `;
+    listEl.appendChild(div);
+  });
+}
+
+/* ---- Détails / modification / suppression d'une intervention ---- */
+
+async function openInterventionDetails(id) {
+  try {
+    const data = await api(`/api/interventions/${id}`);
+    const i = data.intervention;
+    currentInterventionDetailsId = id;
+
+    document.getElementById("interventionDetailsTitle").textContent = i.title;
+
+    const patientLine = i.patient_id
+      ? `N°${i.patient_id} - ${i.first_name} ${i.last_name}`
+      : "Aucun patient lié";
+
+    document.getElementById("interventionDetailsInfo").innerHTML = `
+      <div><span class="k">Patient</span><span class="v">${escapeHtml(patientLine)}</span></div>
+      <div><span class="k">Créée par</span><span class="v">${escapeHtml(i.creator || "—")}</span></div>
+      <div><span class="k">Date et heure</span><span class="v">${date(i.created_at)}</span></div>
+      <div><span class="k">Total facturé</span><span class="v">${money(i.total)}</span></div>
+      <div><span class="k">Fonctionnaire (remboursé)</span><span class="v">${i.is_official ? "Oui" : "Non"}</span></div>
+      ${i.updated_at ? `<div><span class="k">Modifiée le</span><span class="v">${date(i.updated_at)} par ${escapeHtml(i.updater || "—")}</span></div>` : ""}
+    `;
+
+    const imgBox = document.getElementById("interventionDetailsImageBox");
+    if (i.image) {
+      document.getElementById("interventionDetailsImage").src = i.image;
+      imgBox.classList.remove("hidden");
+    } else {
+      imgBox.classList.add("hidden");
+    }
+
+    document.getElementById("interventionDetailsComments").textContent = i.comments || "—";
+
+    document.getElementById("interventionDeleteBtn").classList.toggle("hidden", !currentUser?.is_director);
+
+    openModal("interventionDetailsModal");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function editInterventionFromDetails() {
+  if (!currentInterventionDetailsId) return;
+  const id = currentInterventionDetailsId;
+  closeModal("interventionDetailsModal");
+  await openInterventionModal(null, id);
+}
+
+async function deleteInterventionFromDetails() {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+  if (!currentInterventionDetailsId) return;
+
+  const ok = await askConfirm("Voulez-vous vraiment supprimer cette intervention ?\n\nCette action est définitive.");
+  if (!ok) return;
+
+  try {
+    await api(`/api/interventions/${currentInterventionDetailsId}`, { method: "DELETE" });
+    toast("Intervention supprimée.");
+    closeModal("interventionDetailsModal");
+    await loadDashboard();
+
+    if (document.getElementById("page-interventions").classList.contains("active")) {
+      await loadInterventions();
+    }
+    if (currentDetailsPatientId && document.getElementById("detailsModal").classList.contains("open")) {
+      await openDetailsModal(currentDetailsPatientId);
+    }
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= FRAIS & FACTURES ========================= */
 
 async function loadFrais() {
-  try {
-    const [expensesData, invoicesData] = await Promise.all([
-      api("/api/expenses"),
-      api("/api/invoices")
-    ]);
-    myExpenses = asArray(expensesData, "expenses");
-    myInvoices = asArray(invoicesData, "invoices");
-    renderExpensesList();
-    renderMyInvoicesList();
-  } catch (e) {
-    toast(e.message);
-  }
+  await Promise.all([loadExpenses(), loadMyInvoices()]);
 }
 
+/* ---- Notes de frais ---- */
+
 function onExpenseCategoryChange() {
-  const cat = document.getElementById("expenseCategory").value;
-  document.getElementById("expenseReasonField").style.display = cat === "Autre" ? "flex" : "none";
+  const category = document.getElementById("expenseCategory").value;
+  document.getElementById("expenseReasonField").style.display = category === "Autre" ? "flex" : "none";
 }
 
 async function submitExpense() {
   const category = document.getElementById("expenseCategory").value;
-  const amount = Number(document.getElementById("expenseAmount").value || 0);
   const reason = document.getElementById("expenseReason").value;
+  const amount = Number(document.getElementById("expenseAmount").value);
 
-  if (!category || !amount) { toast("Merci de renseigner la catégorie et le montant."); return; }
+  if (!category) { toast("Sélectionne une catégorie."); return; }
+  if (category === "Autre" && !reason.trim()) { toast("Précise le motif."); return; }
+  if (!amount || amount <= 0) { toast("Montant invalide."); return; }
 
   try {
     await api("/api/expenses", {
       method: "POST",
-      body: JSON.stringify({ category, reason: category === "Autre" ? reason : category, amount })
+      body: JSON.stringify({ category, reason, amount })
     });
     toast("Dépense ajoutée.");
     document.getElementById("expenseCategory").value = "";
     document.getElementById("expenseReason").value = "";
     document.getElementById("expenseAmount").value = "";
     document.getElementById("expenseReasonField").style.display = "none";
-    await loadFrais();
+    await loadExpenses();
   } catch (e) {
     toast(e.message);
   }
 }
 
-/* Case "remboursé" : l'employé la VOIT (lecture seule) à côté de chaque note.
-   C'est le Directeur qui coche/décoche depuis Direction → toggleExpenseReimbursed(). */
-function renderExpensesList() {
+async function loadExpenses() {
+  try {
+    const data = await api("/api/expenses");
+    renderExpenses(data.expenses);
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function renderExpenses(expenses) {
   const box = document.getElementById("expensesList");
   box.innerHTML = "";
 
-  if (!myExpenses.length) {
+  if (!expenses.length) {
     box.innerHTML = `<div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>`;
     return;
   }
 
-  myExpenses.forEach(e => {
-    const reimbursed = !!e.reimbursed;
-    const item = document.createElement("div");
-    item.className = "activity-item static";
-    item.style.marginBottom = "10px";
-    item.innerHTML = `
-      <div>
-        <div class="activity-title">${escapeHtml(e.category)}${e.reason && e.reason !== e.category ? " — " + escapeHtml(e.reason) : ""}</div>
-        <div class="activity-sub">
-          ${date(e.created_at)}
-          <span class="badge ${reimbursed ? "badge-alive" : "badge-neutral"}">${reimbursed ? "✅ Remboursé" : "⏳ En attente de remboursement"}</span>
+  const groups = {};
+  expenses.forEach(e => {
+    const day = (e.created_at || "").slice(0, 10);
+    if (!groups[day]) groups[day] = [];
+    groups[day].push(e);
+  });
+
+  Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(day => {
+    const dayBox = document.createElement("div");
+    dayBox.className = "table-container";
+    dayBox.style.marginBottom = "14px";
+
+    const rows = groups[day].map(e => `
+      <div class="activity-item static">
+        <div>
+          <div class="activity-title">${escapeHtml(e.category)}${e.reason ? " — " + escapeHtml(e.reason) : ""}</div>
+          <div class="activity-sub">${date(e.created_at)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="activity-amount">${money(e.amount)}</div>
+          <button class="btn-delete btn-sm" onclick="deleteExpense(${e.id})">🗑️</button>
         </div>
       </div>
-      <div class="activity-amount">${money(e.amount)}</div>
+    `).join("");
+
+    dayBox.innerHTML = `
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+        <strong>${dateOnly(day)}</strong>
+        <span style="color:var(--gray);font-size:13px;">${money(groups[day].reduce((sum, e) => sum + Number(e.amount || 0), 0))}</span>
+      </div>
+      <div class="activity-list" style="padding:12px;">${rows}</div>
     `;
-    box.appendChild(item);
+
+    box.appendChild(dayBox);
   });
 }
 
-function renderMyInvoicesList() {
+async function deleteExpense(id) {
+  const ok = await askConfirm("Voulez-vous vraiment supprimer cette note de frais ?\n\nCette action est définitive.");
+  if (!ok) return;
+
+  try {
+    await api(`/api/expenses/${id}`, { method: "DELETE" });
+    toast("Note de frais supprimée.");
+    await loadExpenses();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ---- Factures LSMC ---- */
+
+function renderInvoiceMotifOptions() {
+  const box = document.getElementById("invoiceMotifList");
+  box.innerHTML = "";
+  invoiceCatalog.forEach(item => {
+    const label = document.createElement("label");
+    label.className = "care-item";
+    label.innerHTML = `
+      <span><input type="checkbox" value="${escapeHtml(item.key)}" onchange="onInvoiceMotifToggle(this)"> ${escapeHtml(item.key)}</span>
+      <span class="care-price">${money(item.price)}</span>
+    `;
+    box.appendChild(label);
+  });
+}
+
+function onInvoiceMotifToggle(checkbox) {
+  checkbox.closest(".care-item").classList.toggle("selected", checkbox.checked);
+  updateInvoiceTotal();
+}
+
+function addInvoiceBillingRow(label = "", amount = "") {
+  const row = document.createElement("div");
+  row.className = "billing-row";
+  row.innerHTML = `
+    <input type="text" placeholder="Description" value="${escapeHtml(label)}" oninput="updateInvoiceTotal()">
+    <input type="number" step="0.01" placeholder="Montant $" value="${escapeHtml(amount)}" oninput="updateInvoiceTotal()">
+    <button type="button" class="btn-delete" onclick="this.parentElement.remove(); updateInvoiceTotal();">✕</button>
+  `;
+  document.getElementById("invoiceBillingRows").appendChild(row);
+}
+
+function getSelectedInvoiceMotifs() {
+  return Array.from(document.querySelectorAll("#invoiceMotifList input[type=checkbox]:checked")).map(c => c.value);
+}
+
+function getInvoiceBillingLines() {
+  return Array.from(document.querySelectorAll("#invoiceBillingRows .billing-row")).map(row => {
+    const inputs = row.querySelectorAll("input");
+    return { motif: inputs[0].value, amount: Number(inputs[1].value) || 0 };
+  }).filter(l => l.motif || l.amount);
+}
+
+function updateInvoiceTotal() {
+  let total = 0;
+  getSelectedInvoiceMotifs().forEach(key => {
+    const found = invoiceCatalog.find(c => c.key === key);
+    if (found) total += found.price;
+  });
+  getInvoiceBillingLines().forEach(l => { total += l.amount; });
+  document.getElementById("invoiceTotal").textContent = money(total);
+}
+
+async function submitInvoice() {
+  const service = document.getElementById("invoiceService").value;
+  const matricule = document.getElementById("invoiceMatricule").value;
+  if (!service) { toast("Sélectionne un service destinataire."); return; }
+
+  const items = [];
+  getSelectedInvoiceMotifs().forEach(key => {
+    const found = invoiceCatalog.find(c => c.key === key);
+    if (found) items.push({ motif: found.key, amount: found.price });
+  });
+  getInvoiceBillingLines().forEach(l => {
+    if (l.motif && l.amount > 0) items.push({ motif: l.motif, amount: l.amount });
+  });
+
+  if (!items.length) { toast("Sélectionne au moins un motif ou ajoute une ligne."); return; }
+
+  try {
+    await api("/api/invoices", { method: "POST", body: JSON.stringify({ service, matricule, items }) });
+    toast("Facture(s) enregistrée(s).");
+    document.getElementById("invoiceService").value = "";
+    document.getElementById("invoiceMatricule").value = "";
+    document.querySelectorAll("#invoiceMotifList input[type=checkbox]").forEach(c => {
+      c.checked = false;
+      c.closest(".care-item").classList.remove("selected");
+    });
+    document.getElementById("invoiceBillingRows").innerHTML = "";
+    updateInvoiceTotal();
+    await loadMyInvoices();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function loadMyInvoices() {
+  try {
+    const data = await api("/api/invoices");
+    renderMyInvoices(asArray(data, "invoices"));
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+function renderMyInvoices(invoicesList) {
   const box = document.getElementById("myInvoicesList");
   box.innerHTML = "";
 
-  const grouped = groupInvoiceRows(myInvoices, ["service", "matricule"]);
+  const grouped = groupInvoiceRows(invoicesList, ["service", "matricule"]);
 
   if (!grouped.length) {
     box.innerHTML = `<div class="empty">Aucune facture pour le moment.</div>`;
@@ -2586,206 +2787,46 @@ function renderMyInvoicesList() {
   }
 
   grouped.forEach(inv => {
-    const item = document.createElement("div");
-    item.className = "activity-item";
-    item.onclick = () => zoomText(`Facture — ${inv.service} (${inv.matricule || "—"})`, inv.motifs.filter(Boolean).join("\n"));
-    item.innerHTML = `
+    const div = document.createElement("div");
+    div.className = "activity-item static";
+    div.innerHTML = `
       <div>
-        <div class="activity-title">${escapeHtml(inv.service)} · ${escapeHtml(inv.matricule || "—")}</div>
-        <div class="activity-sub">${date(inv.created_at)} · ${escapeHtml(truncate(inv.motifs.filter(Boolean).join(", "), 60))}</div>
+        <div class="activity-title">${escapeHtml(inv.service)} · ${escapeHtml(inv.motifs.join(", "))}</div>
+        <div class="activity-sub">${inv.matricule ? "Matricule " + escapeHtml(inv.matricule) + " · " : ""}${date(inv.created_at)}</div>
       </div>
       <div class="activity-amount">${money(inv.amount)}</div>
     `;
-    box.appendChild(item);
-  });
-}
-
-function renderInvoiceMotifOptions() {
-  const box = document.getElementById("invoiceMotifList");
-  box.innerHTML = "";
-  invoiceCatalog.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "care-item";
-    div.dataset.id = item.id;
-    div.innerHTML = `
-      <span>${escapeHtml(item.name)}</span>
-      <span class="care-price">${money(item.price)}</span>
-    `;
-    div.onclick = () => {
-      div.classList.toggle("selected");
-      calcInvoiceTotal();
-    };
     box.appendChild(div);
   });
 }
 
-function addInvoiceBillingRow(description = "", amount = "") {
-  const container = document.getElementById("invoiceBillingRows");
-  const row = document.createElement("div");
-  row.className = "billing-row";
-  row.innerHTML = `
-    <input type="text" placeholder="Description" value="${escapeHtml(description)}" oninput="calcInvoiceTotal()">
-    <input type="number" step="0.01" placeholder="Montant" value="${escapeHtml(amount)}" oninput="calcInvoiceTotal()">
-    <button type="button" class="btn-icon" onclick="this.parentElement.remove(); calcInvoiceTotal();">✕</button>
-  `;
-  container.appendChild(row);
-}
-
-function calcInvoiceTotal() {
-  let total = 0;
-  document.querySelectorAll("#invoiceMotifList .care-item.selected").forEach(el => {
-    const item = invoiceCatalog.find(c => String(c.id) === el.dataset.id);
-    if (item) total += Number(item.price || 0);
-  });
-  document.querySelectorAll("#invoiceBillingRows .billing-row").forEach(row => {
-    const amount = Number(row.querySelectorAll("input")[1].value || 0);
-    total += amount;
-  });
-  document.getElementById("invoiceTotal").textContent = money(total);
-  return total;
-}
-
-async function submitInvoice() {
-  const service = document.getElementById("invoiceService").value;
-  const matricule = document.getElementById("invoiceMatricule").value;
-
-  const motifs = Array.from(document.querySelectorAll("#invoiceMotifList .care-item.selected"))
-    .map(el => invoiceCatalog.find(c => String(c.id) === el.dataset.id))
-    .filter(Boolean);
-
-  const billingRows = Array.from(document.querySelectorAll("#invoiceBillingRows .billing-row")).map(row => {
-    const inputs = row.querySelectorAll("input");
-    return { description: inputs[0].value, amount: Number(inputs[1].value || 0) };
-  });
-
-  if (!service) { toast("Merci de sélectionner un service destinataire."); return; }
-  if (!motifs.length && !billingRows.length) { toast("Sélectionne au moins un motif ou ajoute une ligne libre."); return; }
-
-  try {
-    await api("/api/invoices", {
-      method: "POST",
-      body: JSON.stringify({ service, matricule, motifs, billing_rows: billingRows, total: calcInvoiceTotal() })
-    });
-    toast("Facture enregistrée.");
-    document.getElementById("invoiceMatricule").value = "";
-    document.querySelectorAll("#invoiceMotifList .care-item.selected").forEach(el => el.classList.remove("selected"));
-    document.getElementById("invoiceBillingRows").innerHTML = "";
-    calcInvoiceTotal();
-    await loadFrais();
-  } catch (e) {
-    toast(e.message);
-  }
-}
-
-/* ========================= DIRECTION — PERSONNEL ========================= */
-
-async function loadDirector() {
-  try {
-    const data = await api("/api/director/members");
-    directorMembersAll = asArray(data, "members");
-    emsMembersForAssign = directorMembersAll;
-
-    document.getElementById("directorMembersCount").textContent = `${directorMembersAll.length} membre(s)`;
-
-    const tbody = document.getElementById("directorTable");
-    tbody.innerHTML = "";
-
-    directorMembersAll.forEach(m => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${escapeHtml(m.nickname || m.username)}</td>
-        <td><input type="text" value="${escapeHtml(m.job || "")}" onchange="saveMemberProfile(${m.id}, this.value, null)"></td>
-        <td><input type="text" value="${escapeHtml(m.grade || "")}" onchange="saveMemberProfile(${m.id}, null, this.value)"></td>
-        <td>${m.services_count ?? 0}</td>
-        <td>${duration(m.total_seconds)}</td>
-        <td><button class="btn btn-dark btn-sm" onclick="openDirectorServices(${m.id}, '${escapeHtml(m.nickname || m.username).replace(/'/g, "\\'")}')">📄 Services</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
-  } catch (e) {
-    toast(e.message);
-  }
-}
-
-async function saveMemberProfile(id, job, grade) {
-  const payload = {};
-  if (job !== null) payload.job = job;
-  if (grade !== null) payload.grade = grade;
-  try {
-    await api(`/api/director/members/${id}`, { method: "PUT", body: JSON.stringify(payload) });
-    toast("Profil du membre mis à jour.");
-  } catch (e) {
-    toast(e.message);
-  }
-}
-
-async function openDirectorServices(memberId, memberName) {
-  try {
-    const data = await api(`/api/director/services?memberId=${memberId}`);
-    const services = asArray(data, "services");
-
-    document.getElementById("directorServicesTitle").textContent = `Services de ${memberName}`;
-    const tbody = document.getElementById("directorServicesTable");
-    tbody.innerHTML = "";
-
-    if (!services.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun service enregistré.</td></tr>`;
-    } else {
-      services.forEach(s => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${s.id}</td>
-          <td>${escapeHtml(memberName)}</td>
-          <td>${date(s.started_at)}</td>
-          <td>${date(s.ended_at)}</td>
-          <td>${duration(s.duration)}</td>
-          <td><button class="btn-delete" onclick="deleteService(${s.id})">🗑️ Supprimer</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.getElementById("directorServicesBox").classList.remove("hidden");
-  } catch (e) {
-    toast(e.message);
-  }
-}
-
-function closeDirectorServices() {
-  document.getElementById("directorServicesBox").classList.add("hidden");
-}
-
-/* ========================= DIRECTION — FACTURES LSMC ========================= */
+/* ---- Direction : toutes les factures ---- */
 
 async function loadDirectorInvoices() {
+  if (!currentUser?.is_director) return;
+
   try {
     const data = await api("/api/director/invoices");
-    const rows = asArray(data, "invoices");
-    directorInvoicesGrouped = groupInvoiceRows(rows, ["employee_name", "service", "matricule"]);
-
-    document.getElementById("directorInvoicesCount").textContent = `${directorInvoicesGrouped.length} facture(s)`;
-
     const tbody = document.getElementById("directorInvoicesTable");
     tbody.innerHTML = "";
 
-    if (!directorInvoicesGrouped.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune facture pour le moment.</td></tr>`;
+    const grouped = groupInvoiceRows(asArray(data, "invoices"), ["employee", "service", "matricule"]);
+
+    if (!grouped.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune facture enregistrée.</td></tr>`;
       return;
     }
 
-    directorInvoicesGrouped.forEach((inv, index) => {
-      const motifText = inv.motifs.filter(Boolean).join("\n") || "—";
+    grouped.forEach(inv => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${escapeHtml(inv.employee_name || "—")}</td>
-        <td>${escapeHtml(inv.service || "—")}</td>
+        <td>${escapeHtml(inv.employee || "—")}</td>
+        <td>${escapeHtml(inv.service)}</td>
         <td>${escapeHtml(inv.matricule || "—")}</td>
-        <td>${escapeHtml(truncate(inv.motifs.filter(Boolean).join(", "), 40))}
-          <button type="button" class="btn-icon" onclick="viewDirectorInvoiceMotif(${index})">🔍</button>
-        </td>
+        <td>${escapeHtml(inv.motifs.join(", "))}</td>
         <td>${money(inv.amount)}</td>
         <td>${date(inv.created_at)}</td>
-        <td><button class="btn-delete" onclick="deleteDirectorInvoice(${index})">🗑️ Supprimer</button></td>
+        <td><button class="btn-delete" onclick='deleteInvoice(${JSON.stringify(inv.ids)})'>🗑️ Supprimer</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -2794,21 +2835,18 @@ async function loadDirectorInvoices() {
   }
 }
 
-/* Bouton loupe demandé : affiche le motif complet de la facture dans la modale de zoom existante */
-function viewDirectorInvoiceMotif(index) {
-  const inv = directorInvoicesGrouped[index];
-  if (!inv) return;
-  const title = `Facture — ${inv.employee_name || "—"} · ${inv.service || "—"} (${inv.matricule || "—"})`;
-  zoomText(title, inv.motifs.filter(Boolean).join("\n") || "—");
-}
+async function deleteInvoice(ids) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+  if (!Array.isArray(ids)) ids = [ids];
 
-async function deleteDirectorInvoice(index) {
-  const inv = directorInvoicesGrouped[index];
-  if (!inv) return;
-  const ok = await askConfirm("Voulez-vous vraiment supprimer cette facture ?\n\nCette action est définitive.");
+  const label = ids.length > 1 ? `cette facture (${ids.length} lignes)` : `la facture #${ids[0]}`;
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer ${label} ?\n\nCette action est définitive.`);
   if (!ok) return;
+
   try {
-    await Promise.all(inv.ids.map(id => api(`/api/invoices/${id}`, { method: "DELETE" })));
+    for (const id of ids) {
+      await api(`/api/invoices/${id}`, { method: "DELETE" });
+    }
     toast("Facture supprimée.");
     await loadDirectorInvoices();
   } catch (e) {
@@ -2816,39 +2854,32 @@ async function deleteDirectorInvoice(index) {
   }
 }
 
-/* ========================= DIRECTION — NOTES DE FRAIS ========================= */
+/* ---- Direction : toutes les notes de frais du personnel ---- */
 
 async function loadDirectorExpenses() {
+  if (!currentUser?.is_director) return;
+
   try {
     const data = await api("/api/director/expenses");
-    directorExpensesAll = asArray(data, "expenses");
-
-    document.getElementById("directorExpensesCount").textContent = `${directorExpensesAll.length} note(s)`;
-
     const tbody = document.getElementById("directorExpensesTable");
     tbody.innerHTML = "";
 
-    if (!directorExpensesAll.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune note de frais pour le moment.</td></tr>`;
+    const expensesList = asArray(data, "expenses");
+
+    if (!expensesList.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucune note de frais enregistrée.</td></tr>`;
       return;
     }
 
-    directorExpensesAll.forEach(e => {
-      const reimbursed = !!e.reimbursed;
+    expensesList.forEach(exp => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${escapeHtml(e.employee_name || "—")}</td>
-        <td>${escapeHtml(e.category || "—")}</td>
-        <td>${escapeHtml(e.reason || "—")}</td>
-        <td>${money(e.amount)}</td>
-        <td>${date(e.created_at)}</td>
-        <td>
-          <label class="checkbox-line" style="margin:0;">
-            <input type="checkbox" ${reimbursed ? "checked" : ""} onchange="toggleExpenseReimbursed(${e.id}, this.checked)">
-            <span style="font-size:12px;color:var(--gray);">${reimbursed ? "Remboursé" : "En attente"}</span>
-          </label>
-        </td>
-        <td><button class="btn-delete" onclick="deleteDirectorExpense(${e.id})">🗑️ Supprimer</button></td>
+        <td>${escapeHtml(exp.employee || "—")}</td>
+        <td>${escapeHtml(exp.category)}</td>
+        <td>${escapeHtml(exp.reason || "—")}</td>
+        <td>${money(exp.amount)}</td>
+        <td>${date(exp.created_at)}</td>
+        <td><button class="btn-delete" onclick="deleteDirectorExpense(${exp.id})">🗑️ Supprimer</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -2857,24 +2888,12 @@ async function loadDirectorExpenses() {
   }
 }
 
-/* Case à cocher "remboursé" demandée : le Directeur coche/décoche ici, et l'employé
-   la voit automatiquement en lecture seule dans Frais & Factures (renderExpensesList). */
-async function toggleExpenseReimbursed(id, checked) {
-  try {
-    await api(`/api/director/expenses/${id}/reimburse`, {
-      method: "PUT",
-      body: JSON.stringify({ reimbursed: checked })
-    });
-    toast(checked ? "Note marquée comme remboursée." : "Note marquée comme non remboursée.");
-    await loadDirectorExpenses();
-  } catch (e) {
-    toast(e.message);
-  }
-}
-
 async function deleteDirectorExpense(id) {
-  const ok = await askConfirm("Voulez-vous vraiment supprimer cette note de frais ?\n\nCette action est définitive.");
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer cette note de frais #${id} ?\n\nCette action est définitive.`);
   if (!ok) return;
+
   try {
     await api(`/api/expenses/${id}`, { method: "DELETE" });
     toast("Note de frais supprimée.");
@@ -2884,31 +2903,125 @@ async function deleteDirectorExpense(id) {
   }
 }
 
-/* ========================= DIRECTION — CANDIDATURES ========================= */
+/* ========================= DIRECTION ========================= */
 
-async function loadApplications() {
+async function loadDirector() {
+  if (!currentUser?.is_director) return;
+
   try {
-    const data = await api("/api/director/applications");
-    applicationsAll = asArray(data, "applications");
-
-    const tbody = document.getElementById("applicationsTable");
+    const data = await api("/api/director/users");
+    emsMembersForAssign = asArray(data, "users");
+    const tbody = document.getElementById("directorTable");
     tbody.innerHTML = "";
 
-    if (!applicationsAll.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune candidature pour le moment.</td></tr>`;
+    emsMembersForAssign.forEach(user => {
+      const displayName = user.nickname || user.username;
+      const tr = document.createElement("tr");
+
+      const jobInput = document.createElement("input");
+      jobInput.type = "text";
+      jobInput.value = user.job || "";
+      jobInput.placeholder = "Métier";
+      jobInput.id = `directorJob-${user.id}`;
+
+      const gradeInput = document.createElement("input");
+      gradeInput.type = "text";
+      gradeInput.value = user.grade || "";
+      gradeInput.placeholder = "Grade";
+      gradeInput.id = `directorGrade-${user.id}`;
+
+      const tdName = document.createElement("td");
+      tdName.textContent = displayName;
+      tdName.style.whiteSpace = "normal";
+
+      const tdJob = document.createElement("td");
+      tdJob.appendChild(jobInput);
+
+      const tdGrade = document.createElement("td");
+      tdGrade.appendChild(gradeInput);
+
+      const tdServices = document.createElement("td");
+      tdServices.textContent = user.service_count;
+
+      const tdTotal = document.createElement("td");
+      tdTotal.textContent = duration(user.total_seconds);
+
+      const tdActions = document.createElement("td");
+      tdActions.style.display = "flex";
+      tdActions.style.gap = "8px";
+      tdActions.style.flexWrap = "wrap";
+      tdActions.style.whiteSpace = "normal";
+
+      const saveBtn = document.createElement("button");
+      saveBtn.className = "btn btn-dark btn-sm";
+      saveBtn.textContent = "💾 Enregistrer";
+      saveBtn.addEventListener("click", () => saveDirectorProfile(user.id));
+
+      const servicesBtn = document.createElement("button");
+      servicesBtn.className = "btn btn-dark btn-sm";
+      servicesBtn.textContent = "Voir les services";
+      servicesBtn.addEventListener("click", () => loadDirectorServices(user.discord_id, displayName));
+
+      tdActions.appendChild(saveBtn);
+      tdActions.appendChild(servicesBtn);
+
+      tr.appendChild(tdName);
+      tr.appendChild(tdJob);
+      tr.appendChild(tdGrade);
+      tr.appendChild(tdServices);
+      tr.appendChild(tdTotal);
+      tr.appendChild(tdActions);
+
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function saveDirectorProfile(userId) {
+  const job = document.getElementById(`directorJob-${userId}`).value;
+  const grade = document.getElementById(`directorGrade-${userId}`).value;
+
+  try {
+    await api(`/api/director/users/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify({ job, grade })
+    });
+    toast("Profil de l'employé mis à jour.");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function loadDirectorServices(discordId, username) {
+  if (!currentUser?.is_director) return;
+
+  try {
+    const data = await api(`/api/director/services/${discordId}`);
+
+    const box = document.getElementById("directorServicesBox");
+    const tbody = document.getElementById("directorServicesTable");
+    const title = document.getElementById("directorServicesTitle");
+
+    tbody.innerHTML = "";
+    if (title) title.textContent = `Services de ${username}`;
+    box.classList.remove("hidden");
+
+    if (!data.services || !data.services.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun service pour ${escapeHtml(username)}.</td></tr>`;
       return;
     }
 
-    applicationsAll.forEach(a => {
+    data.services.forEach(service => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${escapeHtml(a.first_name)} ${escapeHtml(a.last_name)}</td>
-        <td>${a.birth_date ? dateOnly(a.birth_date) : "—"}</td>
-        <td>${escapeHtml(a.phone || "—")}</td>
-        <td class="zoomable" onclick='zoomText("Expérience médicale", ${JSON.stringify(a.experience || "")})'>${escapeHtml(truncate(a.experience || "—", 60))}</td>
-        <td class="zoomable" onclick='zoomText("Motivations", ${JSON.stringify(a.motivation || "")})'>${escapeHtml(truncate(a.motivation || "—", 60))}</td>
-        <td>${date(a.created_at)}</td>
-        <td><button class="btn-delete" onclick="deleteApplication(${a.id})">🗑️</button></td>
+        <td>#${service.id}</td>
+        <td>${escapeHtml(username)}</td>
+        <td>${date(service.started_at)}</td>
+        <td>${date(service.ended_at)}</td>
+        <td>${duration(service.duration)}</td>
+        <td><button class="btn-delete" onclick="deleteService(${service.id})">🗑️ Supprimer</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -2917,11 +3030,68 @@ async function loadApplications() {
   }
 }
 
-async function deleteApplication(id) {
-  const ok = await askConfirm("Voulez-vous vraiment supprimer cette candidature ?");
-  if (!ok) return;
+function closeDirectorServices() {
+  const box = document.getElementById("directorServicesBox");
+  const tbody = document.getElementById("directorServicesTable");
+  const title = document.getElementById("directorServicesTitle");
+
+  if (box) box.classList.add("hidden");
+  if (tbody) tbody.innerHTML = "";
+  if (title) title.textContent = "Services du membre";
+}
+
+/* ---- Candidatures (Direction) ---- */
+
+async function loadApplications() {
+  if (!currentUser?.is_director) return;
+
   try {
-    await api(`/api/director/applications/${id}`, { method: "DELETE" });
+    const data = await api("/api/applications");
+    const tbody = document.getElementById("applicationsTable");
+    tbody.innerHTML = "";
+
+    const applicationsList = asArray(data, "applications");
+
+    if (!applicationsList.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune candidature reçue.</td></tr>`;
+      return;
+    }
+
+    applicationsList.forEach(a => {
+      const tr = document.createElement("tr");
+      const experienceShort = (a.medical_experience || "—");
+      const motivationShort = (a.motivation || "—");
+      tr.innerHTML = `
+        <td style="white-space:normal;">${escapeHtml(a.last_name)} ${escapeHtml(a.first_name)}</td>
+        <td style="white-space:normal;">${escapeHtml(a.birth_date || "—")}</td>
+        <td style="white-space:normal;">${escapeHtml(a.phone || "—")}</td>
+        <td class="zoomable" style="white-space:normal;" data-field="experience" data-id="${a.id}">${escapeHtml(experienceShort)}</td>
+        <td class="zoomable" style="white-space:normal;" data-field="motivation" data-id="${a.id}">${escapeHtml(motivationShort)}</td>
+        <td style="white-space:normal;">${date(a.created_at)}</td>
+        <td style="white-space:normal;"><button class="btn-delete" onclick="deleteApplication(${a.id})">🗑️ Supprimer</button></td>
+      `;
+      tbody.appendChild(tr);
+
+      tr.querySelector('[data-field="experience"]').addEventListener("click", () => {
+        zoomText(`Expérience médicale — ${a.first_name} ${a.last_name}`, a.medical_experience);
+      });
+      tr.querySelector('[data-field="motivation"]').addEventListener("click", () => {
+        zoomText(`Motivations — ${a.first_name} ${a.last_name}`, a.motivation);
+      });
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteApplication(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm("Voulez-vous vraiment supprimer cette candidature ?\n\nCette action est définitive.");
+  if (!ok) return;
+
+  try {
+    await api(`/api/applications/${id}`, { method: "DELETE" });
     toast("Candidature supprimée.");
     await loadApplications();
   } catch (e) {
@@ -2931,64 +3101,51 @@ async function deleteApplication(id) {
 
 /* ========================= GESTION RDV (staff) ========================= */
 
-async function loadGestionRdv() {
-  try {
-    const data = await api("/api/director/appointments");
-    gestionRdvAll = asArray(data, "appointments");
-    renderGestionRdvList();
-    await refreshGestionRdvBadge();
-  } catch (e) {
-    toast(e.message);
-  }
+const RDV_STATUS_BUTTONS = [
+  { value: "En cours",              label: "🔵 En cours",              css: "btn-status-blue" },
+  { value: "RDV fait",               label: "✅ RDV fait",              css: "btn-status-green" },
+  { value: "Ne s'est pas présenté", label: "🚫 Ne s'est pas présenté", css: "btn-status-gray" },
+  { value: "Annulé",                label: "❌ Annulé",                css: "btn-status-red" },
+  { value: "Reporté",               label: "🕒 Reporté",               css: "btn-status-yellow" }
+];
+
+const RDV_STATUS_META = {
+  "A traiter":               { emoji: "⏳", label: "À traiter",              css: "btn-status-gray" },
+  "Traité":                  { emoji: "✅", label: "Traité",                 css: "btn-status-green" },
+  "En cours":                { emoji: "🔵", label: "En cours",               css: "btn-status-blue" },
+  "RDV fait":                { emoji: "✅", label: "RDV fait",               css: "btn-status-green" },
+  "Ne s'est pas présenté":  { emoji: "🚫", label: "Ne s'est pas présenté",  css: "btn-status-gray" },
+  "Annulé":                  { emoji: "❌", label: "Annulé",                 css: "btn-status-red" },
+  "Reporté":                 { emoji: "🕒", label: "Reporté",                css: "btn-status-yellow" }
+};
+
+function rdvStatusBadgeHtml(status) {
+  const meta = RDV_STATUS_META[status] || { emoji: "•", label: status || "—", css: "btn-status-gray" };
+  return `<span class="btn-status ${meta.css}" style="cursor:default;display:inline-block;">${meta.emoji} ${escapeHtml(meta.label)}</span>`;
 }
 
 function switchRdvTab(tab) {
   gestionRdvTab = tab;
-  document.querySelectorAll(".tab-btn[data-rdvtab]").forEach(b => b.classList.toggle("active", b.dataset.rdvtab === tab));
-  renderGestionRdvList();
+  document.querySelectorAll("#page-gestion-rdv .tab-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.rdvtab === tab);
+  });
+  renderGestionRdv();
 }
 
-function renderGestionRdvList() {
-  const list = document.getElementById("gestionRdvList");
-  list.innerHTML = "";
-
-  const filtered = gestionRdvAll.filter(r => {
-    const isPending = !r.status || r.status === "pending";
-    return gestionRdvTab === "pending" ? isPending : !isPending;
-  });
-
-  if (!filtered.length) {
-    list.innerHTML = `<div class="empty">Aucun rendez-vous ici.</div>`;
-    return;
-  }
-
-  filtered.forEach(r => {
-    const item = document.createElement("div");
-    item.className = "activity-item static";
-    item.innerHTML = `
-      <div>
-        <div class="activity-title">${escapeHtml(r.citizen_name || r.phone || "Citoyen")}</div>
-        <div class="activity-sub">
-          Créneau 1 : ${date(r.slot1)} ${r.slot2 ? " · Créneau 2 : " + date(r.slot2) : ""}
-          ${r.phone ? " · 📞 " + escapeHtml(r.phone) : ""}
-        </div>
-        <div class="activity-sub">${escapeHtml(r.motif || "—")}</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn-status btn-status-green ${r.status === "confirmed" ? "active-status" : ""}" onclick="updateRdvStatus(${r.id}, 'confirmed')">✅ Confirmer</button>
-        <button class="btn-status btn-status-red ${r.status === "rejected" ? "active-status" : ""}" onclick="updateRdvStatus(${r.id}, 'rejected')">❌ Refuser</button>
-        <button class="btn-status btn-status-gray ${r.status === "done" ? "active-status" : ""}" onclick="updateRdvStatus(${r.id}, 'done')">🗄️ Archiver</button>
-      </div>
-    `;
-    list.appendChild(item);
-  });
-}
-
-async function updateRdvStatus(id, status) {
+async function loadGestionRdv() {
   try {
-    await api(`/api/director/appointments/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
-    toast("Statut du rendez-vous mis à jour.");
-    await loadGestionRdv();
+    const data = await api("/api/appointments");
+    gestionRdvAll = data.appointments;
+
+    if (!emsMembersForAssign.length) {
+      try {
+        const d = await api("/api/staff-members");
+        emsMembersForAssign = d.users;
+      } catch {}
+    }
+
+    renderGestionRdv();
+    updateGestionRdvBadge();
   } catch (e) {
     toast(e.message);
   }
@@ -2996,29 +3153,160 @@ async function updateRdvStatus(id, status) {
 
 async function refreshGestionRdvBadge() {
   try {
-    const data = await api("/api/director/appointments?status=pending");
-    const pending = asArray(data, "appointments");
-    const badge = document.getElementById("gestionRdvBadge");
-    if (pending.length) {
-      badge.textContent = pending.length;
-      badge.classList.remove("hidden");
-    } else {
-      badge.classList.add("hidden");
-    }
-  } catch {
-    /* silencieux : le badge n'est qu'indicatif */
+    const data = await api("/api/appointments");
+    gestionRdvAll = data.appointments;
+    updateGestionRdvBadge();
+  } catch {}
+}
+
+function updateGestionRdvBadge() {
+  const pendingCount = gestionRdvAll.filter(a => a.status === "A traiter" || !a.status).length;
+  const badge = document.getElementById("gestionRdvBadge");
+  if (!badge) return;
+  badge.textContent = pendingCount;
+  badge.classList.toggle("hidden", pendingCount === 0);
+}
+
+function renderGestionRdv() {
+  const listEl = document.getElementById("gestionRdvList");
+  if (!listEl) return;
+
+  const filtered = gestionRdvAll.filter(a => {
+    const isPending = a.status === "A traiter" || !a.status;
+    return gestionRdvTab === "done" ? !isPending : isPending;
+  });
+
+  listEl.innerHTML = "";
+
+  if (!filtered.length) {
+    listEl.innerHTML = `<div class="empty">Aucun rendez-vous ici.</div>`;
+    return;
+  }
+
+  filtered.forEach(a => {
+    const div = document.createElement("div");
+    div.className = "activity-item static";
+    div.style.flexDirection = "column";
+    div.style.alignItems = "stretch";
+    div.style.cursor = "default";
+
+    const statusButtons = RDV_STATUS_BUTTONS.map(s => `
+      <button
+        class="btn-status ${s.css} ${a.status === s.value ? "active-status" : ""}"
+        onclick="markRdvStatus(${a.id}, '${s.value.replace(/'/g, "\\'")}')"
+      >${s.label}</button>
+    `).join("");
+
+    const isPending = a.status === "A traiter" || !a.status;
+
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+        <div>
+          <div class="activity-title">#${a.id} · ${escapeHtml(a.requester || "Citoyen")}</div>
+          <div class="activity-sub">Créé le ${date(a.created_at)} · ${rdvStatusBadgeHtml(a.status)}</div>
+        </div>
+      </div>
+      <div class="patient-grid" style="margin-bottom:12px;">
+        <div><span class="k">Créneau 1</span><span class="v">${date(a.slot1)}</span></div>
+        <div><span class="k">Créneau 2</span><span class="v">${a.slot2 ? date(a.slot2) : "—"}</span></div>
+        <div><span class="k">Téléphone</span><span class="v">${escapeHtml(a.phone || "—")}</span></div>
+        <div><span class="k">Motif</span><span class="v">${escapeHtml(a.motif || "—")}</span></div>
+      </div>
+      <div class="form-grid" style="margin-bottom:10px;">
+        <div class="field">
+          <label>Créneau confirmé</label>
+          <select id="rdvConfirmed-${a.id}">
+            <option value="">Aucun</option>
+            <option value="slot1" ${a.confirmed_slot && a.confirmed_slot === a.slot1 ? "selected" : ""}>Créneau 1 — ${date(a.slot1)}</option>
+            ${a.slot2 ? `<option value="slot2" ${a.confirmed_slot && a.confirmed_slot === a.slot2 ? "selected" : ""}>Créneau 2 — ${date(a.slot2)}</option>` : ""}
+          </select>
+        </div>
+        <div class="field">
+          <label>Assigné à</label>
+          <select id="rdvAssign-${a.id}">
+            <option value="">Non assigné</option>
+            ${emsMembersForAssign.map(m => `<option value="${m.id}" ${a.assigned_to === m.id ? "selected" : ""}>${escapeHtml(m.nickname || m.username)}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div class="patient-actions" style="margin-bottom:10px;">
+        ${statusButtons}
+      </div>
+      <div class="patient-actions">
+        <button class="btn btn-dark btn-sm" onclick="saveRdvAssignment(${a.id})">💾 Enregistrer</button>
+        ${isPending
+          ? `<button class="btn btn-green btn-sm" onclick="markRdvStatus(${a.id}, 'Traité')">✔ Marquer traité</button>`
+          : `<button class="btn btn-outline btn-sm" onclick="markRdvStatus(${a.id}, 'A traiter')">↺ Remettre à traiter</button>`}
+        ${currentUser?.is_director ? `<button class="btn-delete btn-sm" onclick="deleteAppointment(${a.id})">🗑️ Supprimer</button>` : ""}
+      </div>
+    `;
+    listEl.appendChild(div);
+  });
+}
+
+async function saveRdvAssignment(id) {
+  const confirmedEl = document.getElementById(`rdvConfirmed-${id}`);
+  const assignEl = document.getElementById(`rdvAssign-${id}`);
+  const appointment = gestionRdvAll.find(a => a.id === id);
+
+  let confirmedValue = null;
+  if (confirmedEl.value === "slot1") confirmedValue = appointment?.slot1 || null;
+  if (confirmedEl.value === "slot2") confirmedValue = appointment?.slot2 || null;
+
+  try {
+    await api(`/api/appointments/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        confirmed_slot: confirmedValue,
+        assigned_to: assignEl.value || null
+      })
+    });
+    toast("Rendez-vous mis à jour.");
+    await loadGestionRdv();
+  } catch (e) {
+    toast(e.message);
   }
 }
 
-/* ========================= RDV (citoyen) ========================= */
+async function markRdvStatus(id, status) {
+  try {
+    await api(`/api/appointments/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status })
+    });
+    toast("Statut mis à jour.");
+    await loadGestionRdv();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteAppointment(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer le rendez-vous #${id} ?\n\nCette action est définitive.`);
+  if (!ok) return;
+
+  try {
+    await api(`/api/appointments/${id}`, { method: "DELETE" });
+    toast("Rendez-vous supprimé.");
+    await loadGestionRdv();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ========================= RENDEZ-VOUS (citoyen + staff) ========================= */
 
 async function loadMyAppointments() {
   try {
     const data = await api("/api/appointments");
-    myAppointments = asArray(data, "appointments");
+
+    myAppointments = (currentUser?.is_ems || currentUser?.is_director)
+      ? data.appointments.filter(a => a.user_id === currentUser.id)
+      : data.appointments;
 
     document.getElementById("myRdvCount").textContent = myAppointments.length;
-
     const tbody = document.getElementById("myRdvTable");
     tbody.innerHTML = "";
 
@@ -3027,17 +3315,17 @@ async function loadMyAppointments() {
       return;
     }
 
-    myAppointments.forEach(r => {
+    myAppointments.forEach(a => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>#${r.id}</td>
-        <td>${date(r.created_at)}</td>
-        <td>${date(r.slot1)}</td>
-        <td>${r.slot2 ? date(r.slot2) : "—"}</td>
-        <td>${r.confirmed_slot ? date(r.confirmed_slot) : "—"}</td>
-        <td>${escapeHtml(r.phone || "—")}</td>
-        <td>${escapeHtml(truncate(r.motif || "—", 40))}</td>
-        <td>${escapeHtml(r.status || "En attente")}</td>
+        <td>#${a.id}</td>
+        <td>${date(a.created_at)}</td>
+        <td>${date(a.slot1)}</td>
+        <td>${a.slot2 ? date(a.slot2) : "—"}</td>
+        <td>${a.confirmed_slot ? date(a.confirmed_slot) : "—"}</td>
+        <td>${escapeHtml(a.phone || "—")}</td>
+        <td style="white-space:normal;max-width:220px;">${escapeHtml(a.motif || "—")}</td>
+        <td>${rdvStatusBadgeHtml(a.status)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -3048,16 +3336,21 @@ async function loadMyAppointments() {
 
 async function submitAppointmentForm(event) {
   event.preventDefault();
+
   const payload = {
     slot1: document.getElementById("rdvSlot1").value,
-    slot2: document.getElementById("rdvSlot2").value,
-    phone: document.getElementById("rdvPhone").value,
+    slot2: document.getElementById("rdvSlot2").value || null,
+    phone: document.getElementById("rdvPhone").value || null,
     motif: document.getElementById("rdvMotif").value
   };
+
   try {
     await api("/api/appointments", { method: "POST", body: JSON.stringify(payload) });
     toast("Rendez-vous demandé.");
-    event.target.reset();
+    document.getElementById("rdvSlot1").value = "";
+    document.getElementById("rdvSlot2").value = "";
+    document.getElementById("rdvPhone").value = "";
+    document.getElementById("rdvMotif").value = "";
     await loadMyAppointments();
   } catch (e) {
     toast(e.message);
@@ -3066,37 +3359,37 @@ async function submitAppointmentForm(event) {
 
 /* ========================= CANDIDATURE (citoyen) ========================= */
 
-function updateAppCharCount(textareaId, countId) {
-  const el = document.getElementById(textareaId);
-  document.getElementById(countId).textContent = el.value.length;
+function updateAppCharCount(fieldId, countId) {
+  document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
 }
 
 async function submitApplicationForm(event) {
   event.preventDefault();
+
   const payload = {
     last_name: document.getElementById("appLastName").value,
     first_name: document.getElementById("appFirstName").value,
     birth_date: document.getElementById("appBirthDate").value,
     phone: document.getElementById("appPhone").value,
-    experience: document.getElementById("appExperience").value,
+    medical_experience: document.getElementById("appExperience").value,
     motivation: document.getElementById("appMotivation").value
   };
+
   try {
     await api("/api/applications", { method: "POST", body: JSON.stringify(payload) });
-    toast("Candidature envoyée. Merci !");
+    toast("Candidature envoyée.");
     event.target.reset();
-    updateAppCharCount("appExperience", "appExperienceCount");
-    updateAppCharCount("appMotivation", "appMotivationCount");
+    document.getElementById("appExperienceCount").textContent = "0";
+    document.getElementById("appMotivationCount").textContent = "0";
   } catch (e) {
     toast(e.message);
   }
 }
 
-/* ========================= INIT ========================= */
+/* ========================= START ========================= */
 
 loadUser();
 
 </script>
-
 </body>
 </html>
