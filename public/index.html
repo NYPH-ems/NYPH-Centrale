@@ -1440,6 +1440,37 @@ function money(value) {
   return `$${n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+/* Extrait un tableau d'une réponse API, que celle-ci renvoie directement
+   un tableau ou un objet { cleAttendue: [...] }. Évite les crashs
+   "Cannot read properties of undefined (reading 'length')" quand le
+   back-end ne renvoie pas exactement la forme attendue. */
+function asArray(data, key) {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data[key])) return data[key];
+  return [];
+}
+
+/* Regroupe des lignes de facture créées en une seule soumission
+   (même employé, service, matricule, même minute de création) en une
+   seule ligne affichée : motifs concaténés, montant total, et la liste
+   des ids d'origine pour la suppression groupée. */
+function groupInvoiceRows(rows, keyFields) {
+  const groups = new Map();
+  rows.forEach(r => {
+    const minuteKey = (r.created_at || "").slice(0, 16);
+    const key = keyFields.map(f => r[f] ?? "").join("|") + "|" + minuteKey;
+    if (!groups.has(key)) {
+      groups.set(key, { ...r, ids: [r.id], motifs: [r.motif], amount: Number(r.amount || 0) });
+    } else {
+      const g = groups.get(key);
+      g.ids.push(r.id);
+      g.motifs.push(r.motif);
+      g.amount += Number(r.amount || 0);
+    }
+  });
+  return Array.from(groups.values());
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -1816,7 +1847,6 @@ async function deleteService(id) {
     toast(e.message);
   }
 }
-
 /* ---- Services par semaine (sélecteur, à partir de la semaine 33) ---- */
 
 async function loadAvailableWeeks() {
@@ -2739,7 +2769,7 @@ async function submitInvoice() {
 async function loadMyInvoices() {
   try {
     const data = await api("/api/invoices");
-    renderMyInvoices(data.invoices);
+    renderMyInvoices(asArray(data, "invoices"));
   } catch (e) {
     toast(e.message);
   }
@@ -2749,17 +2779,19 @@ function renderMyInvoices(invoicesList) {
   const box = document.getElementById("myInvoicesList");
   box.innerHTML = "";
 
-  if (!invoicesList.length) {
+  const grouped = groupInvoiceRows(invoicesList, ["service", "matricule"]);
+
+  if (!grouped.length) {
     box.innerHTML = `<div class="empty">Aucune facture pour le moment.</div>`;
     return;
   }
 
-  invoicesList.forEach(inv => {
+  grouped.forEach(inv => {
     const div = document.createElement("div");
     div.className = "activity-item static";
     div.innerHTML = `
       <div>
-        <div class="activity-title">${escapeHtml(inv.service)} · ${escapeHtml(inv.motif)}</div>
+        <div class="activity-title">${escapeHtml(inv.service)} · ${escapeHtml(inv.motifs.join(", "))}</div>
         <div class="activity-sub">${inv.matricule ? "Matricule " + escapeHtml(inv.matricule) + " · " : ""}${date(inv.created_at)}</div>
       </div>
       <div class="activity-amount">${money(inv.amount)}</div>
@@ -2778,21 +2810,23 @@ async function loadDirectorInvoices() {
     const tbody = document.getElementById("directorInvoicesTable");
     tbody.innerHTML = "";
 
-    if (!data.invoices.length) {
+    const grouped = groupInvoiceRows(asArray(data, "invoices"), ["employee", "service", "matricule"]);
+
+    if (!grouped.length) {
       tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune facture enregistrée.</td></tr>`;
       return;
     }
 
-    data.invoices.forEach(inv => {
+    grouped.forEach(inv => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${escapeHtml(inv.employee || "—")}</td>
         <td>${escapeHtml(inv.service)}</td>
         <td>${escapeHtml(inv.matricule || "—")}</td>
-        <td>${escapeHtml(inv.motif)}</td>
+        <td>${escapeHtml(inv.motifs.join(", "))}</td>
         <td>${money(inv.amount)}</td>
         <td>${date(inv.created_at)}</td>
-        <td><button class="btn-delete" onclick="deleteInvoice(${inv.id})">🗑️ Supprimer</button></td>
+        <td><button class="btn-delete" onclick='deleteInvoice(${JSON.stringify(inv.ids)})'>🗑️ Supprimer</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -2801,14 +2835,18 @@ async function loadDirectorInvoices() {
   }
 }
 
-async function deleteInvoice(id) {
+async function deleteInvoice(ids) {
   if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+  if (!Array.isArray(ids)) ids = [ids];
 
-  const ok = await askConfirm(`Voulez-vous vraiment supprimer la facture #${id} ?\n\nCette action est définitive.`);
+  const label = ids.length > 1 ? `cette facture (${ids.length} lignes)` : `la facture #${ids[0]}`;
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer ${label} ?\n\nCette action est définitive.`);
   if (!ok) return;
 
   try {
-    await api(`/api/invoices/${id}`, { method: "DELETE" });
+    for (const id of ids) {
+      await api(`/api/invoices/${id}`, { method: "DELETE" });
+    }
     toast("Facture supprimée.");
     await loadDirectorInvoices();
   } catch (e) {
@@ -2826,12 +2864,14 @@ async function loadDirectorExpenses() {
     const tbody = document.getElementById("directorExpensesTable");
     tbody.innerHTML = "";
 
-    if (!data.expenses.length) {
+    const expensesList = asArray(data, "expenses");
+
+    if (!expensesList.length) {
       tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucune note de frais enregistrée.</td></tr>`;
       return;
     }
 
-    data.expenses.forEach(exp => {
+    expensesList.forEach(exp => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${escapeHtml(exp.employee || "—")}</td>
@@ -2870,11 +2910,11 @@ async function loadDirector() {
 
   try {
     const data = await api("/api/director/users");
-    emsMembersForAssign = data.users;
+    emsMembersForAssign = asArray(data, "users");
     const tbody = document.getElementById("directorTable");
     tbody.innerHTML = "";
 
-    data.users.forEach(user => {
+    emsMembersForAssign.forEach(user => {
       const displayName = user.nickname || user.username;
       const tr = document.createElement("tr");
 
@@ -3010,12 +3050,14 @@ async function loadApplications() {
     const tbody = document.getElementById("applicationsTable");
     tbody.innerHTML = "";
 
-    if (!data.applications.length) {
+    const applicationsList = asArray(data, "applications");
+
+    if (!applicationsList.length) {
       tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune candidature reçue.</td></tr>`;
       return;
     }
 
-    data.applications.forEach(a => {
+    applicationsList.forEach(a => {
       const tr = document.createElement("tr");
       const experienceShort = (a.medical_experience || "—");
       const motivationShort = (a.motivation || "—");
