@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NewYork Presbyterian Hospital — NYPH Administration</title>
+<title>Los Santos Medical Services — LSMC Administration</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -87,6 +87,22 @@
   }
   .logo img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 30px rgba(229,9,20,.35)); }
 
+  .logo.logo-text {
+    flex-direction: column;
+    gap: 2px;
+    width: auto;
+    height: auto;
+    padding: 20px 0;
+  }
+  .logo-text-line {
+    font-size: 34px;
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: 0 10px 30px rgba(229,9,20,.35);
+    letter-spacing: .01em;
+    line-height: 1.15;
+  }
+
   .login-tagline {
     color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: .14em;
     font-weight: 800; margin-bottom: 16px; position: relative; z-index: 1;
@@ -130,6 +146,10 @@
   }
   .brand img { width: 120px; height: 120px; object-fit: contain; border-radius: 10px; flex-shrink: 0; }
   .brand span { color: var(--red); }
+
+  .brand-logo-text { display: flex; flex-direction: column; gap: 3px; }
+  .brand-acronym { color: var(--red); font-weight: 900; font-size: 22px; letter-spacing: .03em; }
+  .brand-fullname { color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
 
   .user {
     display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 12px;
@@ -519,12 +539,12 @@
 
 <section id="login">
   <div class="login-card">
-    <div class="logo">
-      <img src="/images/NewYork Hospital.png" alt="NewYork - Presbyterian Hospital"
-           onerror="var p=this.parentElement; if(p){ p.style.fontSize='44px'; p.textContent='✚'; }">
+    <div class="logo logo-text">
+      <span class="logo-text-line">Los Santos</span>
+      <span class="logo-text-line">Medical Services</span>
     </div>
-    <div class="login-tagline">NewYork · Presbyterian Hospital</div>
-    <h1>Administration NYPH</h1>
+    <div class="login-tagline">Los Santos Medical Services</div>
+    <h1>Administration LSMC</h1>
     <p>Connecte-toi avec ton compte Discord pour accéder à l'administration.</p>
     <button class="discord-btn" onclick="window.location='/auth/discord'">Continuer avec Discord</button>
   </div>
@@ -534,7 +554,10 @@
 
   <aside class="sidebar">
     <div class="brand">
-      <img src="/images/NewYork Hospital.png" alt="Logo" onerror="this.style.display='none'">
+      <div class="brand-logo-text">
+        <span class="brand-acronym">LSMC</span>
+        <span class="brand-fullname">Los Santos Medical Services</span>
+      </div>
     </div>
 
     <div class="user">
@@ -571,7 +594,7 @@
       <div class="page-title">
         <div>
           <h2>Dashboard</h2>
-          <p>Vue générale de l'activité NYPH.</p>
+          <p>Vue générale de l'activité LSMC.</p>
         </div>
       </div>
 
@@ -603,7 +626,7 @@
 
       <div class="cards">
         <div class="card">
-          <div class="card-label">Effectif NYPH</div>
+          <div class="card-label">Effectif LSMC</div>
           <div class="card-value" id="statMembers">0</div>
         </div>
         <div class="card">
@@ -651,7 +674,7 @@
       <div class="page-title">
         <div>
           <h2>Service</h2>
-          <p>Gestion de ta présence NYPH et de ton activité.</p>
+          <p>Gestion de ta présence LSMC et de ton activité.</p>
         </div>
       </div>
 
@@ -735,7 +758,7 @@
       <div class="page-title">
         <div>
           <h2>Dossiers patients</h2>
-          <p>Gestion des dossiers médicaux NYPH.</p>
+          <p>Gestion des dossiers médicaux LSMC.</p>
         </div>
         <div class="page-title-actions">
           <button class="btn btn-dark" onclick="openInterventionModal()">🚑 Nouvelle Intervention</button>
@@ -796,7 +819,7 @@
       <div class="page-title">
         <div>
           <h2>Notes de frais & Factures</h2>
-          <p>Gestion de tes notes de frais et de la facturation NYPH.</p>
+          <p>Gestion de tes notes de frais et de la facturation LSMC.</p>
         </div>
       </div>
 
@@ -840,7 +863,7 @@
         <div>
           <div class="form">
   <div class="card-label" style="margin-bottom:6px;">Nouvelle facture</div>
-  <div style="color:var(--gray);font-size:12px;margin-bottom:14px;">Enregistrez une ou plusieurs factures de service à destination d'un service partenaire (NYPH).</div>
+  <div style="color:var(--gray);font-size:12px;margin-bottom:14px;">Enregistrez une ou plusieurs factures de service à destination d'un service partenaire (LSMC).</div>
   <div class="form-grid">
     <div class="field">
       <label>Service destinataire</label>
@@ -872,6 +895,11 @@
   <button class="btn btn-red btn-sm" style="margin-top:14px;" onclick="submitInvoice()">Enregistrer la/les facture(s)</button>
 </div>
 
+<div class="card-label" style="margin:20px 0 14px;">Mes factures</div>
+<div class="activity-list" id="myInvoicesList">
+  <div class="empty">Aucune facture pour le moment.</div>
+</div>
+
       </div>
     </section>
 
@@ -899,7 +927,7 @@
       <div class="page-title">
         <div>
           <h2>Direction</h2>
-          <p>Gestion de l'activité et des profils du personnel NYPH.</p>
+          <p>Gestion de l'activité et des profils du personnel LSMC.</p>
         </div>
       </div>
 
@@ -953,8 +981,8 @@
 
       <div class="page-title">
         <div>
-          <h2 style="font-size:22px;">Factures NYPH</h2>
-          <p>Toutes les factures enregistrées par le personnel NYPH.</p>
+          <h2 style="font-size:22px;">Factures LSMC</h2>
+          <p>Toutes les factures enregistrées par le personnel LSMC.</p>
         </div>
       </div>
 
@@ -973,6 +1001,33 @@
           </thead>
           <tbody id="directorInvoicesTable">
             <tr><td colspan="7" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="page-title">
+        <div>
+          <h2 style="font-size:22px;">Notes de frais du personnel</h2>
+          <p>Toutes les dépenses enregistrées par le personnel LSMC.</p>
+        </div>
+      </div>
+
+      <div class="table-container table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Employé</th>
+              <th>Catégorie</th>
+              <th>Motif</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directorExpensesTable">
+            <tr><td colspan="6" class="empty">Chargement...</td></tr>
           </tbody>
         </table>
       </div>
@@ -1077,7 +1132,7 @@
       <div class="page-title">
         <div>
           <h2>Candidature</h2>
-          <p>Rejoignez les équipes de NewYork - Presbyterian Hospital.</p>
+          <p>Rejoignez les équipes de Los Santos Medical Services.</p>
         </div>
       </div>
 
@@ -1472,7 +1527,7 @@ document.querySelectorAll("nav button[data-page]").forEach(button => {
     if (page === "patients") loadPatients();
     if (page === "interventions") loadInterventions();
     if (page === "frais") loadFrais();
-    if (page === "director") { loadDirector(); loadApplications(); loadDirectorInvoices(); }
+    if (page === "director") { loadDirector(); loadApplications(); loadDirectorInvoices(); loadDirectorExpenses(); }
     if (page === "gestion-rdv") loadGestionRdv();
     if (page === "rdv") loadMyAppointments();
     if (page === "candidature") { /* nothing to preload */ }
@@ -1491,7 +1546,7 @@ function goToPage(page) {
 
 /* ========================= SESSION LIVE CHECK =========================
    Vérifie régulièrement auprès du serveur (qui interroge Discord) que
-   l'utilisateur possède toujours les rôles nécessaires. Si le rôle NYPH
+   l'utilisateur possède toujours les rôles nécessaires. Si le rôle LSMC
    (ou citoyen) a été retiré sur Discord entre-temps, on déconnecte
    immédiatement la personne côté site, sans qu'elle ait besoin de
    recharger la page elle-même.
@@ -1511,9 +1566,6 @@ async function checkSessionStillValid() {
       return;
     }
     const data = await response.json().catch(() => ({}));
-    // Si le rôle a changé (perte du rôle NYPH/Directeur/Citoyen),
-    // le serveur a déjà détruit la session : on recharge pour
-    // repartir sur l'écran de connexion.
     if (data && data.roleChanged) {
       window.location.reload();
     }
@@ -1544,7 +1596,6 @@ async function loadUser() {
     }
 
     if (currentUser.is_ems || currentUser.is_director) {
-      /* Staff : accès complet (Services + Espace employé(e)) */
       document.getElementById("staffNavSection").classList.remove("hidden");
 
       document.getElementById("profileUsername").textContent = displayName;
@@ -1553,7 +1604,6 @@ async function loadUser() {
       document.getElementById("profileJobStatic").textContent = currentUser.job || "—";
       document.getElementById("profileGradeStatic").textContent = currentUser.grade || "—";
 
-      /* Seul le Directeur peut modifier son profil depuis le Dashboard */
       const isDirector = !!currentUser.is_director;
       document.getElementById("profileEditGrid").classList.toggle("hidden", !isDirector);
       document.getElementById("profileJobStatic").classList.toggle("hidden", isDirector);
@@ -1576,7 +1626,6 @@ async function loadUser() {
       renderCareList();
       renderInvoiceMotifOptions();
 
-      // Page par défaut pour le personnel : Dashboard
       goToPage("dashboard");
 
       await loadPatients();
@@ -1585,7 +1634,6 @@ async function loadUser() {
       await refreshGestionRdvBadge();
 
     } else {
-      /* Citoyen : accès uniquement à l'espace Services */
       document.getElementById("staffNavSection").classList.add("hidden");
 
       goToPage("rdv");
@@ -1685,7 +1733,6 @@ async function loadDashboard() {
     console.error(e);
   }
 }
-
 /* ========================= SERVICE (+ activité) ========================= */
 
 async function loadService() {
@@ -2603,7 +2650,7 @@ async function deleteExpense(id) {
   }
 }
 
-/* ---- Factures NYPH ---- */
+/* ---- Factures LSMC ---- */
 
 function renderInvoiceMotifOptions() {
   const box = document.getElementById("invoiceMotifList");
@@ -2764,6 +2811,53 @@ async function deleteInvoice(id) {
     await api(`/api/invoices/${id}`, { method: "DELETE" });
     toast("Facture supprimée.");
     await loadDirectorInvoices();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+/* ---- Direction : toutes les notes de frais du personnel ---- */
+
+async function loadDirectorExpenses() {
+  if (!currentUser?.is_director) return;
+
+  try {
+    const data = await api("/api/director/expenses");
+    const tbody = document.getElementById("directorExpensesTable");
+    tbody.innerHTML = "";
+
+    if (!data.expenses.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucune note de frais enregistrée.</td></tr>`;
+      return;
+    }
+
+    data.expenses.forEach(exp => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(exp.employee || "—")}</td>
+        <td>${escapeHtml(exp.category)}</td>
+        <td>${escapeHtml(exp.reason || "—")}</td>
+        <td>${money(exp.amount)}</td>
+        <td>${date(exp.created_at)}</td>
+        <td><button class="btn-delete" onclick="deleteDirectorExpense(${exp.id})">🗑️ Supprimer</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteDirectorExpense(id) {
+  if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
+
+  const ok = await askConfirm(`Voulez-vous vraiment supprimer cette note de frais #${id} ?\n\nCette action est définitive.`);
+  if (!ok) return;
+
+  try {
+    await api(`/api/expenses/${id}`, { method: "DELETE" });
+    toast("Note de frais supprimée.");
+    await loadDirectorExpenses();
   } catch (e) {
     toast(e.message);
   }
@@ -2965,8 +3059,6 @@ async function deleteApplication(id) {
 
 /* ========================= GESTION RDV (staff) ========================= */
 
-/* Statuts disponibles pour un rendez-vous, en plus de l'ancien
-   système À traiter / Traité (qui reste géré par l'onglet actif) */
 const RDV_STATUS_BUTTONS = [
   { value: "En cours",              label: "🔵 En cours",              css: "btn-status-blue" },
   { value: "RDV fait",               label: "✅ RDV fait",              css: "btn-status-green" },
@@ -2975,10 +3067,6 @@ const RDV_STATUS_BUTTONS = [
   { value: "Reporté",               label: "🕒 Reporté",               css: "btn-status-yellow" }
 ];
 
-/* Métadonnées d'affichage (emoji + couleur) pour TOUS les statuts
-   possibles d'un rendez-vous, utilisées uniquement pour l'affichage
-   (aucun impact sur la logique des onglets à traiter / traité,
-   qui reste basée sur la valeur brute "Traité" en base). */
 const RDV_STATUS_META = {
   "A traiter":               { emoji: "⏳", label: "À traiter",              css: "btn-status-gray" },
   "Traité":                  { emoji: "✅", label: "Traité",                 css: "btn-status-green" },
@@ -3172,9 +3260,6 @@ async function loadMyAppointments() {
   try {
     const data = await api("/api/appointments");
 
-    // Le staff (EMS/Directeur) reçoit tous les rendez-vous via cette
-    // route (utilisée aussi par "Gestion RDV") : on ne garde ici que
-    // les rendez-vous du membre connecté pour la liste "Mes rendez-vous".
     myAppointments = (currentUser?.is_ems || currentUser?.is_director)
       ? data.appointments.filter(a => a.user_id === currentUser.id)
       : data.appointments;
