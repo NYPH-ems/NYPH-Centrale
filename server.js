@@ -27,7 +27,7 @@ const DISCORD = {
 
   REDIRECT_URI:
     process.env.DISCORD_REDIRECT_URI ||
-    "https://nyph-centrale.up.railway.app/auth/discord/callback",
+    "https://lsmc-centrale.up.railway.app/auth/discord/callback",
 
 
   SERVER_ID: "1468459512313680040",
