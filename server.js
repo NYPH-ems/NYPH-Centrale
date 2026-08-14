@@ -3170,6 +3170,25 @@ app.delete(
   }
 );
 
+app.get(
+  "/api/director/expenses",
+  requireDirector,
+  (req, res) => {
+    const expenses =
+      db.prepare(`
+        SELECT
+          e.*,
+          COALESCE(u.nickname, u.username) AS employee
+        FROM expenses e
+        LEFT JOIN users u
+          ON u.id = e.user_id
+        ORDER BY e.created_at DESC
+      `).all();
+
+    res.json({ expenses });
+  }
+);
+
 
 /* =========================================================
    FACTURES NYPH
