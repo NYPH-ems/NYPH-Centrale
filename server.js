@@ -376,7 +376,7 @@ function requireLogin(req, res, next) {
 function requireEMS(req, res, next) {
   if (!req.session.user?.is_ems) {
     return res.status(403).json({
-      error: "Accès NYPH requis."
+      error: "Accès LSMC requis."
     });
   }
 
@@ -963,7 +963,7 @@ app.get(
         discordUser.username;
 
 
-      // Accès refusé si le membre n'a ni le rôle NYPH, ni le rôle
+      // Accès refusé si le membre n'a ni le rôle LSMC, ni le rôle
       // citoyen (les citoyens n'ont accès qu'à l'espace Services).
       if (!isEMS && !isCitizen) {
         return res.status(403).send(`
@@ -1136,7 +1136,7 @@ app.get(
 
    Appelée régulièrement par le front (toutes les ~20s). Revérifie
    auprès de Discord que l'utilisateur possède toujours le rôle qui
-   lui donne accès (NYPH / Directeur / Citoyen). Si un rôle a été
+   lui donne accès (LSMC / Directeur / Citoyen). Si un rôle a été
    retiré sur Discord depuis la connexion, la session est détruite
    immédiatement et le site se déconnecte tout seul, sans attendre
    qu'une action déclenche une nouvelle requête protégée.
@@ -1881,7 +1881,7 @@ app.get(
 
 
 /* =========================================================
-   MEMBRES NYPH (utilisé pour l'assignation des rendez-vous,
+   MEMBRES LSMC (utilisé pour l'assignation des rendez-vous,
    accessible à tout le personnel — pas seulement au Directeur)
 ========================================================= */
 
@@ -2884,7 +2884,7 @@ app.delete(
 /*
   Liste des rendez-vous :
    - Citoyen : uniquement ses propres rendez-vous ("Mes rendez-vous")
-   - NYPH / Directeur : tous les rendez-vous (utilisé par "Gestion RDV"
+   - LSMC / Directeur : tous les rendez-vous (utilisé par "Gestion RDV"
      et par l'onglet "Rendez-vous" désormais accessible au personnel)
 */
 
@@ -3191,7 +3191,7 @@ app.get(
 
 
 /* =========================================================
-   FACTURES NYPH
+   FACTURES LSMC
 ========================================================= */
 
 
@@ -3345,7 +3345,7 @@ app.delete(
 
 
 /*
-  DIRECTION — Toutes les factures enregistrées par le personnel NYPH.
+  DIRECTION — Toutes les factures enregistrées par le personnel LSMC.
 */
 
 
@@ -3524,7 +3524,7 @@ app.listen(
       "================================="
     );
     console.log(
-      " NEWYORK - PRESBYTERIAN HOSPITAL — NYPH DASHBOARD"
+      " NEWYORK - PRESBYTERIAN HOSPITAL — LSMC DASHBOARD"
     );
     console.log(
       "================================="
@@ -3549,7 +3549,7 @@ app.listen(
       "Rendez-vous + Candidatures (espace citoyen) : OK"
     );
     console.log(
-      "Frais & Factures NYPH (CRUD) : OK"
+      "Frais & Factures LSMC (CRUD) : OK"
     );
     console.log("");
   }
