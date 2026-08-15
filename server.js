@@ -284,6 +284,11 @@ ensureColumn("appointments", "phone", "TEXT");
 ensureColumn("expenses", "refunded", "INTEGER DEFAULT 0");
 
 
+// Couleur d'accent (bandeaux, titre) utilisée lors du rendu d'un
+// modèle de document. Modifiable par le Directeur, par modèle.
+ensureColumn("document_templates", "accent_color", "TEXT DEFAULT '#e5352b'");
+
+
 db.prepare(`
   UPDATE patients
   SET status = 'Patient'
@@ -347,7 +352,48 @@ for (const service of oldServices) {
 
 
 /* =========================================================
+   RÉGLAGES DU SITE (logo de l'établissement, etc.)
+
+
+   Table clé/valeur à une seule ligne par clé. Le logo est stocké en
+   base64 (PNG) et utilisé sur tous les documents générés. Modifiable
+   uniquement par le Directeur, depuis Direction > Modèles.
+========================================================= */
+
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  );
+`);
+
+
+function getAppSetting(key) {
+  const row = db.prepare(`SELECT value FROM app_settings WHERE key = ?`).get(key);
+  return row ? row.value : null;
+}
+
+
+function setAppSetting(key, value) {
+  db.prepare(`
+    INSERT INTO app_settings (key, value)
+    VALUES (?, ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+  `).run(key, value);
+}
+
+
+/* =========================================================
    MODÈLES DE DOCUMENTS PAR DÉFAUT
+
+
+   Syntaxe des paramètres dans le contenu d'un modèle :
+     {{cle}}                        -> champ texte libre
+     {{cle|Option A;Option B}}      -> menu déroulant (-- Sélectionner --)
+     {{signature}}                  -> emplacement réservé pour une image
+                                        de signature (upload PNG)
+     Une ligne contenant uniquement ---PAGE--- démarre une nouvelle page.
 
 
    Insérés une seule fois, uniquement si la table est vide (pour ne
@@ -360,6 +406,7 @@ for (const service of oldServices) {
 const DEFAULT_DOCUMENT_TEMPLATES = [
   {
     title: "Attestation médicale",
+    accent_color: "#e5352b",
     content: `ATTESTATION MÉDICALE
 
 Je soussigné(e), Dr. {{nom_medecin}}, certifie que :
@@ -369,19 +416,21 @@ Date de naissance : {{date_naissance}}
 
 a été examiné(e) le {{date_examen}}.
 
-Après examen, il est constaté que {{nom_patient}} présente un état de santé {{etat_sante}}.
+Après examen, il est constaté que {{nom_patient}} présente un état de santé :
+{{etat_sante|Apte;Inapte}} {{aptitude_ou_non|est apte;n'est pas apte}} à la pratique de {{activite}}.
 
-{{aptitude_ou_non}} à la pratique de {{activite}}.
-
-Commentaires : {{commentaires}}
+Commentaires (facultatif) :
+{{commentaires}}
 
 En foi de quoi, je délivre la présente attestation pour servir et valoir ce que de droit.
 
 Fait à New York, le {{date_delivrance}}
-Signature du médecin,`
+Signature du médecin,
+{{signature}}`
   },
   {
     title: "Certificat médical",
+    accent_color: "#e5352b",
     content: `CERTIFICAT MÉDICAL
 
 Je soussigné(e), Dr. {{nom_medecin}}, certifie que :
@@ -389,7 +438,7 @@ Je soussigné(e), Dr. {{nom_medecin}}, certifie que :
 Nom et prénom : {{nom_patient}}
 Date de naissance : {{date_naissance}}
 
-a été examiné(e) le {{date_examen}} et présente un état de santé nécessitant un {{type_arret}} pour une durée de {{duree}}.
+a été examiné(e) le {{date_examen}} et présente un état de santé nécessitant un {{type_arret|Arrêt de travail;Arrêt de sport;Dispense}} pour une durée de {{duree}}.
 
 Diagnostic : {{diagnostic}}
 
@@ -398,10 +447,12 @@ Restrictions éventuelles : {{restrictions}}
 Ce certificat est délivré à la demande du patient pour servir et valoir ce que de droit.
 
 Fait à New York, le {{date_delivrance}}
-Signature du médecin,`
+Signature du médecin,
+{{signature}}`
   },
   {
     title: "Acte de naissance",
+    accent_color: "#e5352b",
     content: `ACTE DE NAISSANCE
 
 En ma qualité de médecin, j'atteste Dr. {{nom_medecin}} que les informations suivantes concernant la naissance de l'enfant sont exactes et vérifiées. Ce document constitue un acte officiel consignant les éléments relatifs à cette naissance.
@@ -411,7 +462,7 @@ Nom complet : {{nom_enfant}}
 Date de naissance : {{date_naissance_enfant}}
 Heure de naissance : {{heure_naissance}}
 Lieu de naissance : NEW YORK - PRESBYTERIAN HOSPITAL
-Sexe : {{sexe_enfant}}
+Sexe : {{sexe_enfant|Masculin;Féminin}}
 
 INFORMATIONS SUR LES PARENTS
 Nom complet du père : {{nom_pere}}
@@ -429,10 +480,12 @@ Mère : {{nationalite_mere}}
 INFORMATIONS ADMINISTRATIVES
 Date de rédaction de l'acte : {{date_redaction}}
 
-Signature du médecin,`
+Signature du médecin,
+{{signature}}`
   },
   {
     title: "Acte de décès",
+    accent_color: "#e5352b",
     content: `ACTE DE DÉCÈS
 
 Je soussigné(e), Dr. {{nom_medecin}}, Médecin de NEW YORK - PRESBYTERIAN HOSPITAL,
@@ -448,10 +501,12 @@ Lieu du décès : NEW YORK - PRESBYTERIAN HOSPITAL
 Cause du décès : {{cause_deces}}
 
 Fait à New York le, {{date_delivrance}}
-Signature du médecin,`
+Signature du médecin,
+{{signature}}`
   },
   {
     title: "Consultation gynécologique",
+    accent_color: "#e5352b",
     content: `CONSULTATION GYNÉCOLOGIQUE
 
 Nom et Prénom : {{nom_patiente}}
@@ -462,33 +517,36 @@ MOTIF DE LA CONSULTATION
 {{motif_consultation}}
 
 ANTÉCÉDENTS MÉDICAUX ET OBSTÉTRICAUX
-Grossesses précédentes : {{grossesses_precedentes}}
+Grossesses précédentes : {{grossesses_precedentes|Oui;Non}}
 Antécédents gynécologiques : {{antecedents_gyneco}}
 Antécédents familiaux : {{antecedents_familiaux}}
 
 EXAMEN CLINIQUE
-Tension artérielle : {{tension_arterielle}}
-Fréquence cardiaque : {{frequence_cardiaque}}
+Tension artérielle : {{tension_arterielle}} mmHg
+Fréquence cardiaque : {{frequence_cardiaque}} bpm
 Observations générales : {{observations_generales}}
 
 EXAMENS RÉALISÉS
-Echographie obstétricale : {{echographie}}
-Prise de sang : {{prise_de_sang}}
+Echographie obstétricale : {{echographie|Réalisée;Non réalisée}}
+Prise de sang : {{prise_de_sang|Réalisée;Non réalisée}}
 Autres : {{autres_examens}}
-
+---PAGE---
 DIAGNOSTIC ET SUIVI
-Terme estimé : {{terme_estime}}
-État général de la grossesse : {{etat_grossesse}}
+
+Terme estimé : {{terme_estime}} semaines
+État général de la grossesse : {{etat_grossesse|Normal;À surveiller;Pathologique}}
 Recommandations : {{recommandations}}
 
 SUIVI
-Prochain rendez-vous : {{prochain_rdv}}
+Prochain rendez-vous : {{prochain_rdv}} semaines
 Conseils : {{conseils}}
 
-Signature du médecin,`
+Signature du médecin,
+{{signature}}`
   },
   {
     title: "Kinésithérapie",
+    accent_color: "#e5352b",
     content: `KINÉSITHÉRAPIE
 
 Praticien : Dr. {{nom_medecin}}
@@ -519,36 +577,48 @@ Repos : {{repos}}
 Suivi : {{suivi}}
 Médication (si besoin) : {{medication}}
 
-Signature du médecin Kinésithérapie,`
+Signature du médecin Kinésithérapie,
+{{signature}}`
   },
   {
     title: "Rapport de consultation psychologique",
+    accent_color: "#e5352b",
     content: `RAPPORT DE CONSULTATION PSYCHOLOGIQUE
 
 Patient : {{nom_patient}}
 Date : {{date_consultation}}
 
 MOTIF DE LA CONSULTATION
+Demandeur de la consultation : {{demandeur_consultation|Le patient lui-même;Un proche;Les services d'urgence;La justice}}
 {{motif_consultation}}
 
 IDENTIFICATION
-Âge : {{age}}
-Situation familiale : {{situation_familiale}}
-Situation professionnelle : {{situation_professionnelle}}
-
+Quel âge avez-vous ? {{age}}
+Quelle est votre situation familiale ? {{situation_familiale}}
+Travaillez-vous actuellement ? {{travaille_actuellement|Oui;Non}}
+---PAGE---
 ANTÉCÉDENTS PSYCHOLOGIQUES ET PSYCHIATRIQUES
-{{antecedents_psy}}
+Avez-vous déjà consulté un psychologue ou un psychiatre ? {{deja_consulte_psy|Oui;Non}}
+Avez-vous reçu des diagnostics ? {{diagnostics_recus|Oui;Non}}
+Avez-vous déjà suivi un traitement ? {{traitement_suivi|Oui;Non}}
 
 ANTÉCÉDENTS MÉDICAUX
-{{antecedents_medicaux}}
+Avez-vous des maladies chroniques ou des blessures importantes ? {{maladies_chroniques|Oui;Non}}
+Avez-vous été hospitalisé auparavant ? {{hospitalise_avant|Oui;Non}}
+Prenez-vous actuellement des médicaments pour d'autres problèmes de santé ? {{medicaments_actuels|Oui;Non}}
 
 HISTOIRE PERSONNELLE
 {{histoire_personnelle}}
 
-ÉVÉNEMENTS STRESSANTS RÉCENTS
-{{evenements_stressants}}
+ANTÉCÉDENTS JUDICIAIRES
+Avez-vous déjà eu des démêlés avec la justice ? {{demeles_justice|Oui;Non}}
+Si oui, circonstances : {{circonstances_judiciaires}}
+---PAGE---
+ÉVÉNEMENTS STRESSANTS DE LA VIE
+Avez-vous vécu des événements marquants ou stressants récemment ou dans le passé ? {{evenements_stressants|Oui;Non}}
+Comment avez-vous réagi émotionnellement à ces événements ? {{reaction_emotionnelle}}
 
-OBSERVATIONS COMPORTEMENTALES
+OBSERVATIONS COMPORTEMENTALES ET PROBLÈMES ÉNONCÉS
 Apparence générale : {{apparence}}
 Attitude : {{attitude}}
 Raisonnement : {{raisonnement}}
@@ -558,12 +628,12 @@ Humeur : {{humeur}}
 CONCLUSIONS ET TRAITEMENTS RECOMMANDÉS
 {{conclusions}}
 
-Prochain rendez-vous : {{prochain_rdv}}
-
-Signature du médecin traitant,`
+Signature Médecin traitant,
+{{signature}}`
   },
   {
     title: "Rendez-vous bilan",
+    accent_color: "#e5352b",
     content: `RENDEZ-VOUS BILAN
 
 Nom complet : {{nom_patient}}
@@ -581,8 +651,8 @@ Fréquence respiratoire : {{frequence_respiratoire}}
 Saturation en oxygène : {{saturation}}
 Observations générales : {{observations}}
 
-Prise de sang : {{prise_de_sang}}
-Analyse des urines : {{analyse_urines}}
+Prise de sang : {{prise_de_sang|Réalisée;Non réalisée}}
+Analyse des urines : {{analyse_urines|Réalisée;Non réalisée}}
 
 PLAN DE SUIVI
 Traitement proposé : {{traitement}}
@@ -590,32 +660,34 @@ Recommandations : {{recommandations}}
 Prochain rendez-vous : {{prochain_rdv}}
 
 Fait le {{date_bilan}} par le Dr. {{nom_medecin}}
-Signature du médecin,`
+Signature du médecin,
+{{signature}}`
   },
   {
     title: "Visite médicale",
+    accent_color: "#e5352b",
     content: `VISITE MÉDICALE
 
 INFORMATIONS DU PATIENT
 Patient : {{nom_patient}}
 Date : {{date_visite}}
 Date de naissance : {{date_naissance}}
-Alcool : {{alcool}}
-Tabac : {{tabac}}
-Stupéfiants : {{stupefiants}}
+Alcool : {{alcool|Oui;Non}}
+Tabac : {{tabac|Oui;Non}}
+Stupéfiants : {{stupefiants|Oui;Non}}
 Allergie : {{allergie}}
-Diabète : {{diabete}}
-Asthme : {{asthme}}
-Pathologie cardiaque : {{pathologie_cardiaque}}
-Épilepsie : {{epilepsie}}
+Diabète : {{diabete|Oui;Non}}
+Asthme : {{asthme|Oui;Non}}
+Pathologie cardiaque : {{pathologie_cardiaque|Oui;Non}}
+Épilepsie : {{epilepsie|Oui;Non}}
 Traitement en cours : {{traitement_en_cours}}
 
 ANTÉCÉDENTS MÉDICAUX
 {{antecedents_medicaux}}
 
 SUIVI PSYCHOLOGIQUE/PSYCHIATRIQUE
-{{suivi_psy}}
-
+{{suivi_psy|Oui;Non}}
+---PAGE---
 EXAMEN CLINIQUE
 Tension artérielle : {{tension_arterielle}}
 Fréquence cardiaque : {{frequence_cardiaque}}
@@ -629,6 +701,12 @@ Poids : {{poids}}
 Taille : {{taille}}
 IMC : {{imc}}
 
+TESTS VISUELS ET AUDITIFS
+Oeil Droite : {{oeil_droite}}/10
+Oeil Gauche : {{oeil_gauche}}/10
+Oreille Droite : {{oreille_droite}}/10
+Oreille Gauche : {{oreille_gauche}}/10
+---PAGE---
 CONCLUSION MÉDICALE
 État général : {{etat_general}}
 Recommandations spécifiques : {{recommandations}}
@@ -637,10 +715,12 @@ CERTIFICAT D'APTITUDE
 Je soussigné, Dr. {{nom_medecin}}, certifie que le patient a passé avec succès sa visite médicale.
 
 Fait le {{date_visite}}
-Signature du médecin,`
+Signature du médecin,
+{{signature}}`
   },
   {
     title: "Certificat d'aptitude médicale",
+    accent_color: "#e5352b",
     content: `CERTIFICAT D'APTITUDE MÉDICALE
 
 Je soussigné Dr. {{nom_medecin}},
@@ -653,16 +733,17 @@ Pour faire valoir ce que de droit.
 
 Fait à New York, le {{date_delivrance}}
 Signature du médecin,
+{{signature}}
 
 Ce document, une fois signé, devient un document officiel. En signant ce document, vous êtes légalement responsable de son contexte et acceptez toutes les conséquences juridiques qu'il peut engendrer. Chaque copie de ce document a une valeur égale à son original.`
   },
   {
     title: "Compte-rendu d'analyses de sang",
+    accent_color: "#e5352b",
     content: `COMPTE-RENDU D'ANALYSES DE SANG
 
 Patient : {{nom_patient}}
 Date : {{date_analyse}}
-Médecin : Dr. {{nom_medecin}}
 
 Laboratoire de New York - Presbyterian Hospital
 
@@ -672,20 +753,33 @@ RÉSULTATS
 CONCLUSION
 {{conclusion}}
 
-CONSEILS PRATIQUES
-{{conseils}}
-
 Certifié par le laboratoire de New York - Presbyterian Hospital
 Fait à New York le, {{date_analyse}}
-Signature du médecin,`
+Signature du médecin,
+{{signature}}
+---PAGE---
+CONSEILS PRATIQUES SUITE AUX ANALYSES
+
+Médecin : Dr. {{nom_medecin}}
+
+Résultats des analyses : {{synthese_resultats}}
+
+Alimentation : {{conseil_alimentation}}
+Activité physique : {{conseil_activite_physique}}
+Habitudes de vie : {{conseil_habitudes}}
+Surveillance : {{conseil_surveillance}}
+
+Fait à New York le, {{date_analyse}}
+Signature du médecin,
+{{signature}}`
   },
   {
     title: "Compte-rendu d'analyses urinaires",
+    accent_color: "#e5352b",
     content: `COMPTE-RENDU D'ANALYSES URINAIRES
 
 Patient : {{nom_patient}}
 Date : {{date_analyse}}
-Médecin : Dr. {{nom_medecin}}
 
 Laboratoire de New York - Presbyterian Hospital
 
@@ -695,12 +789,25 @@ RÉSULTATS
 CONCLUSION
 {{conclusion}}
 
-CONSEILS PRATIQUES
-{{conseils}}
-
 Certifié par le laboratoire de New York - Presbyterian Hospital
 Fait à New York le, {{date_analyse}}
-Signature du médecin,`
+Signature du médecin,
+{{signature}}
+---PAGE---
+CONSEILS PRATIQUES SUITE AUX ANALYSES
+
+Médecin : Dr. {{nom_medecin}}
+
+Résultats des analyses : {{synthese_resultats}}
+
+Alimentation : {{conseil_alimentation}}
+Activité physique : {{conseil_activite_physique}}
+Habitudes de vie : {{conseil_habitudes}}
+Surveillance : {{conseil_surveillance}}
+
+Fait à New York le, {{date_analyse}}
+Signature du médecin,
+{{signature}}`
   }
 ];
 
@@ -712,18 +819,19 @@ const existingTemplateCount = db.prepare(`
 
 if (existingTemplateCount === 0) {
   const insertTemplate = db.prepare(`
-    INSERT INTO document_templates (title, content)
-    VALUES (?, ?)
+    INSERT INTO document_templates (title, content, accent_color)
+    VALUES (?, ?, ?)
   `);
 
   const insertAllTemplates = db.transaction(templates => {
     for (const t of templates) {
-      insertTemplate.run(t.title, t.content);
+      insertTemplate.run(t.title, t.content, t.accent_color || "#e5352b");
     }
   });
 
   insertAllTemplates(DEFAULT_DOCUMENT_TEMPLATES);
 }
+
 
 
 /* =========================================================
@@ -3839,6 +3947,46 @@ app.get(
 ========================================================= */
 
 
+/*
+  Réglages globaux liés aux documents : logo de l'établissement
+  (image PNG en base64), utilisé sur l'en-tête de chaque document
+  généré. Modifiable uniquement par le Directeur.
+*/
+
+
+app.get(
+  "/api/app-settings",
+  requireEMS,
+  (req, res) => {
+    res.json({
+      logo_image: getAppSetting("document_logo")
+    });
+  }
+);
+
+
+app.put(
+  "/api/app-settings",
+  requireDirector,
+  (req, res) => {
+    const { logo_image } = req.body;
+
+
+    if (typeof logo_image === "string" && logo_image.length > 4_000_000) {
+      return res.status(400).json({
+        error: "Le logo est trop lourd (max ~3 Mo)."
+      });
+    }
+
+
+    setAppSetting("document_logo", logo_image || "");
+
+
+    res.json({ success: true, logo_image: logo_image || "" });
+  }
+);
+
+
 app.get(
   "/api/document-templates",
   requireEMS,
@@ -3864,7 +4012,7 @@ app.post(
   "/api/document-templates",
   requireDirector,
   (req, res) => {
-    const { title, content } = req.body;
+    const { title, content, accent_color } = req.body;
 
 
     if (!title || !title.trim()) {
@@ -3883,11 +4031,12 @@ app.post(
 
     const result =
       db.prepare(`
-        INSERT INTO document_templates (title, content, created_by)
-        VALUES (?, ?, ?)
+        INSERT INTO document_templates (title, content, accent_color, created_by)
+        VALUES (?, ?, ?, ?)
       `).run(
         title.trim(),
         content,
+        accent_color || "#e5352b",
         req.session.user.id
       );
 
@@ -3916,7 +4065,7 @@ app.put(
     }
 
 
-    const { title, content } = req.body;
+    const { title, content, accent_color } = req.body;
 
 
     if (!title || !title.trim()) {
@@ -3935,11 +4084,12 @@ app.put(
 
     db.prepare(`
       UPDATE document_templates
-      SET title = ?, content = ?, updated_at = ?, updated_by = ?
+      SET title = ?, content = ?, accent_color = ?, updated_at = ?, updated_by = ?
       WHERE id = ?
     `).run(
       title.trim(),
       content,
+      accent_color || existing.accent_color || "#e5352b",
       isoNow(),
       req.session.user.id,
       req.params.id
