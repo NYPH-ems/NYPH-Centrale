@@ -3126,12 +3126,93 @@ function renderExpenses(expenses) {
   );
 
 
-  renderExpenseGroupInto(
-    document.getElementById("expensesRefundedList"),
-    refunded,
-    "Aucune note de frais remboursée pour le moment.",
-    false
-  );
+  renderRefundedExpensesByWeek(document.getElementById("expensesRefundedList"), refunded);
+}
+
+
+/* Calcule le numéro de semaine ISO (lundi -> dimanche) ainsi que les
+   bornes de cette semaine pour une date donnée. */
+function getWeekInfo(dateValue) {
+  const original = new Date(dateValue);
+
+
+  const utcCopy = new Date(Date.UTC(original.getFullYear(), original.getMonth(), original.getDate()));
+  const isoDayNum = utcCopy.getUTCDay() || 7;
+  utcCopy.setUTCDate(utcCopy.getUTCDate() + 4 - isoDayNum);
+  const yearStart = new Date(Date.UTC(utcCopy.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((utcCopy - yearStart) / 86400000) + 1) / 7);
+
+
+  const dayNum = original.getDay() || 7;
+  const monday = new Date(original);
+  monday.setDate(original.getDate() - dayNum + 1);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+
+  return { year: utcCopy.getUTCFullYear(), week, monday, sunday };
+}
+
+
+function formatWeekLabel(info) {
+  const mondayStr = info.monday.toLocaleDateString("fr-FR", { day: "2-digit", month: "long" });
+  const sundayStr = info.sunday.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+  return `Semaine ${info.week} (${mondayStr} – ${sundayStr})`;
+}
+
+
+function renderRefundedExpensesByWeek(container, expenses) {
+  container.innerHTML = "";
+
+
+  if (!expenses.length) {
+    container.innerHTML = `<div class="empty">Aucune note de frais remboursée pour le moment.</div>`;
+    return;
+  }
+
+
+  const weeks = {};
+  expenses.forEach(e => {
+    const info = getWeekInfo(e.created_at);
+    const key = `${info.year}-${String(info.week).padStart(2, "0")}`;
+    if (!weeks[key]) weeks[key] = { sortKey: info.year * 100 + info.week, label: formatWeekLabel(info), items: [] };
+    weeks[key].items.push(e);
+  });
+
+
+  Object.values(weeks).sort((a, b) => b.sortKey - a.sortKey).forEach(w => {
+    const weekBox = document.createElement("div");
+    weekBox.className = "service-box";
+    weekBox.style.marginBottom = "14px";
+
+
+    const total = w.items.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.justifyContent = "space-between";
+    header.style.alignItems = "center";
+    header.style.flexWrap = "wrap";
+    header.style.gap = "8px";
+    header.style.marginBottom = "12px";
+    header.innerHTML = `
+      <div class="card-label" style="margin-bottom:0;">📅 ${w.label}</div>
+      <div style="color:var(--green);font-weight:800;font-size:13px;">${money(total)}</div>
+    `;
+
+
+    const body = document.createElement("div");
+
+
+    weekBox.appendChild(header);
+    weekBox.appendChild(body);
+    container.appendChild(weekBox);
+
+
+    renderExpenseGroupInto(body, w.items, "", false);
+  });
 }
 
 
