@@ -628,6 +628,7 @@
     display: none; z-index: 200;
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -679,6 +680,7 @@
         <button data-page="patients">🏥 Patients</button>
         <button data-page="interventions">🚑 Interventions</button>
         <button data-page="frais">💰 Frais & Factures</button>
+        <button data-page="documents">📄 Documents</button>
         <button id="gestionRdvNav" data-page="gestion-rdv">📅 Gestion RDV<span id="gestionRdvBadge" class="nav-badge hidden">0</span></button>
         <button id="directorNav" data-page="director" class="hidden">👑 Direction</button>
       </div>
@@ -1052,6 +1054,45 @@
     </section>
 
 
+    <!-- DOCUMENTS (attestations, certificats...) -->
+    <section class="page" id="page-documents">
+      <div class="page-title">
+        <div>
+          <h2>Documents</h2>
+          <p>Génère une attestation, un certificat médical ou tout autre document à partir d'un modèle.</p>
+        </div>
+      </div>
+
+      <div class="form">
+        <div class="field" style="max-width:420px;">
+          <label>Modèle de document</label>
+          <select id="documentTemplateSelect" onchange="onDocumentTemplateChange()">
+            <option value="">— Choisir un modèle —</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="documentGeneratorBox" class="hidden">
+        <div class="grid-2">
+          <div class="form" id="documentParamsForm">
+            <div class="card-label" style="margin-bottom:14px;">Paramètres</div>
+            <div class="form-grid" id="documentParamsFields"></div>
+          </div>
+
+          <div>
+            <div class="card-label" style="margin-bottom:14px;">Aperçu</div>
+            <div id="documentPreviewWrap" style="background:#fff;border-radius:12px;padding:6px;">
+              <div id="documentPreview" style="background:#fff;color:#111;padding:40px;min-height:300px;font-family:Georgia,'Times New Roman',serif;line-height:1.7;white-space:pre-wrap;"></div>
+            </div>
+            <button class="btn btn-red" style="margin-top:14px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="documentsEmptyState" class="empty hidden">Aucun modèle de document n'a encore été créé. Le Directeur peut en ajouter depuis l'onglet Direction.</div>
+    </section>
+
+
     <!-- GESTION RENDEZ-VOUS (staff) -->
     <section class="page" id="page-gestion-rdv">
       <div class="page-title">
@@ -1088,6 +1129,7 @@
         <button class="tab-btn" data-directortab="invoices" onclick="switchDirectorTab('invoices')">🧾 Factures LSMC</button>
         <button class="tab-btn" data-directortab="expenses" onclick="switchDirectorTab('expenses')">💰 Notes de frais</button>
         <button class="tab-btn" data-directortab="applications" onclick="switchDirectorTab('applications')">📋 Candidatures</button>
+        <button class="tab-btn" data-directortab="templates" onclick="switchDirectorTab('templates')">📄 Modèles</button>
       </div>
 
       <!-- PERSONNEL -->
@@ -1240,6 +1282,23 @@
               <tr><td colspan="7" class="empty">Chargement...</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- MODÈLES DE DOCUMENTS -->
+      <div class="director-tab-panel hidden" id="directorPanel-templates">
+        <div class="page-title">
+          <div>
+            <h2 style="font-size:22px;">Modèles de documents</h2>
+            <p>Attestations, certificats médicaux, etc. Utilise <code>{{nom_du_parametre}}</code> dans le texte pour créer un champ à remplir (ex : <code>{{nom_patient}}</code>, <code>{{date}}</code>).</p>
+          </div>
+          <div class="page-title-actions">
+            <button class="btn btn-red btn-sm" onclick="openNewTemplateModal()">➕ Nouveau modèle</button>
+          </div>
+        </div>
+
+        <div class="activity-list" id="directorTemplatesList">
+          <div class="empty">Chargement...</div>
         </div>
       </div>
     </section>
@@ -1553,6 +1612,32 @@
 </div>
 
 
+<!-- MODAL : NOUVEAU / MODIFIER MODÈLE DE DOCUMENT -->
+<div class="modal-overlay" id="templateModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h3 id="templateModalTitle">Nouveau modèle</h3>
+      <button class="modal-close" onclick="closeModal('templateModal')">✕</button>
+    </div>
+
+    <form onsubmit="submitTemplateForm(event)">
+      <div class="form-grid">
+        <div class="field full">
+          <label>Titre du modèle</label>
+          <input type="text" id="templateTitleInput" required placeholder="Ex : Attestation médicale">
+        </div>
+        <div class="field full">
+          <label>Contenu — utilise {{nom_du_parametre}} pour chaque champ à remplir</label>
+          <textarea id="templateContentInput" required style="min-height:280px;font-family:Georgia,'Times New Roman',serif;" placeholder="Je soussigné(e) {{nom_medecin}}, certifie avoir examiné {{nom_patient}} le {{date}}..."></textarea>
+        </div>
+      </div>
+      <br>
+      <button class="btn btn-red">Enregistrer</button>
+    </form>
+  </div>
+</div>
+
+
 <!-- MODAL : TEXTE ZOOMÉ (candidatures, motifs de factures) -->
 <div class="modal-overlay" id="textZoomModal">
   <div class="modal-box">
@@ -1809,7 +1894,8 @@ document.querySelectorAll("nav button[data-page]").forEach(button => {
     if (page === "patients") loadPatients();
     if (page === "interventions") loadInterventions();
     if (page === "frais") loadFrais();
-    if (page === "director") { loadDirector(); loadApplications(); loadDirectorInvoices(); loadDirectorExpenses(); }
+    if (page === "documents") loadDocuments();
+    if (page === "director") { loadDirector(); loadApplications(); loadDirectorInvoices(); loadDirectorExpenses(); loadDirectorTemplates(); }
     if (page === "gestion-rdv") loadGestionRdv();
     if (page === "rdv") loadMyAppointments();
     if (page === "candidature") { /* nothing to preload */ }
@@ -3996,6 +4082,263 @@ async function deleteAppointment(id) {
     await api(`/api/appointments/${id}`, { method: "DELETE" });
     toast("Rendez-vous supprimé.");
     await loadGestionRdv();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+
+/* ========================= DOCUMENTS (attestations, certificats...) ========================= */
+
+
+let documentTemplates = [];
+let currentDocumentTemplate = null;
+
+
+/*
+  Détecte les paramètres {{nom_du_parametre}} présents dans un texte,
+  dans l'ordre d'apparition, sans doublons.
+*/
+function extractDocumentParams(content) {
+  const matches = [...(content || "").matchAll(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g)];
+  const seen = new Set();
+  const params = [];
+  matches.forEach(m => {
+    if (!seen.has(m[1])) {
+      seen.add(m[1]);
+      params.push(m[1]);
+    }
+  });
+  return params;
+}
+
+
+function prettifyParamName(key) {
+  return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+
+async function loadDocuments() {
+  try {
+    const data = await api("/api/document-templates");
+    documentTemplates = asArray(data, "templates");
+
+
+    const select = document.getElementById("documentTemplateSelect");
+    select.innerHTML = `<option value="">— Choisir un modèle —</option>`;
+    documentTemplates.forEach(t => {
+      const option = document.createElement("option");
+      option.value = t.id;
+      option.textContent = t.title;
+      select.appendChild(option);
+    });
+
+
+    document.getElementById("documentsEmptyState").classList.toggle("hidden", documentTemplates.length > 0);
+    document.getElementById("documentGeneratorBox").classList.add("hidden");
+    select.value = "";
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+
+function onDocumentTemplateChange() {
+  const id = Number(document.getElementById("documentTemplateSelect").value);
+  const box = document.getElementById("documentGeneratorBox");
+
+
+  if (!id) {
+    box.classList.add("hidden");
+    currentDocumentTemplate = null;
+    return;
+  }
+
+
+  currentDocumentTemplate = documentTemplates.find(t => t.id === id);
+  if (!currentDocumentTemplate) return;
+
+
+  box.classList.remove("hidden");
+
+
+  const params = extractDocumentParams(currentDocumentTemplate.content);
+  const fieldsBox = document.getElementById("documentParamsFields");
+  fieldsBox.innerHTML = "";
+
+
+  if (!params.length) {
+    fieldsBox.innerHTML = `<div class="empty" style="padding:10px;">Ce modèle ne contient aucun paramètre à remplir.</div>`;
+  }
+
+
+  params.forEach(key => {
+    const field = document.createElement("div");
+    field.className = "field";
+    field.innerHTML = `
+      <label>${escapeHtml(prettifyParamName(key))}</label>
+      <input type="text" data-doc-param="${escapeHtml(key)}" oninput="renderDocumentPreview()">
+    `;
+    fieldsBox.appendChild(field);
+  });
+
+
+  renderDocumentPreview();
+}
+
+
+function renderDocumentPreview() {
+  if (!currentDocumentTemplate) return;
+
+
+  let text = currentDocumentTemplate.content;
+
+
+  document.querySelectorAll("#documentParamsFields [data-doc-param]").forEach(input => {
+    const key = input.dataset.docParam;
+    const value = input.value.trim();
+    const pattern = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, "g");
+    text = text.replace(pattern, value || `[${prettifyParamName(key)}]`);
+  });
+
+
+  document.getElementById("documentPreview").textContent = text;
+}
+
+
+function downloadDocumentAsPng() {
+  if (!currentDocumentTemplate) return;
+
+
+  const target = document.getElementById("documentPreview");
+
+
+  html2canvas(target, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+    const link = document.createElement("a");
+    const safeName = currentDocumentTemplate.title
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    link.download = `${safeName || "document"}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }).catch(e => {
+    toast("Impossible de générer l'image : " + e.message);
+  });
+}
+
+
+/* ---- Direction : gestion des modèles de documents ---- */
+
+
+let directorTemplates = [];
+let editingTemplateId = null;
+
+
+async function loadDirectorTemplates() {
+  if (!currentUser?.is_director) return;
+
+
+  try {
+    const data = await api("/api/document-templates");
+    directorTemplates = asArray(data, "templates");
+    renderDirectorTemplates();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+
+function renderDirectorTemplates() {
+  const box = document.getElementById("directorTemplatesList");
+  if (!box) return;
+
+
+  box.innerHTML = "";
+
+
+  if (!directorTemplates.length) {
+    box.innerHTML = `<div class="empty">Aucun modèle pour le moment. Clique sur "Nouveau modèle" pour en créer un.</div>`;
+    return;
+  }
+
+
+  directorTemplates.forEach(t => {
+    const div = document.createElement("div");
+    div.className = "activity-item static";
+    div.innerHTML = `
+      <div>
+        <div class="activity-title">${escapeHtml(t.title)}</div>
+        <div class="activity-sub">${extractDocumentParams(t.content).length} paramètre(s) · créé par ${escapeHtml(t.creator || "—")}</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-dark btn-sm" onclick="openEditTemplateModal(${t.id})">✏️ Modifier</button>
+        <button class="btn-delete btn-sm" onclick="deleteDocumentTemplate(${t.id})">🗑️ Supprimer</button>
+      </div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+
+function openNewTemplateModal() {
+  editingTemplateId = null;
+  document.getElementById("templateModalTitle").textContent = "Nouveau modèle";
+  document.getElementById("templateTitleInput").value = "";
+  document.getElementById("templateContentInput").value = "";
+  openModal("templateModal");
+}
+
+
+function openEditTemplateModal(id) {
+  const template = directorTemplates.find(t => t.id === id);
+  if (!template) return;
+
+
+  editingTemplateId = id;
+  document.getElementById("templateModalTitle").textContent = "Modifier le modèle";
+  document.getElementById("templateTitleInput").value = template.title;
+  document.getElementById("templateContentInput").value = template.content;
+  openModal("templateModal");
+}
+
+
+async function submitTemplateForm(event) {
+  event.preventDefault();
+
+
+  const payload = {
+    title: document.getElementById("templateTitleInput").value,
+    content: document.getElementById("templateContentInput").value
+  };
+
+
+  try {
+    if (editingTemplateId) {
+      await api(`/api/document-templates/${editingTemplateId}`, { method: "PUT", body: JSON.stringify(payload) });
+      toast("Modèle modifié.");
+    } else {
+      await api("/api/document-templates", { method: "POST", body: JSON.stringify(payload) });
+      toast("Modèle créé.");
+    }
+    closeModal("templateModal");
+    await loadDirectorTemplates();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+
+async function deleteDocumentTemplate(id) {
+  const ok = await askConfirm("Voulez-vous vraiment supprimer ce modèle de document ?\n\nCette action est définitive.");
+  if (!ok) return;
+
+
+  try {
+    await api(`/api/document-templates/${id}`, { method: "DELETE" });
+    toast("Modèle supprimé.");
+    await loadDirectorTemplates();
   } catch (e) {
     toast(e.message);
   }
