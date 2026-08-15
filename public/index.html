@@ -310,6 +310,47 @@
   .zoomable:hover { color: white; text-decoration: underline dotted; }
 
 
+  /* DOCUMENTS (feuille façon vrai document, avec bandeau) */
+
+
+  .doc-sheet {
+    background: #fff;
+    color: #111;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 24px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,.35);
+    font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  }
+  .doc-sheet-bar { height: 6px; }
+  .doc-sheet-header { padding: 26px 40px 10px; }
+  .doc-sheet-logo-fallback {
+    font-weight: 900; font-size: 26px; line-height: 1.15; display: inline-block;
+  }
+  .doc-sheet-logo-fallback div { border-left: 4px solid; padding-left: 8px; margin-bottom: 2px; }
+  .doc-sheet-logo-img { max-height: 90px; max-width: 320px; object-fit: contain; }
+  .doc-sheet-title {
+    text-align: center; font-weight: 900; font-size: 22px; letter-spacing: .02em;
+    text-transform: uppercase; margin: 14px 0 18px;
+  }
+  .doc-sheet-body {
+    padding: 0 40px 30px; font-size: 14px; line-height: 1.85; white-space: pre-wrap;
+    min-height: 160px;
+  }
+  .doc-sheet-body select, .doc-sheet-body input {
+    font-family: inherit; font-size: 13px; border-radius: 6px; border: 1px solid #ccc;
+    padding: 3px 8px; background: #fafafa; color: #111;
+  }
+  .doc-signature-img {
+    display: block; max-height: 100px; max-width: 220px; object-fit: contain; margin-top: 6px;
+  }
+  .doc-page-number {
+    text-align: center; font-size: 11px; color: #999; padding-bottom: 14px;
+  }
+
+
   /* FORMS */
 
 
@@ -1064,29 +1105,29 @@
       </div>
 
       <div class="form">
-        <div class="field" style="max-width:420px;">
-          <label>Modèle de document</label>
-          <select id="documentTemplateSelect" onchange="onDocumentTemplateChange()">
-            <option value="">— Choisir un modèle —</option>
-          </select>
+        <div class="form-grid">
+          <div class="field">
+            <label>Modèle de document</label>
+            <select id="documentTemplateSelect" onchange="onDocumentTemplateChange()">
+              <option value="">— Choisir un modèle —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Signature (image, optionnel)</label>
+            <input type="file" id="documentSignatureInput" accept="image/*" onchange="onDocumentSignatureChange(event)">
+          </div>
         </div>
       </div>
 
       <div id="documentGeneratorBox" class="hidden">
-        <div class="grid-2">
-          <div class="form" id="documentParamsForm">
-            <div class="card-label" style="margin-bottom:14px;">Paramètres</div>
-            <div class="form-grid" id="documentParamsFields"></div>
-          </div>
-
-          <div>
-            <div class="card-label" style="margin-bottom:14px;">Aperçu</div>
-            <div id="documentPreviewWrap" style="background:#fff;border-radius:12px;padding:6px;">
-              <div id="documentPreview" style="background:#fff;color:#111;padding:40px;min-height:300px;font-family:Georgia,'Times New Roman',serif;line-height:1.7;white-space:pre-wrap;"></div>
-            </div>
-            <button class="btn btn-red" style="margin-top:14px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
-          </div>
+        <div class="form" id="documentParamsForm">
+          <div class="card-label" style="margin-bottom:14px;">Paramètres</div>
+          <div class="form-grid" id="documentParamsFields"></div>
         </div>
+
+        <div class="card-label" style="margin-bottom:14px;">Aperçu</div>
+        <div id="documentPreviewPages"></div>
+        <button class="btn btn-red" style="margin-top:14px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
       </div>
 
       <div id="documentsEmptyState" class="empty hidden">Aucun modèle de document n'a encore été créé. Le Directeur peut en ajouter depuis l'onglet Direction.</div>
@@ -1294,6 +1335,18 @@
           </div>
           <div class="page-title-actions">
             <button class="btn btn-red btn-sm" onclick="openNewTemplateModal()">➕ Nouveau modèle</button>
+          </div>
+        </div>
+
+        <div class="service-box" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:20px;">
+          <div>
+            <div class="card-label" style="margin-bottom:8px;">Logo de l'établissement</div>
+            <div style="color:var(--gray);font-size:12px;max-width:340px;">Utilisé en en-tête de chaque document généré (PNG recommandé, fond transparent).</div>
+          </div>
+          <img id="directorLogoPreview" src="" alt="Logo" class="hidden" style="max-height:70px;max-width:220px;object-fit:contain;background:#fff;border-radius:8px;padding:6px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="file" id="directorLogoInput" accept="image/*" onchange="onDirectorLogoChange(event)" style="max-width:220px;">
+            <button class="btn btn-dark btn-sm" onclick="removeDirectorLogo()">✕ Retirer le logo</button>
           </div>
         </div>
 
@@ -1622,13 +1675,23 @@
 
     <form onsubmit="submitTemplateForm(event)">
       <div class="form-grid">
-        <div class="field full">
+        <div class="field">
           <label>Titre du modèle</label>
           <input type="text" id="templateTitleInput" required placeholder="Ex : Attestation médicale">
         </div>
+        <div class="field">
+          <label>Couleur d'accent (bandeaux, titre)</label>
+          <input type="color" id="templateColorInput" value="#e5352b" style="height:44px;padding:4px;">
+        </div>
         <div class="field full">
-          <label>Contenu — utilise {{nom_du_parametre}} pour chaque champ à remplir</label>
+          <label>Contenu</label>
           <textarea id="templateContentInput" required style="min-height:280px;font-family:Georgia,'Times New Roman',serif;" placeholder="Je soussigné(e) {{nom_medecin}}, certifie avoir examiné {{nom_patient}} le {{date}}..."></textarea>
+          <div style="color:var(--gray);font-size:12px;margin-top:8px;line-height:1.6;">
+            <code>{{nom_parametre}}</code> → champ texte libre<br>
+            <code>{{nom_parametre|Option A;Option B}}</code> → menu déroulant<br>
+            <code>{{signature}}</code> → emplacement réservé à l'image de signature<br>
+            Une ligne contenant uniquement <code>---PAGE---</code> démarre une nouvelle page
+          </div>
         </div>
       </div>
       <br>
@@ -4093,23 +4156,31 @@ async function deleteAppointment(id) {
 
 let documentTemplates = [];
 let currentDocumentTemplate = null;
+let documentPages = [];
+let documentLogo = null;
+let documentSignatureData = null;
 
 
 /*
-  Détecte les paramètres {{nom_du_parametre}} présents dans un texte,
-  dans l'ordre d'apparition, sans doublons.
+  Détecte les paramètres présents dans un texte, dans l'ordre
+  d'apparition, sans doublons. Deux formats supportés :
+    {{cle}}                    -> champ texte libre
+    {{cle|Option A;Option B}}  -> menu déroulant
+  Le paramètre spécial {{signature}} est réservé à l'image de
+  signature et ne génère pas de champ texte/menu.
 */
 function extractDocumentParams(content) {
-  const matches = [...(content || "").matchAll(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g)];
-  const seen = new Set();
-  const params = [];
+  const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
+  const matches = [...(content || "").matchAll(regex)];
+  const seen = new Map();
   matches.forEach(m => {
-    if (!seen.has(m[1])) {
-      seen.add(m[1]);
-      params.push(m[1]);
-    }
+    const key = m[1];
+    if (key === "signature" || seen.has(key)) return;
+    const optionsRaw = m[2] ? m[2].slice(1) : null;
+    const options = optionsRaw ? optionsRaw.split(";").map(o => o.trim()).filter(Boolean) : null;
+    seen.set(key, { key, options });
   });
-  return params;
+  return Array.from(seen.values());
 }
 
 
@@ -4118,8 +4189,21 @@ function prettifyParamName(key) {
 }
 
 
+async function loadDocumentLogo() {
+  try {
+    const data = await api("/api/app-settings");
+    documentLogo = data.logo_image || null;
+  } catch {
+    documentLogo = null;
+  }
+}
+
+
 async function loadDocuments() {
   try {
+    await loadDocumentLogo();
+
+
     const data = await api("/api/document-templates");
     documentTemplates = asArray(data, "templates");
 
@@ -4137,9 +4221,25 @@ async function loadDocuments() {
     document.getElementById("documentsEmptyState").classList.toggle("hidden", documentTemplates.length > 0);
     document.getElementById("documentGeneratorBox").classList.add("hidden");
     select.value = "";
+    documentSignatureData = null;
+    document.getElementById("documentSignatureInput").value = "";
   } catch (e) {
     toast(e.message);
   }
+}
+
+
+function onDocumentSignatureChange(event) {
+  const file = event.target.files[0];
+  if (!file) { documentSignatureData = null; renderDocumentPreview(); return; }
+
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    documentSignatureData = reader.result;
+    renderDocumentPreview();
+  };
+  reader.readAsDataURL(file);
 }
 
 
@@ -4162,23 +4262,39 @@ function onDocumentTemplateChange() {
   box.classList.remove("hidden");
 
 
-  const params = extractDocumentParams(currentDocumentTemplate.content);
+  documentPages = currentDocumentTemplate.content.split(/\r?\n---PAGE---\r?\n|^---PAGE---$/m);
+
+
+  const allParams = extractDocumentParams(currentDocumentTemplate.content);
   const fieldsBox = document.getElementById("documentParamsFields");
   fieldsBox.innerHTML = "";
 
 
-  if (!params.length) {
+  if (!allParams.length) {
     fieldsBox.innerHTML = `<div class="empty" style="padding:10px;">Ce modèle ne contient aucun paramètre à remplir.</div>`;
   }
 
 
-  params.forEach(key => {
+  allParams.forEach(p => {
     const field = document.createElement("div");
     field.className = "field";
-    field.innerHTML = `
-      <label>${escapeHtml(prettifyParamName(key))}</label>
-      <input type="text" data-doc-param="${escapeHtml(key)}" oninput="renderDocumentPreview()">
-    `;
+
+
+    if (p.options) {
+      const optionsHtml = p.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+      field.innerHTML = `
+        <label>${escapeHtml(prettifyParamName(p.key))}</label>
+        <select data-doc-param="${escapeHtml(p.key)}" onchange="renderDocumentPreview()">
+          <option value="">— Sélectionner —</option>
+          ${optionsHtml}
+        </select>
+      `;
+    } else {
+      field.innerHTML = `
+        <label>${escapeHtml(prettifyParamName(p.key))}</label>
+        <input type="text" data-doc-param="${escapeHtml(p.key)}" oninput="renderDocumentPreview()">
+      `;
+    }
     fieldsBox.appendChild(field);
   });
 
@@ -4187,22 +4303,90 @@ function onDocumentTemplateChange() {
 }
 
 
+function getDocumentParamValues() {
+  const values = {};
+  document.querySelectorAll("#documentParamsFields [data-doc-param]").forEach(el => {
+    values[el.dataset.docParam] = el.value.trim();
+  });
+  return values;
+}
+
+
+/*
+  Construit le HTML d'une page : échappe le texte, puis remplace
+  chaque occurrence de {{cle}} / {{cle|options}} par la valeur saisie
+  (ou par l'image de signature pour {{signature}}).
+*/
+function buildPageBodyHtml(pageText, values) {
+  let html = escapeHtml(pageText);
+
+
+  const params = extractDocumentParams(pageText);
+  params.forEach(p => {
+    const regex = new RegExp(`\\{\\{\\s*${p.key}\\s*(\\|[^}]*)?\\}\\}`, "g");
+    const value = values[p.key];
+    const display = value ? escapeHtml(value) : `<span style="color:#b91c1c;">[${escapeHtml(prettifyParamName(p.key))}]</span>`;
+    html = html.replace(regex, display);
+  });
+
+
+  const signatureRegex = /\{\{\s*signature\s*\}\}/g;
+  const signatureHtml = documentSignatureData
+    ? `<img class="doc-signature-img" src="${documentSignatureData}" alt="Signature">`
+    : `<span style="color:#999;">[Signature]</span>`;
+  html = html.replace(signatureRegex, signatureHtml);
+
+
+  return html;
+}
+
+
+function renderDocumentLogoHtml() {
+  if (documentLogo) {
+    return `<img class="doc-sheet-logo-img" src="${documentLogo}" alt="Logo">`;
+  }
+  return `
+    <span class="doc-sheet-logo-fallback">
+      <div>NewYork-</div>
+      <div>Presbyterian</div>
+    </span>
+  `;
+}
+
+
 function renderDocumentPreview() {
   if (!currentDocumentTemplate) return;
 
 
-  let text = currentDocumentTemplate.content;
+  const values = getDocumentParamValues();
+  const accent = currentDocumentTemplate.accent_color || "#e5352b";
+  const wrap = document.getElementById("documentPreviewPages");
+  wrap.innerHTML = "";
 
 
-  document.querySelectorAll("#documentParamsFields [data-doc-param]").forEach(input => {
-    const key = input.dataset.docParam;
-    const value = input.value.trim();
-    const pattern = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, "g");
-    text = text.replace(pattern, value || `[${prettifyParamName(key)}]`);
+  documentPages.forEach((pageText, index) => {
+    const sheet = document.createElement("div");
+    sheet.className = "doc-sheet";
+    sheet.id = `documentPage-${index}`;
+
+
+    const bodyHtml = buildPageBodyHtml(pageText, values);
+
+
+    sheet.innerHTML = `
+      <div class="doc-sheet-bar" style="background:${accent};"></div>
+      <div class="doc-sheet-header" style="text-align:${documentLogo ? "left" : "left"};color:${accent};">
+        ${renderDocumentLogoHtml()}
+      </div>
+      <div class="doc-sheet-bar" style="background:${accent};"></div>
+      ${index === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(currentDocumentTemplate.title)}</div>` : `<div style="height:14px;"></div>`}
+      <div class="doc-sheet-body">${bodyHtml}</div>
+      ${documentPages.length > 1 ? `<div class="doc-page-number">Page ${index + 1} / ${documentPages.length}</div>` : ""}
+    `;
+
+
+    wrap.appendChild(sheet);
   });
-
-
-  document.getElementById("documentPreview").textContent = text;
 }
 
 
@@ -4210,22 +4394,33 @@ function downloadDocumentAsPng() {
   if (!currentDocumentTemplate) return;
 
 
-  const target = document.getElementById("documentPreview");
+  const safeName = currentDocumentTemplate.title
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "") || "document";
 
 
-  html2canvas(target, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
-    const link = document.createElement("a");
-    const safeName = currentDocumentTemplate.title
-      .toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-    link.download = `${safeName || "document"}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  }).catch(e => {
-    toast("Impossible de générer l'image : " + e.message);
-  });
+  const pages = documentPages.map((_, i) => document.getElementById(`documentPage-${i}`)).filter(Boolean);
+
+
+  const exportPage = (index) => {
+    if (index >= pages.length) return;
+
+
+    html2canvas(pages[index], { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+      const link = document.createElement("a");
+      link.download = pages.length > 1 ? `${safeName}-page-${index + 1}.png` : `${safeName}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      setTimeout(() => exportPage(index + 1), 400);
+    }).catch(e => {
+      toast("Impossible de générer l'image : " + e.message);
+    });
+  };
+
+
+  exportPage(0);
 }
 
 
@@ -4241,9 +4436,55 @@ async function loadDirectorTemplates() {
 
 
   try {
+    await loadDocumentLogo();
+    document.getElementById("directorLogoPreview").src = documentLogo || "";
+    document.getElementById("directorLogoPreview").classList.toggle("hidden", !documentLogo);
+
+
     const data = await api("/api/document-templates");
     directorTemplates = asArray(data, "templates");
     renderDirectorTemplates();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+
+async function onDirectorLogoChange(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+
+  if (file.size > 3 * 1024 * 1024) {
+    toast("Logo trop lourd (3 Mo max).");
+    event.target.value = "";
+    return;
+  }
+
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      await api("/api/app-settings", { method: "PUT", body: JSON.stringify({ logo_image: reader.result }) });
+      documentLogo = reader.result;
+      document.getElementById("directorLogoPreview").src = documentLogo;
+      document.getElementById("directorLogoPreview").classList.remove("hidden");
+      toast("Logo mis à jour.");
+    } catch (e) {
+      toast(e.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+
+async function removeDirectorLogo() {
+  try {
+    await api("/api/app-settings", { method: "PUT", body: JSON.stringify({ logo_image: "" }) });
+    documentLogo = null;
+    document.getElementById("directorLogoPreview").classList.add("hidden");
+    document.getElementById("directorLogoInput").value = "";
+    toast("Logo retiré.");
   } catch (e) {
     toast(e.message);
   }
@@ -4265,12 +4506,16 @@ function renderDirectorTemplates() {
 
 
   directorTemplates.forEach(t => {
+    const pageCount = (t.content.match(/^---PAGE---$/gm) || []).length + 1;
     const div = document.createElement("div");
     div.className = "activity-item static";
     div.innerHTML = `
-      <div>
-        <div class="activity-title">${escapeHtml(t.title)}</div>
-        <div class="activity-sub">${extractDocumentParams(t.content).length} paramètre(s) · créé par ${escapeHtml(t.creator || "—")}</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:14px;height:14px;border-radius:4px;background:${escapeHtml(t.accent_color || "#e5352b")};flex-shrink:0;"></span>
+        <div>
+          <div class="activity-title">${escapeHtml(t.title)}</div>
+          <div class="activity-sub">${extractDocumentParams(t.content).length} paramètre(s) · ${pageCount} page(s) · créé par ${escapeHtml(t.creator || "—")}</div>
+        </div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-dark btn-sm" onclick="openEditTemplateModal(${t.id})">✏️ Modifier</button>
@@ -4287,6 +4532,7 @@ function openNewTemplateModal() {
   document.getElementById("templateModalTitle").textContent = "Nouveau modèle";
   document.getElementById("templateTitleInput").value = "";
   document.getElementById("templateContentInput").value = "";
+  document.getElementById("templateColorInput").value = "#e5352b";
   openModal("templateModal");
 }
 
@@ -4300,6 +4546,7 @@ function openEditTemplateModal(id) {
   document.getElementById("templateModalTitle").textContent = "Modifier le modèle";
   document.getElementById("templateTitleInput").value = template.title;
   document.getElementById("templateContentInput").value = template.content;
+  document.getElementById("templateColorInput").value = template.accent_color || "#e5352b";
   openModal("templateModal");
 }
 
@@ -4310,7 +4557,8 @@ async function submitTemplateForm(event) {
 
   const payload = {
     title: document.getElementById("templateTitleInput").value,
-    content: document.getElementById("templateContentInput").value
+    content: document.getElementById("templateContentInput").value,
+    accent_color: document.getElementById("templateColorInput").value
   };
 
 
