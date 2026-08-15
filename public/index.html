@@ -7,6 +7,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+
   :root {
     --red: #e50914;
     --red-dark: #a50008;
@@ -19,6 +20,7 @@
     --green: #20d66b;
   }
 
+
   body {
     background: var(--black);
     color: var(--white);
@@ -26,11 +28,14 @@
     min-height: 100vh;
   }
 
+
   button, input, textarea, select { font: inherit; }
   button { cursor: pointer; }
   a { color: inherit; text-decoration: none; }
 
+
   /* LOGIN */
+
 
   #login {
     min-height: 100vh;
@@ -40,6 +45,7 @@
     padding: 20px;
     background: radial-gradient(circle at center, #320307 0%, #090909 50%, #050505 100%);
   }
+
 
   .login-card {
     width: min(520px, 100%);
@@ -54,6 +60,7 @@
     animation: loginFadeIn .6s ease;
   }
 
+
   .login-card::before {
     content: "";
     position: absolute;
@@ -67,6 +74,7 @@
     pointer-events: none;
   }
 
+
   .login-card::after {
     content: "";
     position: absolute;
@@ -74,10 +82,12 @@
     background: linear-gradient(90deg, var(--red-dark), var(--red), var(--red-dark));
   }
 
+
   @keyframes loginFadeIn {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
 
   .logo {
     width: 300px; height: 300px; margin: auto;
@@ -86,6 +96,7 @@
     position: relative; z-index: 1;
   }
   .logo img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 30px rgba(229,9,20,.35)); }
+
 
   .logo.logo-text {
     flex-direction: column;
@@ -103,10 +114,12 @@
     line-height: 1.15;
   }
 
+
   .login-tagline {
     color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: .14em;
     font-weight: 800; margin-bottom: 16px; position: relative; z-index: 1;
   }
+
 
   .login-card h1 {
     font-size: 30px; margin-bottom: 8px; position: relative; z-index: 1;
@@ -116,6 +129,7 @@
   }
   .login-card p { color: var(--gray); margin-bottom: 30px; position: relative; z-index: 1; }
 
+
   .discord-btn {
     border: 0; width: 100%; padding: 15px; border-radius: 9px;
     background: #5865f2; color: white; font-weight: 800; transition: .2s;
@@ -123,9 +137,12 @@
   }
   .discord-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 10px 30px rgba(88,101,242,.4); }
 
+
   /* APP */
 
+
   #app { display: none; min-height: 100vh; }
+
 
   .sidebar {
     position: fixed; width: 250px; left: 0; top: 0; bottom: 0;
@@ -140,6 +157,7 @@
     height: 0;
   }
 
+
   .brand {
     font-weight: 900; font-size: 17px; margin-bottom: 35px;
     display: flex; align-items: center; gap: 10px;
@@ -147,14 +165,17 @@
   .brand img { width: 120px; height: 120px; object-fit: contain; border-radius: 10px; flex-shrink: 0; }
   .brand span { color: var(--red); }
 
+
   .brand-logo-text { display: flex; flex-direction: column; gap: 3px; }
   .brand-acronym { color: var(--red); font-weight: 900; font-size: 22px; letter-spacing: .03em; }
   .brand-fullname { color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+
 
   .user {
     display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 12px;
     background: var(--black-3); border-radius: 10px; margin-bottom: 25px; text-align: center;
   }
+
 
   .avatar {
     width: 38px; height: 38px; border-radius: 50%; background: var(--red);
@@ -163,8 +184,10 @@
   }
   .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
+
   .username { font-weight: 800; font-size: 15px; }
   .role { color: var(--gray); font-size: 12px; }
+
 
   nav button {
     width: 100%; border: 0; background: transparent; color: #bbb;
@@ -172,10 +195,12 @@
   }
   nav button:hover, nav button.active { color: white; background: var(--red); }
 
+
   .nav-section-label {
     color: #666; font-size: 11px; text-transform: uppercase; font-weight: 800;
     padding: 10px 13px 6px; letter-spacing: .05em;
   }
+
 
   .logout {
     margin-top: 20px;
@@ -184,39 +209,50 @@
     padding: 11px; border-radius: 8px;
   }
 
+
   .content { margin-left: 250px; padding: 35px; max-width: 1500px; }
+
 
   .page { display: none; }
   .page.active { display: block; }
+
 
   .page-title { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; gap: 15px; flex-wrap: wrap; }
   .page-title h2 { font-size: 30px; }
   .page-title p { color: var(--gray); margin-top: 6px; }
   .page-title-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
+
   /* CARDS */
+
 
   .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; margin-bottom: 25px; }
   .card { background: var(--black-2); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
   .card-label { color: var(--gray); font-size: 13px; margin-bottom: 10px; }
   .card-value { font-size: 29px; font-weight: 900; }
 
+
   .grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 15px; margin-bottom: 25px; }
   @media(max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
 
+
   /* SERVICE */
+
 
   .service-box {
     background: var(--black-2); border: 1px solid var(--border); border-radius: 12px;
     padding: 25px; margin-bottom: 25px;
   }
 
+
   .service-status { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
 
   .status-dot {
     display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #555; margin-right: 7px;
   }
   .status-dot.online { background: var(--green); box-shadow: 0 0 12px var(--green); }
+
 
   .btn { border: 0; border-radius: 8px; padding: 12px 18px; font-weight: 800; }
   .btn-red { background: var(--red); color: white; }
@@ -225,11 +261,13 @@
   .btn-outline { background: transparent; color: #ddd; border: 1px solid var(--border); }
   .btn-sm { padding: 8px 12px; font-size: 13px; }
 
+
   .btn-delete {
     background: #42090d; color: #ff5d67; border: 1px solid #6e1017;
     padding: 8px 12px; border-radius: 7px; font-weight: 800;
   }
   .btn-delete:hover { background: var(--red); color: white; }
+
 
   /* Boutons de statut colorés (rendez-vous) */
   .btn-status { border: 0; border-radius: 7px; padding: 8px 12px; font-weight: 800; font-size: 12px; }
@@ -245,7 +283,9 @@
   .btn-status-gray:hover { background: var(--gray); color: #121212; }
   .btn-status.active-status { outline: 2px solid white; }
 
+
   /* TABLE */
+
 
   .table-container { background: var(--black-2); border: 1px solid var(--border); border-radius: 12px; overflow: auto; }
   table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -253,26 +293,37 @@
   th { color: #999; font-size: 12px; text-transform: uppercase; }
   td { font-size: 14px; }
 
+
   /* Barre de défilement horizontale pour les grands tableaux (discrète) */
   .table-scroll {
     overflow-x: auto;
     overflow-y: hidden;
   }
 
+
   /* Tableau où on veut voir tout le contenu, quitte à être resserré */
   .no-truncate table { table-layout: auto; }
   .no-truncate td, .no-truncate th { white-space: normal; overflow: visible; text-overflow: clip; }
 
+
   .zoomable { cursor: zoom-in; position: relative; }
   .zoomable:hover { color: white; text-decoration: underline dotted; }
 
+
+  /* Table compacte (ex : liste du personnel en Direction) */
+  .compact-table-box { max-height: 260px; overflow-y: auto; }
+  .compact-table-box table th, .compact-table-box table td { padding: 8px 10px; font-size: 12px; }
+
+
   /* FORMS */
+
 
   .form { background: var(--black-2); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 25px; }
   .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
   .field { display: flex; flex-direction: column; gap: 7px; }
   .field.full { grid-column: 1 / -1; }
   label { font-size: 13px; color: #bbb; }
+
 
   input, textarea, select {
     width: 100%; background: #0a0a0a; border: 1px solid #303030; color: white;
@@ -282,9 +333,12 @@
   input:focus, textarea:focus, select:focus { border-color: var(--red); }
   input[type="file"] { padding: 9px; }
 
+
   .char-count { font-size: 12px; color: #777; text-align: right; margin-top: 4px; }
 
+
   /* TOOLBAR (recherche + filtres) */
+
 
   .toolbar {
     display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;
@@ -292,19 +346,25 @@
   .toolbar input[type="text"] { max-width: 320px; }
   .toolbar select { max-width: 220px; }
 
+
   /* PATIENT CARD */
 
+
   .patient-list { display: grid; gap: 12px; }
+
 
   .patient {
     padding: 18px; border: 1px solid var(--border); background: var(--black-2); border-radius: 12px;
   }
 
+
   .patient-head {
     display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
   }
 
+
   .patient-name { font-weight: 800; font-size: 16px; }
+
 
   .badge {
     display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 800;
@@ -313,17 +373,22 @@
   .badge-dead { background: rgba(229,9,20,.15); color: #ff5d67; border: 1px solid rgba(229,9,20,.4); }
   .badge-neutral { background: rgba(167,167,167,.15); color: var(--gray); border: 1px solid rgba(167,167,167,.35); }
 
+
   .patient-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 14px;
   }
+
 
   .patient-grid div { font-size: 13px; }
   .patient-grid .k { color: var(--gray); display: block; margin-bottom: 2px; }
   .patient-grid .v { font-weight: 600; }
 
+
   .patient-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
+
   /* MODAL */
+
 
   .modal-overlay {
     display: none;
@@ -336,6 +401,7 @@
   }
   .modal-overlay.open { display: flex; }
 
+
   .modal-box {
     width: min(720px, 100%);
     background: var(--black-2);
@@ -347,19 +413,24 @@
     box-shadow: 0 20px 80px rgba(0,0,0,.6);
   }
 
+
   .modal-box.wide { width: min(880px, 100%); }
+
 
   .modal-head {
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
   }
   .modal-head h3 { font-size: 22px; }
 
+
   .modal-close {
     background: #1a1a1a; border: 1px solid var(--border); color: #ddd;
     width: 34px; height: 34px; border-radius: 8px; font-size: 16px;
   }
 
+
   /* IMAGE LIGHTBOX */
+
 
   .lightbox-overlay {
     display: none;
@@ -378,17 +449,21 @@
     width: 40px; height: 40px; border-radius: 8px; font-size: 18px;
   }
 
+
   /* TEXT ZOOM MODAL (candidatures) */
   .text-zoom-body {
     white-space: pre-wrap; line-height: 1.6; font-size: 15px; color: #eee;
     max-height: 65vh; overflow-y: auto;
   }
 
+
   /* CARE ITEMS */
+
 
   .care-list {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-bottom: 10px;
   }
+
 
   .care-item {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -400,9 +475,11 @@
   .care-item input { width: auto; }
   .care-price { color: var(--gray); }
 
+
   .billing-row {
     display: grid; grid-template-columns: 1fr 140px 40px; gap: 8px; margin-bottom: 8px; align-items: center;
   }
+
 
   .total-box {
     display: flex; justify-content: space-between; align-items: center;
@@ -411,10 +488,13 @@
   }
   .total-amount { font-size: 24px; font-weight: 900; color: var(--green); }
 
+
   .checkbox-line { display: flex; align-items: center; gap: 8px; }
   .checkbox-line input { width: auto; }
 
+
   /* PATIENT SEARCH (autocomplete) */
+
 
   .patient-search-box { position: relative; }
   .patient-search-results {
@@ -430,6 +510,7 @@
   .patient-search-results div.empty-result { color: #777; cursor: default; }
   .patient-search-results div.empty-result:hover { background: transparent; }
 
+
   .selected-patient-chip {
     display: inline-flex; align-items: center; gap: 8px;
     background: rgba(229,9,20,.12); border: 1px solid rgba(229,9,20,.4);
@@ -440,14 +521,18 @@
     background: transparent; border: 0; color: #ff9da2; font-weight: 900; padding: 0 2px;
   }
 
+
   /* IMAGE PREVIEW */
+
 
   .image-preview-box img {
     max-width: 240px; max-height: 240px; border-radius: 10px; border: 1px solid var(--border);
     display: block; object-fit: cover;
   }
 
+
   /* INTERVENTION IMAGE THUMB (details) */
+
 
   .intervention-image-row {
     display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
@@ -457,13 +542,16 @@
     border: 1px solid var(--border); cursor: zoom-in; flex-shrink: 0;
   }
 
+
   /* MINI BAR CHART */
+
 
   .week-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding-top: 10px; }
   .week-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
   .week-bar { width: 100%; background: var(--red); border-radius: 6px 6px 0 0; min-height: 3px; }
   .week-bar-label { font-size: 11px; color: var(--gray); }
   .week-bar-count { font-size: 12px; font-weight: 800; }
+
 
   .activity-list { display: flex; flex-direction: column; gap: 10px; }
   .activity-item {
@@ -475,6 +563,7 @@
   .activity-title { font-weight: 700; font-size: 14px; }
   .activity-sub { color: var(--gray); font-size: 12px; margin-top: 3px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .activity-amount { color: var(--green); font-weight: 800; font-size: 13px; white-space: nowrap; }
+
 
   .rank-list { display: flex; flex-direction: column; gap: 8px; }
   .rank-row {
@@ -488,7 +577,9 @@
   .rank-label { flex: 1; font-size: 13px; font-weight: 600; }
   .rank-count { font-size: 13px; font-weight: 800; color: var(--gray); }
 
+
   /* NAV BADGE */
+
 
   .nav-badge {
     display: inline-flex; align-items: center; justify-content: center;
@@ -497,7 +588,9 @@
     margin-left: 6px;
   }
 
+
   /* TABS */
+
 
   .tabs { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
   .tab-btn {
@@ -506,17 +599,21 @@
   }
   .tab-btn.active { background: var(--red); color: white; border-color: var(--red); }
 
+
   .section-divider {
     border: none; border-top: 1px solid var(--border); margin: 30px 0;
   }
 
+
   /* MOBILE */
+
 
   @media(max-width: 900px) {
     .sidebar { position: relative; width: 100%; bottom: auto; min-height: auto; }
     .content { margin-left: 0; padding: 20px; }
     .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
+
 
   @media(max-width: 600px) {
     .cards, .form-grid { grid-template-columns: 1fr; }
@@ -525,8 +622,10 @@
     .billing-row { grid-template-columns: 1fr; }
   }
 
+
   .hidden { display: none !important; }
   .empty { color: #777; padding: 30px; text-align: center; }
+
 
   .toast {
     position: fixed; right: 20px; bottom: 20px; padding: 14px 18px; background: #1c1c1c;
@@ -536,6 +635,7 @@
 </style>
 </head>
 <body>
+
 
 <section id="login">
   <div class="login-card">
@@ -550,7 +650,9 @@
   </div>
 </section>
 
+
 <section id="app">
+
 
   <aside class="sidebar">
     <div class="brand">
@@ -560,6 +662,7 @@
       </div>
     </div>
 
+
     <div class="user">
       <div class="avatar" id="avatar">E</div>
       <div>
@@ -567,10 +670,12 @@
       </div>
     </div>
 
+
     <nav id="mainNav">
       <div class="nav-section-label">Services</div>
       <button data-page="rdv">📅 Rendez-vous</button>
       <button data-page="candidature">📋 Candidature</button>
+
 
       <div id="staffNavSection" class="hidden">
         <div class="nav-section-label">Espace employé(e)</div>
@@ -584,10 +689,13 @@
       </div>
     </nav>
 
+
     <button class="logout" onclick="window.location='/auth/logout'">Déconnexion</button>
   </aside>
 
+
   <main class="content">
+
 
     <!-- DASHBOARD -->
     <section class="page active" id="page-dashboard">
@@ -598,8 +706,10 @@
         </div>
       </div>
 
+
       <div class="service-box" id="profileBox">
         <div class="card-label" style="margin-bottom:10px;">Profil</div>
+
 
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
           <div style="font-size:13px;color:var(--gray)">
@@ -608,6 +718,7 @@
           <div id="profileJobStatic" class="hidden" style="font-size:13px;color:var(--gray)">—</div>
           <div id="profileGradeStatic" class="hidden" style="font-size:13px;color:var(--gray)">—</div>
         </div>
+
 
         <div class="form-grid" id="profileEditGrid" style="margin-top:10px;">
           <div class="field">
@@ -620,9 +731,11 @@
           </div>
         </div>
 
+
         <button class="btn btn-red btn-sm" id="profileSaveBtn" style="margin-top:10px;" onclick="saveProfile()">Enregistrer le profil</button>
         <div style="color:var(--gray);font-size:11px;margin-top:8px;" id="profileDirectorNote"></div>
       </div>
+
 
       <div class="cards">
         <div class="card">
@@ -643,12 +756,15 @@
         </div>
       </div>
 
+
       <div class="grid-2">
+
 
         <div class="service-box">
           <div class="card-label" style="margin-bottom:4px;">Activité par semaine</div>
           <div class="week-chart" id="weekChart"></div>
         </div>
+
 
         <div class="service-box">
           <div class="card-label" style="margin-bottom:14px;">Top 10 des actes / soins les plus réalisés</div>
@@ -657,7 +773,9 @@
           </div>
         </div>
 
+
       </div>
+
 
       <div class="service-box">
         <div class="card-label" style="margin-bottom:4px;">Répartition par employé (cette semaine)</div>
@@ -667,7 +785,9 @@
         </div>
       </div>
 
+
     </section>
+
 
     <!-- SERVICE (fusionné avec "Mon activité") -->
     <section class="page" id="page-service">
@@ -677,6 +797,7 @@
           <p>Gestion de ta présence LSMC et de ton activité.</p>
         </div>
       </div>
+
 
       <div class="service-box">
         <div class="service-status">
@@ -691,6 +812,7 @@
         </div>
       </div>
 
+
       <div class="cards" style="grid-template-columns:repeat(2,minmax(0,1fr));">
         <div class="card">
           <div class="card-label">Total cumulé</div>
@@ -701,6 +823,7 @@
           <div class="card-value" id="personalWeek">0h</div>
         </div>
       </div>
+
 
       <div class="table-container">
         <table>
@@ -716,7 +839,9 @@
         </table>
       </div>
 
+
       <br>
+
 
       <div class="service-box">
         <div class="card-label" style="margin-bottom:14px;">Services par semaine</div>
@@ -724,6 +849,7 @@
           <select id="weekSelector" onchange="loadWeekSelection()"></select>
           <div style="color:var(--gray);font-size:13px;" id="weekSelectorRange">—</div>
         </div>
+
 
         <div class="cards" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:16px;">
           <div class="card">
@@ -735,6 +861,7 @@
             <div class="card-value" id="weekSelectionCount">0</div>
           </div>
         </div>
+
 
         <div class="table-container">
           <table>
@@ -753,6 +880,7 @@
       </div>
     </section>
 
+
     <!-- PATIENTS -->
     <section class="page" id="page-patients">
       <div class="page-title">
@@ -766,19 +894,23 @@
         </div>
       </div>
 
+
       <div class="card" style="max-width:260px;margin-bottom:20px;">
         <div class="card-label">Dossiers médicaux</div>
         <div class="card-value" id="patientsCount">0</div>
       </div>
 
+
       <div class="toolbar">
         <input type="text" id="patientSearch" placeholder="Rechercher un patient..." oninput="renderPatients()">
+
 
         <select id="filterType" onchange="renderPatients()">
           <option value="">Tous les types</option>
           <option value="Patient">Patient</option>
           <option value="Mort">Mort</option>
         </select>
+
 
         <select id="filterBlood" onchange="renderPatients()">
           <option value="">Tous les groupes</option>
@@ -790,8 +922,10 @@
         </select>
       </div>
 
+
       <div class="patient-list" id="patientsList"></div>
     </section>
+
 
     <!-- INTERVENTIONS -->
     <section class="page" id="page-interventions">
@@ -805,14 +939,17 @@
         </div>
       </div>
 
+
       <div class="toolbar">
         <input type="text" id="interventionSearch" placeholder="Rechercher une intervention..." oninput="renderInterventionsList()">
       </div>
+
 
       <div class="activity-list" id="interventionsList">
         <div class="empty">Chargement...</div>
       </div>
     </section>
+
 
     <!-- FRAIS & FACTURES -->
     <section class="page" id="page-frais">
@@ -823,7 +960,9 @@
         </div>
       </div>
 
+
       <div class="grid-2">
+
 
         <!-- NOTES DE FRAIS -->
         <div>
@@ -853,11 +992,13 @@
             <button class="btn btn-red btn-sm" style="margin-top:14px;" onclick="submitExpense()">Ajouter</button>
           </div>
 
+
           <div class="card-label" style="margin-bottom:14px;">Mes notes de frais</div>
           <div id="expensesList">
             <div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>
           </div>
         </div>
+
 
         <!-- NOUVELLE FACTURE -->
         <div>
@@ -878,30 +1019,37 @@
     </div>
   </div>
 
+
   <br>
   <div class="card-label" style="margin-bottom:10px;">Motifs (sélection multiple)</div>
   <div class="care-list" id="invoiceMotifList"></div>
+
 
   <br>
   <div class="card-label" style="margin-bottom:10px;">Lignes libres</div>
   <div id="invoiceBillingRows"></div>
   <button type="button" class="btn btn-dark btn-sm" onclick="addInvoiceBillingRow()">+ Ajouter une ligne</button>
 
+
   <div class="total-box">
     <div class="card-label" style="margin-bottom:0;">Total de la facture</div>
     <div class="total-amount" id="invoiceTotal">$0,00</div>
   </div>
 
+
   <button class="btn btn-red btn-sm" style="margin-top:14px;" onclick="submitInvoice()">Enregistrer la/les facture(s)</button>
 </div>
+
 
 <div class="card-label" style="margin:20px 0 14px;">Mes factures</div>
 <div class="activity-list" id="myInvoicesList">
   <div class="empty">Aucune facture pour le moment.</div>
 </div>
 
+
       </div>
     </section>
+
 
     <!-- GESTION RENDEZ-VOUS (staff) -->
     <section class="page" id="page-gestion-rdv">
@@ -912,15 +1060,18 @@
         </div>
       </div>
 
+
       <div class="tabs">
         <button class="tab-btn active" data-rdvtab="pending" onclick="switchRdvTab('pending')">RDV à traiter</button>
         <button class="tab-btn" data-rdvtab="done" onclick="switchRdvTab('done')">RDV traité</button>
       </div>
 
+
       <div class="activity-list" id="gestionRdvList">
         <div class="empty">Chargement...</div>
       </div>
     </section>
+
 
     <!-- DIRECTION -->
     <section class="page" id="page-director">
@@ -929,9 +1080,13 @@
           <h2>Direction</h2>
           <p>Gestion de l'activité et des profils du personnel LSMC.</p>
         </div>
+        <div class="page-title-actions">
+          <button class="btn btn-dark btn-sm" id="toggleStaffTableBtn" onclick="toggleStaffTableSize()">🔍 Agrandir le tableau</button>
+        </div>
       </div>
 
-      <div class="table-container table-scroll">
+
+      <div class="table-container table-scroll compact-table-box" id="staffTableBox">
         <table>
           <colgroup>
             <col style="width:22%">
@@ -955,7 +1110,9 @@
         </table>
       </div>
 
+
       <br>
+
 
       <div id="directorServicesBox" class="table-container hidden">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #292929;">
@@ -977,14 +1134,20 @@
         </table>
       </div>
 
+
       <hr class="section-divider">
+
 
       <div class="page-title">
         <div>
           <h2 style="font-size:22px;">Factures LSMC</h2>
-          <p>Toutes les factures enregistrées par le personnel LSMC.</p>
+          <p>Toutes les factures enregistrées par le personnel LSMC. Clique sur un motif pour le voir en détail.</p>
+        </div>
+        <div class="page-title-actions">
+          <button class="btn btn-dark btn-sm" onclick="openDirectorInvoicesModal()">🔍 Voir le détail complet</button>
         </div>
       </div>
+
 
       <div class="table-container table-scroll">
         <table>
@@ -1005,14 +1168,20 @@
         </table>
       </div>
 
+
       <hr class="section-divider">
+
 
       <div class="page-title">
         <div>
           <h2 style="font-size:22px;">Notes de frais du personnel</h2>
-          <p>Toutes les dépenses enregistrées par le personnel LSMC.</p>
+          <p>Toutes les dépenses enregistrées par le personnel LSMC. Coche pour indiquer qu'une note a été remboursée.</p>
+        </div>
+        <div class="page-title-actions">
+          <button class="btn btn-dark btn-sm" onclick="openDirectorExpensesModal()">🔍 Voir le détail complet</button>
         </div>
       </div>
+
 
       <div class="table-container table-scroll">
         <table>
@@ -1023,16 +1192,19 @@
               <th>Motif</th>
               <th>Montant</th>
               <th>Date</th>
+              <th>Remboursé</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="directorExpensesTable">
-            <tr><td colspan="6" class="empty">Chargement...</td></tr>
+            <tr><td colspan="7" class="empty">Chargement...</td></tr>
           </tbody>
         </table>
       </div>
 
+
       <hr class="section-divider">
+
 
       <div class="page-title">
         <div>
@@ -1040,6 +1212,7 @@
           <p>Candidatures reçues via l'espace citoyen. Clique sur un texte long pour le zoomer.</p>
         </div>
       </div>
+
 
       <div class="table-container table-scroll no-truncate">
         <table>
@@ -1070,6 +1243,7 @@
       </div>
     </section>
 
+
     <!-- RENDEZ-VOUS (citoyen + staff) -->
     <section class="page" id="page-rdv">
       <div class="page-title">
@@ -1078,6 +1252,7 @@
           <p>Prenez rendez-vous avec l'un de nos médecins.</p>
         </div>
       </div>
+
 
       <div class="form">
         <form onsubmit="submitAppointmentForm(event)">
@@ -1104,7 +1279,9 @@
         </form>
       </div>
 
+
       <div class="card-label" style="margin-bottom:14px;">Mes rendez-vous (<span id="myRdvCount">0</span>)</div>
+
 
       <div class="table-container table-scroll">
         <table>
@@ -1127,6 +1304,7 @@
       </div>
     </section>
 
+
     <!-- CANDIDATURE (citoyen) -->
     <section class="page" id="page-candidature">
       <div class="page-title">
@@ -1135,6 +1313,7 @@
           <p>Rejoignez les équipes de Los Santos Medical Services.</p>
         </div>
       </div>
+
 
       <div class="form">
         <form onsubmit="submitApplicationForm(event)">
@@ -1146,8 +1325,10 @@
             <div class="field"><label>Téléphone</label><input id="appPhone"></div>
           </div>
 
+
           <br>
           <div class="card-label" style="margin-bottom:10px;">Dites-nous en plus…</div>
+
 
           <div class="field full" style="margin-bottom:15px;">
             <label>Avez-vous des expériences dans le médical ?</label>
@@ -1155,19 +1336,23 @@
             <div class="char-count"><span id="appExperienceCount">0</span>/3000 caractères</div>
           </div>
 
+
           <div class="field full" style="margin-bottom:15px;">
             <label>Quelles sont vos motivations, attentes et disponibilités ?</label>
             <textarea id="appMotivation" maxlength="3000" oninput="updateAppCharCount('appMotivation','appMotivationCount')"></textarea>
             <div class="char-count"><span id="appMotivationCount">0</span>/3000 caractères</div>
           </div>
 
+
           <button class="btn btn-red">Soumettre la candidature</button>
         </form>
       </div>
     </section>
 
+
   </main>
 </section>
+
 
 <!-- MODAL : NOUVEAU / MODIFIER PATIENT -->
 <div class="modal-overlay" id="patientModal">
@@ -1177,8 +1362,10 @@
       <button class="modal-close" onclick="closeModal('patientModal')">✕</button>
     </div>
 
+
     <form onsubmit="submitPatientForm(event)">
       <input type="hidden" id="patientId">
+
 
       <div class="form-grid">
         <div class="field"><label>Prénom</label><input id="patientFirst" required></div>
@@ -1218,11 +1405,13 @@
         </div>
       </div>
 
+
       <br>
       <button class="btn btn-red">Enregistrer</button>
     </form>
   </div>
 </div>
+
 
 <!-- MODAL : DÉTAILS PATIENT -->
 <div class="modal-overlay" id="detailsModal">
@@ -1232,7 +1421,9 @@
       <button class="modal-close" onclick="closeModal('detailsModal')">✕</button>
     </div>
 
+
     <div class="patient-grid" id="detailsInfo"></div>
+
 
     <div class="patient-actions" style="margin-bottom:20px;">
       <button class="btn btn-outline btn-sm" id="detailsStatusBtn" onclick="toggleDetailsStatus()"></button>
@@ -1240,10 +1431,12 @@
       <button class="btn-delete hidden" id="detailsDeleteBtn" onclick="deletePatientFromDetails()">🗑️ Supprimer le dossier</button>
     </div>
 
+
     <div class="card-label" style="margin-bottom:10px;">Interventions</div>
     <div class="activity-list" id="detailsInterventions"></div>
   </div>
 </div>
+
 
 <!-- MODAL : NOUVELLE / MODIFIER INTERVENTION -->
 <div class="modal-overlay" id="interventionModal">
@@ -1253,8 +1446,10 @@
       <button class="modal-close" onclick="closeModal('interventionModal')">✕</button>
     </div>
 
+
     <form onsubmit="submitInterventionForm(event)">
       <input type="hidden" id="interventionId">
+
 
       <div class="form-grid">
         <div class="field full patient-search-box">
@@ -1266,13 +1461,16 @@
           <div id="interventionPatientChip" class="hidden"></div>
         </div>
 
+
         <div class="field full"><label>Titre de l'intervention</label><input id="interventionTitle" required placeholder="Ex : Accident routier"></div>
+
 
         <div class="field full">
           <label>Détails, prescription, soins réalisés, commentaires</label>
           <textarea id="interventionComments" maxlength="10000" oninput="updateCommentCount()"></textarea>
           <div class="char-count"><span id="commentCount">0</span>/10000</div>
         </div>
+
 
         <div class="field full">
           <label>Image (optionnel)</label>
@@ -1284,16 +1482,21 @@
         </div>
       </div>
 
+
       <br>
+
 
       <div class="card-label" style="margin-bottom:10px;">Soins communs</div>
       <div class="care-list" id="careList"></div>
 
+
       <br>
+
 
       <div class="card-label" style="margin-bottom:10px;">Facturation libre</div>
       <div id="billingRows"></div>
       <button type="button" class="btn btn-dark btn-sm" onclick="addBillingRow()">+ Ajouter une ligne</button>
+
 
       <div class="total-box">
         <div>
@@ -1306,12 +1509,15 @@
         <div class="total-amount" id="interventionTotal">$0,00</div>
       </div>
 
+
       <div style="color:var(--gray);font-size:12px;margin-bottom:14px;" id="interventionAutoInfo"></div>
+
 
       <button class="btn btn-red" id="interventionSubmitBtn">Enregistrer l'intervention</button>
     </form>
   </div>
 </div>
+
 
 <!-- MODAL : DÉTAILS INTERVENTION -->
 <div class="modal-overlay" id="interventionDetailsModal">
@@ -1321,7 +1527,9 @@
       <button class="modal-close" onclick="closeModal('interventionDetailsModal')">✕</button>
     </div>
 
+
     <div class="patient-grid" id="interventionDetailsInfo"></div>
+
 
     <div id="interventionDetailsImageBox" class="hidden" style="margin:16px 0;">
       <div class="intervention-image-row">
@@ -1331,8 +1539,10 @@
       </div>
     </div>
 
+
     <div class="card-label" style="margin:16px 0 8px;">Détails, prescription, soins réalisés, commentaires</div>
     <div id="interventionDetailsComments" style="font-size:14px;color:#ddd;white-space:pre-wrap;line-height:1.5;">—</div>
+
 
     <div class="patient-actions" style="margin-top:22px;">
       <button class="btn btn-dark btn-sm" onclick="editInterventionFromDetails()">✏️ Modifier</button>
@@ -1341,7 +1551,8 @@
   </div>
 </div>
 
-<!-- MODAL : TEXTE ZOOMÉ (candidatures) -->
+
+<!-- MODAL : TEXTE ZOOMÉ (candidatures, motifs de factures) -->
 <div class="modal-overlay" id="textZoomModal">
   <div class="modal-box">
     <div class="modal-head">
@@ -1352,7 +1563,25 @@
   </div>
 </div>
 
-<!-- MODAL : CONFIRMATION DE SUPPRESSION -->
+
+<!-- MODAL : DÉTAIL COMPLET (Direction — factures / notes de frais) -->
+<div class="modal-overlay" id="directorListModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h3 id="directorListModalTitle">Détail</h3>
+      <button class="modal-close" onclick="closeModal('directorListModal')">✕</button>
+    </div>
+    <div class="table-container table-scroll" style="border:none;">
+      <table>
+        <thead id="directorListModalHead"></thead>
+        <tbody id="directorListModalBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL : CONFIRMATION -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal-box" style="max-width:440px;">
     <div class="modal-head">
@@ -1362,10 +1591,11 @@
     <div id="confirmModalBody" style="color:#ddd;font-size:14px;line-height:1.6;white-space:pre-wrap;margin-bottom:22px;"></div>
     <div class="patient-actions" style="justify-content:flex-end;">
       <button class="btn btn-dark btn-sm" onclick="closeConfirmModal(false)">Annuler</button>
-      <button class="btn-delete btn-sm" onclick="closeConfirmModal(true)">🗑️ Confirmer la suppression</button>
+      <button class="btn-delete btn-sm" id="confirmModalConfirmBtn" onclick="closeConfirmModal(true)">🗑️ Confirmer la suppression</button>
     </div>
   </div>
 </div>
+
 
 <!-- LIGHTBOX IMAGE (voir en grand) -->
 <div class="lightbox-overlay" id="imageLightbox">
@@ -1373,9 +1603,12 @@
   <img id="imageLightboxImg" alt="Image en grand">
 </div>
 
+
 <div class="toast" id="toast"></div>
 
+
 <script>
+
 
 let currentUser = null;
 let currentService = null;
@@ -1394,8 +1627,13 @@ let gestionRdvAll = [];
 let gestionRdvTab = "pending";
 let emsMembersForAssign = [];
 let sessionCheckInterval = null;
+let directorInvoicesGrouped = [];
+let directorExpensesFull = [];
+let staffTableExpanded = false;
+
 
 /* ========================= API ========================= */
+
 
 async function api(url, options = {}) {
   const response = await fetch(url, {
@@ -1407,7 +1645,9 @@ async function api(url, options = {}) {
   return data;
 }
 
+
 /* ========================= TOAST ========================= */
+
 
 function toast(message) {
   const el = document.getElementById("toast");
@@ -1416,7 +1656,9 @@ function toast(message) {
   setTimeout(() => { el.style.display = "none"; }, 3000);
 }
 
+
 /* ========================= FORMAT ========================= */
+
 
 function duration(seconds) {
   seconds = Number(seconds || 0);
@@ -1425,20 +1667,24 @@ function duration(seconds) {
   return `${hours}h ${minutes}m`;
 }
 
+
 function date(value) {
   if (!value) return "—";
   return new Date(value).toLocaleString("fr-FR");
 }
+
 
 function dateOnly(value) {
   if (!value) return "—";
   return new Date(`${value}T00:00:00`).toLocaleDateString("fr-FR");
 }
 
+
 function money(value) {
   const n = Number(value || 0);
   return `$${n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
+
 
 /* Extrait un tableau d'une réponse API, que celle-ci renvoie directement
    un tableau ou un objet { cleAttendue: [...] }. Évite les crashs
@@ -1449,6 +1695,7 @@ function asArray(data, key) {
   if (data && Array.isArray(data[key])) return data[key];
   return [];
 }
+
 
 /* Regroupe des lignes de facture créées en une seule soumission
    (même employé, service, matricule, même minute de création) en une
@@ -1471,6 +1718,7 @@ function groupInvoiceRows(rows, keyFields) {
   return Array.from(groups.values());
 }
 
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -1480,10 +1728,13 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+
 /* ========================= MODALS ========================= */
+
 
 function openModal(id) { document.getElementById(id).classList.add("open"); }
 function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
 
 document.querySelectorAll(".modal-overlay").forEach(overlay => {
   overlay.addEventListener("click", e => {
@@ -1496,18 +1747,25 @@ document.querySelectorAll(".modal-overlay").forEach(overlay => {
   });
 });
 
+
 /* ========================= CONFIRMATION DE SUPPRESSION (design du site) ========================= */
+
 
 let confirmModalResolver = null;
 
-function askConfirm(message, title = "Confirmer la suppression") {
+
+function askConfirm(message, title = "Confirmer la suppression", confirmLabel = "🗑️ Confirmer la suppression", confirmClass = "btn-delete") {
   return new Promise(resolve => {
     confirmModalResolver = resolve;
     document.getElementById("confirmModalTitle").textContent = title;
     document.getElementById("confirmModalBody").textContent = message;
+    const confirmBtn = document.getElementById("confirmModalConfirmBtn");
+    confirmBtn.textContent = confirmLabel;
+    confirmBtn.className = `${confirmClass} btn-sm`;
     openModal("confirmModal");
   });
 }
+
 
 function closeConfirmModal(result) {
   closeModal("confirmModal");
@@ -1518,7 +1776,9 @@ function closeConfirmModal(result) {
   }
 }
 
-/* ========================= ZOOM TEXTE (candidatures) ========================= */
+
+/* ========================= ZOOM TEXTE (candidatures, motifs) ========================= */
+
 
 function zoomText(title, content) {
   document.getElementById("textZoomTitle").textContent = title;
@@ -1526,7 +1786,9 @@ function zoomText(title, content) {
   openModal("textZoomModal");
 }
 
+
 /* ========================= LIGHTBOX ========================= */
+
 
 function openImageLightbox(src) {
   if (!src) return;
@@ -1541,17 +1803,22 @@ document.getElementById("imageLightbox").addEventListener("click", e => {
   if (e.target.id === "imageLightbox") closeImageLightbox();
 });
 
+
 /* ========================= NAVIGATION ========================= */
+
 
 document.querySelectorAll("nav button[data-page]").forEach(button => {
   button.addEventListener("click", () => {
     const page = button.dataset.page;
 
+
     document.querySelectorAll("nav button[data-page]").forEach(b => b.classList.remove("active"));
     button.classList.add("active");
 
+
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(`page-${page}`).classList.add("active");
+
 
     if (page === "dashboard") loadDashboard();
     if (page === "service") loadService();
@@ -1565,15 +1832,18 @@ document.querySelectorAll("nav button[data-page]").forEach(button => {
   });
 });
 
+
 function goToPage(page) {
   document.querySelectorAll("nav button[data-page]").forEach(b => b.classList.remove("active"));
   const navBtn = document.querySelector(`nav button[data-page="${page}"]`);
   if (navBtn) navBtn.classList.add("active");
 
+
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   const pageEl = document.getElementById(`page-${page}`);
   if (pageEl) pageEl.classList.add("active");
 }
+
 
 /* ========================= SESSION LIVE CHECK =========================
    Vérifie régulièrement auprès du serveur (qui interroge Discord) que
@@ -1583,10 +1853,12 @@ function goToPage(page) {
    recharger la page elle-même.
 */
 
+
 function startSessionWatcher() {
   if (sessionCheckInterval) clearInterval(sessionCheckInterval);
   sessionCheckInterval = setInterval(checkSessionStillValid, 20000);
 }
+
 
 async function checkSessionStillValid() {
   try {
@@ -1605,19 +1877,25 @@ async function checkSessionStillValid() {
   }
 }
 
+
 /* ========================= USER ========================= */
+
 
 async function loadUser() {
   try {
     const data = await api("/api/me");
     currentUser = data.user;
 
+
     document.getElementById("login").style.display = "none";
     document.getElementById("app").style.display = "block";
 
+
     const displayName = currentUser.nickname || currentUser.username;
 
+
     document.getElementById("username").textContent = displayName;
+
 
     const avatar = document.getElementById("avatar");
     if (currentUser.avatar) {
@@ -1626,8 +1904,10 @@ async function loadUser() {
       avatar.textContent = displayName.charAt(0).toUpperCase();
     }
 
+
     if (currentUser.is_ems || currentUser.is_director) {
       document.getElementById("staffNavSection").classList.remove("hidden");
+
 
       document.getElementById("profileUsername").textContent = displayName;
       document.getElementById("profileJob").value = currentUser.job || "";
@@ -1635,21 +1915,25 @@ async function loadUser() {
       document.getElementById("profileJobStatic").textContent = currentUser.job || "—";
       document.getElementById("profileGradeStatic").textContent = currentUser.grade || "—";
 
+
       const isDirector = !!currentUser.is_director;
       document.getElementById("profileEditGrid").classList.toggle("hidden", !isDirector);
       document.getElementById("profileJobStatic").classList.toggle("hidden", isDirector);
       document.getElementById("profileGradeStatic").classList.toggle("hidden", isDirector);
       document.getElementById("profileSaveBtn").classList.toggle("hidden", !isDirector);
 
+
       document.getElementById("profileDirectorNote").textContent =
         isDirector
           ? "En tant que Directeur, tu peux aussi modifier le profil des autres employés depuis l'onglet Direction."
           : "Seul le Directeur peut modifier le métier et le grade.";
 
+
       if (currentUser.is_director) {
         document.getElementById("directorNav").classList.remove("hidden");
         document.getElementById("serviceActionsHeader").classList.remove("hidden");
       }
+
 
       const catalogData = await api("/api/care-catalog");
       careCatalog = catalogData.catalog;
@@ -1657,28 +1941,36 @@ async function loadUser() {
       renderCareList();
       renderInvoiceMotifOptions();
 
+
       goToPage("dashboard");
+
 
       await loadPatients();
       await loadDashboard();
       await loadService();
       await refreshGestionRdvBadge();
 
+
     } else {
       document.getElementById("staffNavSection").classList.add("hidden");
 
+
       goToPage("rdv");
+
 
       await loadMyAppointments();
     }
 
+
     startSessionWatcher();
+
 
   } catch {
     document.getElementById("login").style.display = "flex";
     document.getElementById("app").style.display = "none";
   }
 }
+
 
 async function saveProfile() {
   try {
@@ -1696,21 +1988,24 @@ async function saveProfile() {
     toast(e.message);
   }
 }
-
 /* ========================= DASHBOARD ========================= */
+
 
 async function loadDashboard() {
   try {
     const data = await api("/api/dashboard");
+
 
     document.getElementById("statMembers").textContent = data.members;
     document.getElementById("statPatients").textContent = data.patients;
     document.getElementById("statInterventions").textContent = data.interventions;
     document.getElementById("statWeeklyInterventions").textContent = data.weeklyInterventionsCount;
 
+
     const chart = document.getElementById("weekChart");
     chart.innerHTML = "";
     const max = Math.max(1, ...data.weeklyActivity.map(d => d.count));
+
 
     data.weeklyActivity.forEach(day => {
       const wrap = document.createElement("div");
@@ -1724,12 +2019,15 @@ async function loadDashboard() {
       chart.appendChild(wrap);
     });
 
+
     const topCareBox = document.getElementById("topCareItems");
     topCareBox.innerHTML = "";
+
 
     if (!data.topCareItems.length) {
       topCareBox.innerHTML = `<div class="empty">Aucune donnée pour le moment.</div>`;
     }
+
 
     data.topCareItems.forEach((item, index) => {
       const row = document.createElement("div");
@@ -1742,12 +2040,15 @@ async function loadDashboard() {
       topCareBox.appendChild(row);
     });
 
+
     const employeeBox = document.getElementById("employeeDistribution");
     employeeBox.innerHTML = "";
+
 
     if (!data.employeeDistribution.length) {
       employeeBox.innerHTML = `<div class="empty">Aucune intervention cette semaine.</div>`;
     }
+
 
     data.employeeDistribution.forEach((item, index) => {
       const row = document.createElement("div");
@@ -1760,11 +2061,13 @@ async function loadDashboard() {
       employeeBox.appendChild(row);
     });
 
+
   } catch (e) {
     console.error(e);
   }
 }
 /* ========================= SERVICE (+ activité) ========================= */
+
 
 async function loadService() {
   try {
@@ -1772,13 +2075,17 @@ async function loadService() {
     currentService = data.service;
     updateServiceUI();
 
+
     const stats = await api("/api/stats");
+
 
     document.getElementById("personalTotal").textContent = duration(stats.totalSeconds);
     document.getElementById("personalWeek").textContent = duration(stats.weekSeconds);
 
+
     const tbody = document.getElementById("serviceHistory");
     tbody.innerHTML = "";
+
 
     stats.services.forEach(service => {
       const tr = document.createElement("tr");
@@ -1795,25 +2102,31 @@ async function loadService() {
       tbody.appendChild(tr);
     });
 
+
     await loadAvailableWeeks();
+
 
   } catch (e) {
     toast(e.message);
   }
 }
 
+
 function updateServiceUI() {
   const online = !!currentService;
+
 
   document.getElementById("serviceDot").classList.toggle("online", online);
   document.getElementById("serviceText").textContent = online ? "En service" : "Hors service";
   document.getElementById("serviceStarted").textContent = online ? `Début : ${date(currentService.started_at)}` : "—";
+
 
   const text = online ? "Terminer mon service" : "Prendre mon service";
   const btn = document.getElementById("serviceButton");
   btn.textContent = text;
   btn.className = online ? "btn btn-dark" : "btn btn-red";
 }
+
 
 async function toggleService() {
   try {
@@ -1831,11 +2144,14 @@ async function toggleService() {
   }
 }
 
+
 async function deleteService(id) {
   if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
 
+
   const ok = await askConfirm(`Voulez-vous vraiment supprimer le service #${id} ?\n\nCette action est définitive.`);
   if (!ok) return;
+
 
   try {
     await api(`/api/director/services/${id}`, { method: "DELETE" });
@@ -1849,13 +2165,16 @@ async function deleteService(id) {
 }
 /* ---- Services par semaine (sélecteur, à partir de la semaine 33) ---- */
 
+
 async function loadAvailableWeeks() {
   try {
     const data = await api("/api/stats/weeks");
     availableWeeks = data.weeks;
 
+
     const select = document.getElementById("weekSelector");
     select.innerHTML = "";
+
 
     availableWeeks.forEach(w => {
       const option = document.createElement("option");
@@ -1863,6 +2182,7 @@ async function loadAvailableWeeks() {
       option.textContent = `Semaine ${w.week} (${w.year})`;
       select.appendChild(option);
     });
+
 
     if (availableWeeks.length) {
       select.value = `${data.current.year}-${data.current.week}`;
@@ -1873,28 +2193,36 @@ async function loadAvailableWeeks() {
   }
 }
 
+
 async function loadWeekSelection() {
   const select = document.getElementById("weekSelector");
   if (!select.value) return;
 
+
   const [year, week] = select.value.split("-").map(Number);
+
 
   try {
     const data = await api(`/api/stats/week?year=${year}&week=${week}`);
 
+
     document.getElementById("weekSelectorRange").textContent =
       `Du ${dateOnly(data.weekStart)} au ${dateOnly(new Date(new Date(data.weekEnd).getTime() - 86400000).toISOString().slice(0,10))}`;
+
 
     document.getElementById("weekSelectionTotal").textContent = duration(data.totalSeconds);
     document.getElementById("weekSelectionCount").textContent = data.services.length;
 
+
     const tbody = document.getElementById("weekSelectionHistory");
     tbody.innerHTML = "";
+
 
     if (!data.services.length) {
       tbody.innerHTML = `<tr><td colspan="3" class="empty">Aucun service pris cette semaine-là.</td></tr>`;
       return;
     }
+
 
     data.services.forEach(service => {
       const tr = document.createElement("tr");
@@ -1910,15 +2238,19 @@ async function loadWeekSelection() {
   }
 }
 
+
 /* ========================= PATIENTS ========================= */
+
 
 async function loadPatients() {
   try {
     const data = await api("/api/patients");
     patients = data.patients;
 
+
     const countEl = document.getElementById("patientsCount");
     if (countEl) countEl.textContent = patients.length;
+
 
     renderPatients();
   } catch (e) {
@@ -1926,13 +2258,16 @@ async function loadPatients() {
   }
 }
 
+
 function renderPatients() {
   const listEl = document.getElementById("patientsList");
   if (!listEl) return;
 
+
   const search = document.getElementById("patientSearch").value.trim().toLowerCase();
   const type = document.getElementById("filterType").value;
   const blood = document.getElementById("filterBlood").value;
+
 
   const filtered = patients.filter(p => {
     const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
@@ -1942,12 +2277,15 @@ function renderPatients() {
     return true;
   });
 
+
   listEl.innerHTML = "";
+
 
   if (!filtered.length) {
     listEl.innerHTML = `<div class="empty">Aucun dossier patient ne correspond.</div>`;
     return;
   }
+
 
   filtered.forEach(patient => {
     const isDead = patient.status === "Mort";
@@ -1979,13 +2317,17 @@ function renderPatients() {
   });
 }
 
+
 /* ---- Suppression d'un dossier patient (doublons), Directeur uniquement ---- */
+
 
 async function deletePatient(id) {
   if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
 
+
   const ok = await askConfirm(`Voulez-vous vraiment supprimer le dossier patient N°${id} ?\n\nCette action est définitive et supprimera aussi les interventions liées.`);
   if (!ok) return;
+
 
   try {
     await api(`/api/patients/${id}`, { method: "DELETE" });
@@ -2000,6 +2342,7 @@ async function deletePatient(id) {
   }
 }
 
+
 async function deletePatientFromDetails() {
   if (!currentDetailsPatientId) return;
   await deletePatient(currentDetailsPatientId);
@@ -2007,7 +2350,9 @@ async function deletePatientFromDetails() {
   closeModal("detailsModal");
 }
 
+
 /* ---- Nouveau / Modifier patient ---- */
+
 
 function resetPatientForm() {
   editingPatientId = null;
@@ -2018,19 +2363,23 @@ function resetPatientForm() {
   document.getElementById("patientBlood").value = "";
 }
 
+
 function openNewPatientModal() {
   resetPatientForm();
   document.getElementById("patientModalTitle").textContent = "Nouveau patient";
   openModal("patientModal");
 }
 
+
 function openEditPatientModal(id) {
   const patient = patients.find(p => p.id === id);
   if (!patient) return;
 
+
   editingPatientId = id;
   document.getElementById("patientId").value = id;
   document.getElementById("patientModalTitle").textContent = "Modifier le patient";
+
 
   document.getElementById("patientFirst").value = patient.first_name || "";
   document.getElementById("patientLast").value = patient.last_name || "";
@@ -2044,11 +2393,14 @@ function openEditPatientModal(id) {
   document.getElementById("patientAllergies").value = patient.allergies || "";
   document.getElementById("patientNotes").value = patient.notes || "";
 
+
   openModal("patientModal");
 }
 
+
 async function submitPatientForm(event) {
   event.preventDefault();
+
 
   const payload = {
     first_name: document.getElementById("patientFirst").value,
@@ -2064,6 +2416,7 @@ async function submitPatientForm(event) {
     notes: document.getElementById("patientNotes").value
   };
 
+
   try {
     if (editingPatientId) {
       await api(`/api/patients/${editingPatientId}`, { method: "PUT", body: JSON.stringify(payload) });
@@ -2073,6 +2426,7 @@ async function submitPatientForm(event) {
       toast("Dossier patient créé.");
     }
 
+
     closeModal("patientModal");
     await loadPatients();
     await loadDashboard();
@@ -2081,7 +2435,9 @@ async function submitPatientForm(event) {
   }
 }
 
+
 /* ---- Détails patient ---- */
+
 
 async function openDetailsModal(id) {
   try {
@@ -2089,11 +2445,14 @@ async function openDetailsModal(id) {
     const p = data.patient;
     currentDetailsPatientId = id;
 
+
     document.getElementById("detailsTitle").textContent = `${p.first_name} ${p.last_name}`;
+
 
     const isDead = p.status === "Mort";
     const btn = document.getElementById("detailsStatusBtn");
     btn.textContent = isDead ? "Marquer comme Patient" : "☠ Marquer comme Mort";
+
 
     document.getElementById("detailsInfo").innerHTML = `
       <div><span class="k">Statut</span><span class="v">${isDead ? "Mort" : "Patient"}</span></div>
@@ -2108,14 +2467,18 @@ async function openDetailsModal(id) {
       <div style="grid-column:1/-1;"><span class="k">Allergies / Traitements en cours</span><span class="v">${escapeHtml(p.allergies || "—")}</span></div>
     `;
 
+
     document.getElementById("detailsDeleteBtn").classList.toggle("hidden", !currentUser?.is_director);
+
 
     const box = document.getElementById("detailsInterventions");
     box.innerHTML = "";
 
+
     if (!data.interventions.length) {
       box.innerHTML = `<div class="empty">Aucune intervention enregistrée.</div>`;
     }
+
 
     data.interventions.forEach(i => {
       const div = document.createElement("div");
@@ -2131,24 +2494,31 @@ async function openDetailsModal(id) {
       box.appendChild(div);
     });
 
+
     openModal("detailsModal");
   } catch (e) {
     toast(e.message);
   }
 }
 
+
 async function toggleDetailsStatus() {
   if (!currentDetailsPatientId) return;
   const patient = patients.find(p => p.id === currentDetailsPatientId);
   if (!patient) return;
 
+
   const newStatus = patient.status === "Mort" ? "Patient" : "Mort";
+
 
   const ok = await askConfirm(
     `Confirmer le changement de statut en "${newStatus}" ?`,
-    newStatus === "Mort" ? "☠ Marquer comme mort" : "Confirmer le changement de statut"
+    newStatus === "Mort" ? "☠ Marquer comme mort" : "Confirmer le changement de statut",
+    "Confirmer",
+    "btn-red"
   );
   if (!ok) return;
+
 
   try {
     await api(`/api/patients/${currentDetailsPatientId}/status`, {
@@ -2163,11 +2533,14 @@ async function toggleDetailsStatus() {
   }
 }
 
+
 /* ========================= INTERVENTIONS ========================= */
+
 
 function renderCareList() {
   const box = document.getElementById("careList");
   box.innerHTML = "";
+
 
   careCatalog.forEach(item => {
     const label = document.createElement("label");
@@ -2184,10 +2557,12 @@ function renderCareList() {
   });
 }
 
+
 function onCareToggle(checkbox) {
   checkbox.closest(".care-item").classList.toggle("selected", checkbox.checked);
   updateInterventionTotal();
 }
+
 
 function addBillingRow(label = "", amount = "") {
   const row = document.createElement("div");
@@ -2200,9 +2575,11 @@ function addBillingRow(label = "", amount = "") {
   document.getElementById("billingRows").appendChild(row);
 }
 
+
 function getSelectedCareItems() {
   return Array.from(document.querySelectorAll("#careList input[type=checkbox]:checked")).map(c => c.value);
 }
+
 
 function getBillingLines() {
   return Array.from(document.querySelectorAll("#billingRows .billing-row")).map(row => {
@@ -2211,29 +2588,37 @@ function getBillingLines() {
   }).filter(l => l.label || l.amount);
 }
 
+
 function updateInterventionTotal() {
   let total = 0;
+
 
   getSelectedCareItems().forEach(key => {
     const found = careCatalog.find(c => c.key === key);
     if (found) total += found.price;
   });
 
+
   getBillingLines().forEach(l => { total += l.amount; });
+
 
   document.getElementById("interventionTotal").textContent = money(total);
 }
+
 
 function updateCommentCount() {
   const val = document.getElementById("interventionComments").value;
   document.getElementById("commentCount").textContent = val.length;
 }
 
+
 /* ---- Recherche patient (autocomplete) — uniquement les patients avec un dossier médical ---- */
+
 
 function onInterventionPatientInput() {
   const search = document.getElementById("interventionPatientSearch").value.trim().toLowerCase();
   const box = document.getElementById("interventionPatientResults");
+
 
   if (!search) {
     box.classList.add("hidden");
@@ -2241,17 +2626,21 @@ function onInterventionPatientInput() {
     return;
   }
 
+
   const matches = patients
     .filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(search))
     .slice(0, 8);
 
+
   box.innerHTML = "";
+
 
   if (!matches.length) {
     box.innerHTML = `<div class="empty-result">Aucun dossier patient trouvé.</div>`;
     box.classList.remove("hidden");
     return;
   }
+
 
   matches.forEach(p => {
     const div = document.createElement("div");
@@ -2260,13 +2649,16 @@ function onInterventionPatientInput() {
     box.appendChild(div);
   });
 
+
   box.classList.remove("hidden");
 }
+
 
 function selectInterventionPatient(patient) {
   document.getElementById("interventionPatientId").value = patient.id;
   document.getElementById("interventionPatientSearch").value = "";
   document.getElementById("interventionPatientResults").classList.add("hidden");
+
 
   const chip = document.getElementById("interventionPatientChip");
   chip.classList.remove("hidden");
@@ -2278,11 +2670,13 @@ function selectInterventionPatient(patient) {
   `;
 }
 
+
 function clearInterventionPatient() {
   document.getElementById("interventionPatientId").value = "";
   document.getElementById("interventionPatientChip").classList.add("hidden");
   document.getElementById("interventionPatientChip").innerHTML = "";
 }
+
 
 document.addEventListener("click", e => {
   const box = document.getElementById("interventionPatientResults");
@@ -2291,17 +2685,21 @@ document.addEventListener("click", e => {
   }
 });
 
+
 /* ---- Image ---- */
+
 
 function onInterventionImageChange(event) {
   const file = event.target.files[0];
   if (!file) return;
+
 
   if (file.size > 4 * 1024 * 1024) {
     toast("Image trop lourde (4 Mo max).");
     event.target.value = "";
     return;
   }
+
 
   const reader = new FileReader();
   reader.onload = () => {
@@ -2312,21 +2710,26 @@ function onInterventionImageChange(event) {
   reader.readAsDataURL(file);
 }
 
+
 function removeInterventionImage() {
   interventionImageData = null;
   document.getElementById("interventionImageInput").value = "";
   document.getElementById("interventionImagePreviewBox").classList.add("hidden");
 }
 
+
 /* ---- Ouverture / soumission du formulaire ---- */
+
 
 async function openInterventionModal(patientId, interventionId) {
   if (!patients.length) {
     await loadPatients();
   }
 
+
   editingInterventionId = null;
   interventionImageData = null;
+
 
   document.getElementById("interventionId").value = "";
   document.getElementById("interventionModalTitle").textContent = "Nouvelle intervention";
@@ -2340,21 +2743,26 @@ async function openInterventionModal(patientId, interventionId) {
   document.getElementById("interventionImagePreviewBox").classList.add("hidden");
   clearInterventionPatient();
 
+
   document.querySelectorAll("#careList input[type=checkbox]").forEach(c => {
     c.checked = false;
     c.closest(".care-item").classList.remove("selected");
   });
 
+
   updateCommentCount();
   updateInterventionTotal();
 
+
   document.getElementById("interventionAutoInfo").textContent =
     `La date, l'heure et le membre créateur (${currentUser?.nickname || currentUser?.username || "—"}) seront ajoutés automatiquement.`;
+
 
   if (patientId) {
     const patient = patients.find(p => p.id === patientId);
     if (patient) selectInterventionPatient(patient);
   }
+
 
   if (interventionId) {
     try {
@@ -2366,8 +2774,10 @@ async function openInterventionModal(patientId, interventionId) {
     }
   }
 
+
   openModal("interventionModal");
 }
+
 
 function fillInterventionForm(intervention) {
   editingInterventionId = intervention.id;
@@ -2375,19 +2785,23 @@ function fillInterventionForm(intervention) {
   document.getElementById("interventionModalTitle").textContent = "Modifier l'intervention";
   document.getElementById("interventionSubmitBtn").textContent = "Enregistrer les modifications";
 
+
   document.getElementById("interventionTitle").value = intervention.title || "";
   document.getElementById("interventionComments").value = intervention.comments || "";
   document.getElementById("interventionOfficial").checked = !!intervention.is_official;
   updateCommentCount();
 
+
   document.getElementById("billingRows").innerHTML = "";
   (intervention.free_billing || []).forEach(line => addBillingRow(line.label, line.amount));
+
 
   document.querySelectorAll("#careList input[type=checkbox]").forEach(c => {
     const checked = (intervention.care_items || []).includes(c.value);
     c.checked = checked;
     c.closest(".care-item").classList.toggle("selected", checked);
   });
+
 
   if (intervention.patient_id) {
     const patient = patients.find(p => p.id === intervention.patient_id) || {
@@ -2400,6 +2814,7 @@ function fillInterventionForm(intervention) {
     clearInterventionPatient();
   }
 
+
   if (intervention.image) {
     interventionImageData = intervention.image;
     document.getElementById("interventionImagePreview").src = intervention.image;
@@ -2409,17 +2824,22 @@ function fillInterventionForm(intervention) {
     document.getElementById("interventionImagePreviewBox").classList.add("hidden");
   }
 
+
   document.getElementById("interventionAutoInfo").textContent =
     `Créée le ${date(intervention.created_at)} par ${intervention.creator || "—"}.` +
     (intervention.updated_at ? ` Dernière modification le ${date(intervention.updated_at)}.` : "");
 
+
   updateInterventionTotal();
 }
+
 
 async function submitInterventionForm(event) {
   event.preventDefault();
 
+
   const patientIdValue = document.getElementById("interventionPatientId").value;
+
 
   const payload = {
     patient_id: patientIdValue || null,
@@ -2431,6 +2851,7 @@ async function submitInterventionForm(event) {
     image: interventionImageData
   };
 
+
   try {
     if (editingInterventionId) {
       await api(`/api/interventions/${editingInterventionId}`, { method: "PUT", body: JSON.stringify(payload) });
@@ -2440,12 +2861,15 @@ async function submitInterventionForm(event) {
       toast("Intervention enregistrée.");
     }
 
+
     closeModal("interventionModal");
     await loadDashboard();
+
 
     if (document.getElementById("page-interventions").classList.contains("active")) {
       await loadInterventions();
     }
+
 
     if (currentDetailsPatientId && document.getElementById("detailsModal").classList.contains("open")) {
       await openDetailsModal(currentDetailsPatientId);
@@ -2455,7 +2879,9 @@ async function submitInterventionForm(event) {
   }
 }
 
+
 /* ---- Liste des interventions (page dédiée) ---- */
+
 
 async function loadInterventions() {
   try {
@@ -2467,11 +2893,14 @@ async function loadInterventions() {
   }
 }
 
+
 function renderInterventionsList() {
   const listEl = document.getElementById("interventionsList");
   if (!listEl) return;
 
+
   const search = (document.getElementById("interventionSearch")?.value || "").trim().toLowerCase();
+
 
   const filtered = interventions.filter(i => {
     if (!search) return true;
@@ -2479,12 +2908,15 @@ function renderInterventionsList() {
     return i.title.toLowerCase().includes(search) || patientName.includes(search) || (i.creator || "").toLowerCase().includes(search);
   });
 
+
   listEl.innerHTML = "";
+
 
   if (!filtered.length) {
     listEl.innerHTML = `<div class="empty">Aucune intervention ne correspond.</div>`;
     return;
   }
+
 
   filtered.forEach(i => {
     const patientName = i.first_name ? `${i.first_name} ${i.last_name}` : "Sans patient";
@@ -2502,7 +2934,9 @@ function renderInterventionsList() {
   });
 }
 
+
 /* ---- Détails / modification / suppression d'une intervention ---- */
+
 
 async function openInterventionDetails(id) {
   try {
@@ -2510,11 +2944,14 @@ async function openInterventionDetails(id) {
     const i = data.intervention;
     currentInterventionDetailsId = id;
 
+
     document.getElementById("interventionDetailsTitle").textContent = i.title;
+
 
     const patientLine = i.patient_id
       ? `N°${i.patient_id} - ${i.first_name} ${i.last_name}`
       : "Aucun patient lié";
+
 
     document.getElementById("interventionDetailsInfo").innerHTML = `
       <div><span class="k">Patient</span><span class="v">${escapeHtml(patientLine)}</span></div>
@@ -2525,6 +2962,7 @@ async function openInterventionDetails(id) {
       ${i.updated_at ? `<div><span class="k">Modifiée le</span><span class="v">${date(i.updated_at)} par ${escapeHtml(i.updater || "—")}</span></div>` : ""}
     `;
 
+
     const imgBox = document.getElementById("interventionDetailsImageBox");
     if (i.image) {
       document.getElementById("interventionDetailsImage").src = i.image;
@@ -2533,15 +2971,19 @@ async function openInterventionDetails(id) {
       imgBox.classList.add("hidden");
     }
 
+
     document.getElementById("interventionDetailsComments").textContent = i.comments || "—";
 
+
     document.getElementById("interventionDeleteBtn").classList.toggle("hidden", !currentUser?.is_director);
+
 
     openModal("interventionDetailsModal");
   } catch (e) {
     toast(e.message);
   }
 }
+
 
 async function editInterventionFromDetails() {
   if (!currentInterventionDetailsId) return;
@@ -2550,18 +2992,22 @@ async function editInterventionFromDetails() {
   await openInterventionModal(null, id);
 }
 
+
 async function deleteInterventionFromDetails() {
   if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
   if (!currentInterventionDetailsId) return;
 
+
   const ok = await askConfirm("Voulez-vous vraiment supprimer cette intervention ?\n\nCette action est définitive.");
   if (!ok) return;
+
 
   try {
     await api(`/api/interventions/${currentInterventionDetailsId}`, { method: "DELETE" });
     toast("Intervention supprimée.");
     closeModal("interventionDetailsModal");
     await loadDashboard();
+
 
     if (document.getElementById("page-interventions").classList.contains("active")) {
       await loadInterventions();
@@ -2574,27 +3020,34 @@ async function deleteInterventionFromDetails() {
   }
 }
 
+
 /* ========================= FRAIS & FACTURES ========================= */
+
 
 async function loadFrais() {
   await Promise.all([loadExpenses(), loadMyInvoices()]);
 }
 
+
 /* ---- Notes de frais ---- */
+
 
 function onExpenseCategoryChange() {
   const category = document.getElementById("expenseCategory").value;
   document.getElementById("expenseReasonField").style.display = category === "Autre" ? "flex" : "none";
 }
 
+
 async function submitExpense() {
   const category = document.getElementById("expenseCategory").value;
   const reason = document.getElementById("expenseReason").value;
   const amount = Number(document.getElementById("expenseAmount").value);
 
+
   if (!category) { toast("Sélectionne une catégorie."); return; }
   if (category === "Autre" && !reason.trim()) { toast("Précise le motif."); return; }
   if (!amount || amount <= 0) { toast("Montant invalide."); return; }
+
 
   try {
     await api("/api/expenses", {
@@ -2612,6 +3065,7 @@ async function submitExpense() {
   }
 }
 
+
 async function loadExpenses() {
   try {
     const data = await api("/api/expenses");
@@ -2621,14 +3075,17 @@ async function loadExpenses() {
   }
 }
 
+
 function renderExpenses(expenses) {
   const box = document.getElementById("expensesList");
   box.innerHTML = "";
+
 
   if (!expenses.length) {
     box.innerHTML = `<div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>`;
     return;
   }
+
 
   const groups = {};
   expenses.forEach(e => {
@@ -2637,10 +3094,12 @@ function renderExpenses(expenses) {
     groups[day].push(e);
   });
 
+
   Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(day => {
     const dayBox = document.createElement("div");
     dayBox.className = "table-container";
     dayBox.style.marginBottom = "14px";
+
 
     const rows = groups[day].map(e => `
       <div class="activity-item static">
@@ -2649,11 +3108,13 @@ function renderExpenses(expenses) {
           <div class="activity-sub">${date(e.created_at)}</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
+          <span class="badge ${e.refunded ? "badge-alive" : "badge-neutral"}">${e.refunded ? "✅ Remboursé" : "⏳ Non remboursé"}</span>
           <div class="activity-amount">${money(e.amount)}</div>
           <button class="btn-delete btn-sm" onclick="deleteExpense(${e.id})">🗑️</button>
         </div>
       </div>
     `).join("");
+
 
     dayBox.innerHTML = `
       <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
@@ -2663,13 +3124,16 @@ function renderExpenses(expenses) {
       <div class="activity-list" style="padding:12px;">${rows}</div>
     `;
 
+
     box.appendChild(dayBox);
   });
 }
 
+
 async function deleteExpense(id) {
   const ok = await askConfirm("Voulez-vous vraiment supprimer cette note de frais ?\n\nCette action est définitive.");
   if (!ok) return;
+
 
   try {
     await api(`/api/expenses/${id}`, { method: "DELETE" });
@@ -2680,7 +3144,9 @@ async function deleteExpense(id) {
   }
 }
 
+
 /* ---- Factures LSMC ---- */
+
 
 function renderInvoiceMotifOptions() {
   const box = document.getElementById("invoiceMotifList");
@@ -2696,10 +3162,12 @@ function renderInvoiceMotifOptions() {
   });
 }
 
+
 function onInvoiceMotifToggle(checkbox) {
   checkbox.closest(".care-item").classList.toggle("selected", checkbox.checked);
   updateInvoiceTotal();
 }
+
 
 function addInvoiceBillingRow(label = "", amount = "") {
   const row = document.createElement("div");
@@ -2712,9 +3180,11 @@ function addInvoiceBillingRow(label = "", amount = "") {
   document.getElementById("invoiceBillingRows").appendChild(row);
 }
 
+
 function getSelectedInvoiceMotifs() {
   return Array.from(document.querySelectorAll("#invoiceMotifList input[type=checkbox]:checked")).map(c => c.value);
 }
+
 
 function getInvoiceBillingLines() {
   return Array.from(document.querySelectorAll("#invoiceBillingRows .billing-row")).map(row => {
@@ -2722,6 +3192,7 @@ function getInvoiceBillingLines() {
     return { motif: inputs[0].value, amount: Number(inputs[1].value) || 0 };
   }).filter(l => l.motif || l.amount);
 }
+
 
 function updateInvoiceTotal() {
   let total = 0;
@@ -2733,10 +3204,12 @@ function updateInvoiceTotal() {
   document.getElementById("invoiceTotal").textContent = money(total);
 }
 
+
 async function submitInvoice() {
   const service = document.getElementById("invoiceService").value;
   const matricule = document.getElementById("invoiceMatricule").value;
   if (!service) { toast("Sélectionne un service destinataire."); return; }
+
 
   const items = [];
   getSelectedInvoiceMotifs().forEach(key => {
@@ -2747,7 +3220,9 @@ async function submitInvoice() {
     if (l.motif && l.amount > 0) items.push({ motif: l.motif, amount: l.amount });
   });
 
+
   if (!items.length) { toast("Sélectionne au moins un motif ou ajoute une ligne."); return; }
+
 
   try {
     await api("/api/invoices", { method: "POST", body: JSON.stringify({ service, matricule, items }) });
@@ -2766,6 +3241,7 @@ async function submitInvoice() {
   }
 }
 
+
 async function loadMyInvoices() {
   try {
     const data = await api("/api/invoices");
@@ -2775,16 +3251,20 @@ async function loadMyInvoices() {
   }
 }
 
+
 function renderMyInvoices(invoicesList) {
   const box = document.getElementById("myInvoicesList");
   box.innerHTML = "";
 
+
   const grouped = groupInvoiceRows(invoicesList, ["service", "matricule"]);
+
 
   if (!grouped.length) {
     box.innerHTML = `<div class="empty">Aucune facture pour le moment.</div>`;
     return;
   }
+
 
   grouped.forEach(inv => {
     const div = document.createElement("div");
@@ -2800,48 +3280,87 @@ function renderMyInvoices(invoicesList) {
   });
 }
 
+
 /* ---- Direction : toutes les factures ---- */
+
+
+function invoiceRowHtml(inv) {
+  return `
+    <td>${escapeHtml(inv.employee || "—")}</td>
+    <td>${escapeHtml(inv.service)}</td>
+    <td>${escapeHtml(inv.matricule || "—")}</td>
+    <td class="zoomable" data-motif-row="1">🔍 ${escapeHtml(inv.motifs.join(", "))}</td>
+    <td>${money(inv.amount)}</td>
+    <td>${date(inv.created_at)}</td>
+    <td><button class="btn-delete" onclick='deleteInvoice(${JSON.stringify(inv.ids)})'>🗑️ Supprimer</button></td>
+  `;
+}
+
+
+function renderInvoiceRowsInto(tbody, list, emptyColspan) {
+  tbody.innerHTML = "";
+
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="${emptyColspan}" class="empty">Aucune facture enregistrée.</td></tr>`;
+    return;
+  }
+
+
+  list.forEach(inv => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = invoiceRowHtml(inv);
+    tbody.appendChild(tr);
+    tr.querySelector('[data-motif-row]').addEventListener("click", () => {
+      zoomText(`Motif — ${inv.employee || "Facture"} (${inv.service})`, inv.motifs.join("\n"));
+    });
+  });
+}
+
 
 async function loadDirectorInvoices() {
   if (!currentUser?.is_director) return;
 
+
   try {
     const data = await api("/api/director/invoices");
-    const tbody = document.getElementById("directorInvoicesTable");
-    tbody.innerHTML = "";
+    directorInvoicesGrouped = groupInvoiceRows(asArray(data, "invoices"), ["employee", "service", "matricule"]);
 
-    const grouped = groupInvoiceRows(asArray(data, "invoices"), ["employee", "service", "matricule"]);
 
-    if (!grouped.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune facture enregistrée.</td></tr>`;
-      return;
-    }
-
-    grouped.forEach(inv => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${escapeHtml(inv.employee || "—")}</td>
-        <td>${escapeHtml(inv.service)}</td>
-        <td>${escapeHtml(inv.matricule || "—")}</td>
-        <td>${escapeHtml(inv.motifs.join(", "))}</td>
-        <td>${money(inv.amount)}</td>
-        <td>${date(inv.created_at)}</td>
-        <td><button class="btn-delete" onclick='deleteInvoice(${JSON.stringify(inv.ids)})'>🗑️ Supprimer</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
+    renderInvoiceRowsInto(document.getElementById("directorInvoicesTable"), directorInvoicesGrouped.slice(0, 5), 7);
   } catch (e) {
     toast(e.message);
   }
 }
 
+
+function openDirectorInvoicesModal() {
+  document.getElementById("directorListModalTitle").textContent = `Toutes les factures LSMC (${directorInvoicesGrouped.length})`;
+  document.getElementById("directorListModalHead").innerHTML = `
+    <tr>
+      <th>Employé</th>
+      <th>Service</th>
+      <th>Matricule</th>
+      <th>Motif</th>
+      <th>Montant</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>
+  `;
+  renderInvoiceRowsInto(document.getElementById("directorListModalBody"), directorInvoicesGrouped, 7);
+  openModal("directorListModal");
+}
+
+
 async function deleteInvoice(ids) {
   if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
   if (!Array.isArray(ids)) ids = [ids];
 
+
   const label = ids.length > 1 ? `cette facture (${ids.length} lignes)` : `la facture #${ids[0]}`;
   const ok = await askConfirm(`Voulez-vous vraiment supprimer ${label} ?\n\nCette action est définitive.`);
   if (!ok) return;
+
 
   try {
     for (const id of ids) {
@@ -2849,64 +3368,138 @@ async function deleteInvoice(ids) {
     }
     toast("Facture supprimée.");
     await loadDirectorInvoices();
+    if (document.getElementById("directorListModal").classList.contains("open")) {
+      openDirectorInvoicesModal();
+    }
   } catch (e) {
     toast(e.message);
   }
 }
 
+
 /* ---- Direction : toutes les notes de frais du personnel ---- */
+
+
+function expenseRowHtml(exp) {
+  return `
+    <td>${escapeHtml(exp.employee || "—")}</td>
+    <td>${escapeHtml(exp.category)}</td>
+    <td>${escapeHtml(exp.reason || "—")}</td>
+    <td>${money(exp.amount)}</td>
+    <td>${date(exp.created_at)}</td>
+    <td style="text-align:center;">
+      <input type="checkbox" ${exp.refunded ? "checked" : ""} onchange="toggleExpenseRefunded(${exp.id}, this.checked)">
+    </td>
+    <td><button class="btn-delete" onclick="deleteDirectorExpense(${exp.id})">🗑️ Supprimer</button></td>
+  `;
+}
+
+
+function renderExpenseRowsInto(tbody, list, emptyColspan) {
+  tbody.innerHTML = "";
+
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="${emptyColspan}" class="empty">Aucune note de frais enregistrée.</td></tr>`;
+    return;
+  }
+
+
+  list.forEach(exp => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = expenseRowHtml(exp);
+    tbody.appendChild(tr);
+  });
+}
+
 
 async function loadDirectorExpenses() {
   if (!currentUser?.is_director) return;
 
+
   try {
     const data = await api("/api/director/expenses");
-    const tbody = document.getElementById("directorExpensesTable");
-    tbody.innerHTML = "";
+    directorExpensesFull = asArray(data, "expenses");
 
-    const expensesList = asArray(data, "expenses");
 
-    if (!expensesList.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucune note de frais enregistrée.</td></tr>`;
-      return;
-    }
-
-    expensesList.forEach(exp => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${escapeHtml(exp.employee || "—")}</td>
-        <td>${escapeHtml(exp.category)}</td>
-        <td>${escapeHtml(exp.reason || "—")}</td>
-        <td>${money(exp.amount)}</td>
-        <td>${date(exp.created_at)}</td>
-        <td><button class="btn-delete" onclick="deleteDirectorExpense(${exp.id})">🗑️ Supprimer</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
+    renderExpenseRowsInto(document.getElementById("directorExpensesTable"), directorExpensesFull.slice(0, 5), 7);
   } catch (e) {
     toast(e.message);
   }
 }
 
+
+function openDirectorExpensesModal() {
+  document.getElementById("directorListModalTitle").textContent = `Toutes les notes de frais du personnel (${directorExpensesFull.length})`;
+  document.getElementById("directorListModalHead").innerHTML = `
+    <tr>
+      <th>Employé</th>
+      <th>Catégorie</th>
+      <th>Motif</th>
+      <th>Montant</th>
+      <th>Date</th>
+      <th>Remboursé</th>
+      <th>Actions</th>
+    </tr>
+  `;
+  renderExpenseRowsInto(document.getElementById("directorListModalBody"), directorExpensesFull, 7);
+  openModal("directorListModal");
+}
+
+
+/* Coche/décoche "Remboursé" sur une note de frais (Direction). Nécessite
+   que le back-end accepte PATCH /api/expenses/:id avec { refunded }. */
+async function toggleExpenseRefunded(id, refunded) {
+  try {
+    await api(`/api/expenses/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ refunded })
+    });
+    toast(refunded ? "Note de frais marquée comme remboursée." : "Note de frais marquée comme non remboursée.");
+    await loadDirectorExpenses();
+    if (document.getElementById("directorListModal").classList.contains("open")) {
+      openDirectorExpensesModal();
+    }
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+
 async function deleteDirectorExpense(id) {
   if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
 
+
   const ok = await askConfirm(`Voulez-vous vraiment supprimer cette note de frais #${id} ?\n\nCette action est définitive.`);
   if (!ok) return;
+
 
   try {
     await api(`/api/expenses/${id}`, { method: "DELETE" });
     toast("Note de frais supprimée.");
     await loadDirectorExpenses();
+    if (document.getElementById("directorListModal").classList.contains("open")) {
+      openDirectorExpensesModal();
+    }
   } catch (e) {
     toast(e.message);
   }
 }
 
+
 /* ========================= DIRECTION ========================= */
+
+
+function toggleStaffTableSize() {
+  staffTableExpanded = !staffTableExpanded;
+  document.getElementById("staffTableBox").classList.toggle("compact-table-box", !staffTableExpanded);
+  document.getElementById("toggleStaffTableBtn").textContent = staffTableExpanded ? "🔽 Réduire le tableau" : "🔍 Agrandir le tableau";
+}
+
 
 async function loadDirector() {
   if (!currentUser?.is_director) return;
+
 
   try {
     const data = await api("/api/director/users");
@@ -2914,9 +3507,11 @@ async function loadDirector() {
     const tbody = document.getElementById("directorTable");
     tbody.innerHTML = "";
 
+
     emsMembersForAssign.forEach(user => {
       const displayName = user.nickname || user.username;
       const tr = document.createElement("tr");
+
 
       const jobInput = document.createElement("input");
       jobInput.type = "text";
@@ -2924,27 +3519,34 @@ async function loadDirector() {
       jobInput.placeholder = "Métier";
       jobInput.id = `directorJob-${user.id}`;
 
+
       const gradeInput = document.createElement("input");
       gradeInput.type = "text";
       gradeInput.value = user.grade || "";
       gradeInput.placeholder = "Grade";
       gradeInput.id = `directorGrade-${user.id}`;
 
+
       const tdName = document.createElement("td");
       tdName.textContent = displayName;
       tdName.style.whiteSpace = "normal";
 
+
       const tdJob = document.createElement("td");
       tdJob.appendChild(jobInput);
+
 
       const tdGrade = document.createElement("td");
       tdGrade.appendChild(gradeInput);
 
+
       const tdServices = document.createElement("td");
       tdServices.textContent = user.service_count;
 
+
       const tdTotal = document.createElement("td");
       tdTotal.textContent = duration(user.total_seconds);
+
 
       const tdActions = document.createElement("td");
       tdActions.style.display = "flex";
@@ -2952,18 +3554,22 @@ async function loadDirector() {
       tdActions.style.flexWrap = "wrap";
       tdActions.style.whiteSpace = "normal";
 
+
       const saveBtn = document.createElement("button");
       saveBtn.className = "btn btn-dark btn-sm";
       saveBtn.textContent = "💾 Enregistrer";
       saveBtn.addEventListener("click", () => saveDirectorProfile(user.id));
+
 
       const servicesBtn = document.createElement("button");
       servicesBtn.className = "btn btn-dark btn-sm";
       servicesBtn.textContent = "Voir les services";
       servicesBtn.addEventListener("click", () => loadDirectorServices(user.discord_id, displayName));
 
+
       tdActions.appendChild(saveBtn);
       tdActions.appendChild(servicesBtn);
+
 
       tr.appendChild(tdName);
       tr.appendChild(tdJob);
@@ -2972,6 +3578,7 @@ async function loadDirector() {
       tr.appendChild(tdTotal);
       tr.appendChild(tdActions);
 
+
       tbody.appendChild(tr);
     });
   } catch (e) {
@@ -2979,9 +3586,11 @@ async function loadDirector() {
   }
 }
 
+
 async function saveDirectorProfile(userId) {
   const job = document.getElementById(`directorJob-${userId}`).value;
   const grade = document.getElementById(`directorGrade-${userId}`).value;
+
 
   try {
     await api(`/api/director/users/${userId}`, {
@@ -2994,24 +3603,30 @@ async function saveDirectorProfile(userId) {
   }
 }
 
+
 async function loadDirectorServices(discordId, username) {
   if (!currentUser?.is_director) return;
 
+
   try {
     const data = await api(`/api/director/services/${discordId}`);
+
 
     const box = document.getElementById("directorServicesBox");
     const tbody = document.getElementById("directorServicesTable");
     const title = document.getElementById("directorServicesTitle");
 
+
     tbody.innerHTML = "";
     if (title) title.textContent = `Services de ${username}`;
     box.classList.remove("hidden");
+
 
     if (!data.services || !data.services.length) {
       tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun service pour ${escapeHtml(username)}.</td></tr>`;
       return;
     }
+
 
     data.services.forEach(service => {
       const tr = document.createElement("tr");
@@ -3030,32 +3645,40 @@ async function loadDirectorServices(discordId, username) {
   }
 }
 
+
 function closeDirectorServices() {
   const box = document.getElementById("directorServicesBox");
   const tbody = document.getElementById("directorServicesTable");
   const title = document.getElementById("directorServicesTitle");
+
 
   if (box) box.classList.add("hidden");
   if (tbody) tbody.innerHTML = "";
   if (title) title.textContent = "Services du membre";
 }
 
+
 /* ---- Candidatures (Direction) ---- */
+
 
 async function loadApplications() {
   if (!currentUser?.is_director) return;
+
 
   try {
     const data = await api("/api/applications");
     const tbody = document.getElementById("applicationsTable");
     tbody.innerHTML = "";
 
+
     const applicationsList = asArray(data, "applications");
+
 
     if (!applicationsList.length) {
       tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune candidature reçue.</td></tr>`;
       return;
     }
+
 
     applicationsList.forEach(a => {
       const tr = document.createElement("tr");
@@ -3072,6 +3695,7 @@ async function loadApplications() {
       `;
       tbody.appendChild(tr);
 
+
       tr.querySelector('[data-field="experience"]').addEventListener("click", () => {
         zoomText(`Expérience médicale — ${a.first_name} ${a.last_name}`, a.medical_experience);
       });
@@ -3084,11 +3708,14 @@ async function loadApplications() {
   }
 }
 
+
 async function deleteApplication(id) {
   if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
 
+
   const ok = await askConfirm("Voulez-vous vraiment supprimer cette candidature ?\n\nCette action est définitive.");
   if (!ok) return;
+
 
   try {
     await api(`/api/applications/${id}`, { method: "DELETE" });
@@ -3099,7 +3726,9 @@ async function deleteApplication(id) {
   }
 }
 
+
 /* ========================= GESTION RDV (staff) ========================= */
+
 
 const RDV_STATUS_BUTTONS = [
   { value: "En cours",              label: "🔵 En cours",              css: "btn-status-blue" },
@@ -3108,6 +3737,7 @@ const RDV_STATUS_BUTTONS = [
   { value: "Annulé",                label: "❌ Annulé",                css: "btn-status-red" },
   { value: "Reporté",               label: "🕒 Reporté",               css: "btn-status-yellow" }
 ];
+
 
 const RDV_STATUS_META = {
   "A traiter":               { emoji: "⏳", label: "À traiter",              css: "btn-status-gray" },
@@ -3119,10 +3749,12 @@ const RDV_STATUS_META = {
   "Reporté":                 { emoji: "🕒", label: "Reporté",                css: "btn-status-yellow" }
 };
 
+
 function rdvStatusBadgeHtml(status) {
   const meta = RDV_STATUS_META[status] || { emoji: "•", label: status || "—", css: "btn-status-gray" };
   return `<span class="btn-status ${meta.css}" style="cursor:default;display:inline-block;">${meta.emoji} ${escapeHtml(meta.label)}</span>`;
 }
+
 
 function switchRdvTab(tab) {
   gestionRdvTab = tab;
@@ -3132,10 +3764,12 @@ function switchRdvTab(tab) {
   renderGestionRdv();
 }
 
+
 async function loadGestionRdv() {
   try {
     const data = await api("/api/appointments");
     gestionRdvAll = data.appointments;
+
 
     if (!emsMembersForAssign.length) {
       try {
@@ -3144,12 +3778,14 @@ async function loadGestionRdv() {
       } catch {}
     }
 
+
     renderGestionRdv();
     updateGestionRdvBadge();
   } catch (e) {
     toast(e.message);
   }
 }
+
 
 async function refreshGestionRdvBadge() {
   try {
@@ -3159,6 +3795,7 @@ async function refreshGestionRdvBadge() {
   } catch {}
 }
 
+
 function updateGestionRdvBadge() {
   const pendingCount = gestionRdvAll.filter(a => a.status === "A traiter" || !a.status).length;
   const badge = document.getElementById("gestionRdvBadge");
@@ -3167,21 +3804,26 @@ function updateGestionRdvBadge() {
   badge.classList.toggle("hidden", pendingCount === 0);
 }
 
+
 function renderGestionRdv() {
   const listEl = document.getElementById("gestionRdvList");
   if (!listEl) return;
+
 
   const filtered = gestionRdvAll.filter(a => {
     const isPending = a.status === "A traiter" || !a.status;
     return gestionRdvTab === "done" ? !isPending : isPending;
   });
 
+
   listEl.innerHTML = "";
+
 
   if (!filtered.length) {
     listEl.innerHTML = `<div class="empty">Aucun rendez-vous ici.</div>`;
     return;
   }
+
 
   filtered.forEach(a => {
     const div = document.createElement("div");
@@ -3190,6 +3832,7 @@ function renderGestionRdv() {
     div.style.alignItems = "stretch";
     div.style.cursor = "default";
 
+
     const statusButtons = RDV_STATUS_BUTTONS.map(s => `
       <button
         class="btn-status ${s.css} ${a.status === s.value ? "active-status" : ""}"
@@ -3197,7 +3840,9 @@ function renderGestionRdv() {
       >${s.label}</button>
     `).join("");
 
+
     const isPending = a.status === "A traiter" || !a.status;
+
 
     div.innerHTML = `
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
@@ -3244,14 +3889,17 @@ function renderGestionRdv() {
   });
 }
 
+
 async function saveRdvAssignment(id) {
   const confirmedEl = document.getElementById(`rdvConfirmed-${id}`);
   const assignEl = document.getElementById(`rdvAssign-${id}`);
   const appointment = gestionRdvAll.find(a => a.id === id);
 
+
   let confirmedValue = null;
   if (confirmedEl.value === "slot1") confirmedValue = appointment?.slot1 || null;
   if (confirmedEl.value === "slot2") confirmedValue = appointment?.slot2 || null;
+
 
   try {
     await api(`/api/appointments/${id}`, {
@@ -3268,6 +3916,7 @@ async function saveRdvAssignment(id) {
   }
 }
 
+
 async function markRdvStatus(id, status) {
   try {
     await api(`/api/appointments/${id}`, {
@@ -3281,11 +3930,14 @@ async function markRdvStatus(id, status) {
   }
 }
 
+
 async function deleteAppointment(id) {
   if (!currentUser?.is_director) { toast("Accès réservé au Directeur."); return; }
 
+
   const ok = await askConfirm(`Voulez-vous vraiment supprimer le rendez-vous #${id} ?\n\nCette action est définitive.`);
   if (!ok) return;
+
 
   try {
     await api(`/api/appointments/${id}`, { method: "DELETE" });
@@ -3296,24 +3948,30 @@ async function deleteAppointment(id) {
   }
 }
 
+
 /* ========================= RENDEZ-VOUS (citoyen + staff) ========================= */
+
 
 async function loadMyAppointments() {
   try {
     const data = await api("/api/appointments");
 
+
     myAppointments = (currentUser?.is_ems || currentUser?.is_director)
       ? data.appointments.filter(a => a.user_id === currentUser.id)
       : data.appointments;
+
 
     document.getElementById("myRdvCount").textContent = myAppointments.length;
     const tbody = document.getElementById("myRdvTable");
     tbody.innerHTML = "";
 
+
     if (!myAppointments.length) {
       tbody.innerHTML = `<tr><td colspan="8" class="empty">Aucun rendez-vous pour le moment.</td></tr>`;
       return;
     }
+
 
     myAppointments.forEach(a => {
       const tr = document.createElement("tr");
@@ -3334,8 +3992,10 @@ async function loadMyAppointments() {
   }
 }
 
+
 async function submitAppointmentForm(event) {
   event.preventDefault();
+
 
   const payload = {
     slot1: document.getElementById("rdvSlot1").value,
@@ -3343,6 +4003,7 @@ async function submitAppointmentForm(event) {
     phone: document.getElementById("rdvPhone").value || null,
     motif: document.getElementById("rdvMotif").value
   };
+
 
   try {
     await api("/api/appointments", { method: "POST", body: JSON.stringify(payload) });
@@ -3357,14 +4018,18 @@ async function submitAppointmentForm(event) {
   }
 }
 
+
 /* ========================= CANDIDATURE (citoyen) ========================= */
+
 
 function updateAppCharCount(fieldId, countId) {
   document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
 }
 
+
 async function submitApplicationForm(event) {
   event.preventDefault();
+
 
   const payload = {
     last_name: document.getElementById("appLastName").value,
@@ -3374,6 +4039,7 @@ async function submitApplicationForm(event) {
     medical_experience: document.getElementById("appExperience").value,
     motivation: document.getElementById("appMotivation").value
   };
+
 
   try {
     await api("/api/applications", { method: "POST", body: JSON.stringify(payload) });
@@ -3386,9 +4052,12 @@ async function submitApplicationForm(event) {
   }
 }
 
+
 /* ========================= START ========================= */
 
+
 loadUser();
+
 
 </script>
 </body>
