@@ -992,6 +992,12 @@
           <div id="expensesList">
             <div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>
           </div>
+
+
+          <div class="card-label" style="margin:20px 0 14px;">✅ Remboursés</div>
+          <div id="expensesRefundedList">
+            <div class="empty">Aucune note de frais remboursée pour le moment.</div>
+          </div>
         </div>
 
 
@@ -3054,13 +3060,12 @@ async function loadExpenses() {
 }
 
 
-function renderExpenses(expenses) {
-  const box = document.getElementById("expensesList");
+function renderExpenseGroupInto(box, expenses, emptyMessage, showBadge) {
   box.innerHTML = "";
 
 
   if (!expenses.length) {
-    box.innerHTML = `<div class="empty">Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.</div>`;
+    box.innerHTML = `<div class="empty">${emptyMessage}</div>`;
     return;
   }
 
@@ -3086,7 +3091,7 @@ function renderExpenses(expenses) {
           <div class="activity-sub">${date(e.created_at)}</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
-          <span class="badge ${e.refunded ? "badge-alive" : "badge-neutral"}">${e.refunded ? "✅ Remboursé" : "⏳ Non remboursé"}</span>
+          ${showBadge ? `<span class="badge ${e.refunded ? "badge-alive" : "badge-neutral"}">${e.refunded ? "✅ Remboursé" : "⏳ Non remboursé"}</span>` : ""}
           <div class="activity-amount">${money(e.amount)}</div>
           <button class="btn-delete btn-sm" onclick="deleteExpense(${e.id})">🗑️</button>
         </div>
@@ -3105,6 +3110,28 @@ function renderExpenses(expenses) {
 
     box.appendChild(dayBox);
   });
+}
+
+
+function renderExpenses(expenses) {
+  const pending = expenses.filter(e => !e.refunded);
+  const refunded = expenses.filter(e => e.refunded);
+
+
+  renderExpenseGroupInto(
+    document.getElementById("expensesList"),
+    pending,
+    "Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.",
+    false
+  );
+
+
+  renderExpenseGroupInto(
+    document.getElementById("expensesRefundedList"),
+    refunded,
+    "Aucune note de frais remboursée pour le moment.",
+    false
+  );
 }
 
 
