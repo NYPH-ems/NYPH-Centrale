@@ -267,6 +267,11 @@ ensureColumn("interventions", "updated_by", "INTEGER");
 ensureColumn("appointments", "phone", "TEXT");
 
 
+// Remboursement d'une note de frais, coché par la Direction et visible
+// par l'employé concerné dans son onglet Frais & Factures.
+ensureColumn("expenses", "refunded", "INTEGER DEFAULT 0");
+
+
 db.prepare(`
   UPDATE patients
   SET status = 'Patient'
@@ -664,6 +669,20 @@ function serializeIntervention(row) {
     care_items: parseJsonSafe(row.care_items, []),
     free_billing: parseJsonSafe(row.free_billing, []),
     is_official: Boolean(row.is_official)
+  };
+}
+
+
+/*
+  Met en forme une note de frais pour le front : le champ
+  "refunded" (0/1 en base) devient un booléen JS.
+*/
+
+
+function serializeExpense(row) {
+  return {
+    ...row,
+    refunded: Boolean(row.refunded)
   };
 }
 
@@ -3076,7 +3095,8 @@ app.get(
         FROM expenses
         WHERE user_id = ?
         ORDER BY created_at DESC
-      `).all(req.session.user.id);
+      `).all(req.session.user.id)
+      .map(serializeExpense);
 
 
     res.json({ expenses });
@@ -3124,7 +3144,52 @@ app.post(
       db.prepare(`SELECT * FROM expenses WHERE id = ?`).get(result.lastInsertRowid);
 
 
-    res.json({ success: true, expense });
+    res.json({ success: true, expense: serializeExpense(expense) });
+  }
+);
+
+
+/*
+  DIRECTION — Marquer une note de frais comme remboursée ou non
+  (case à cocher dans l'onglet Direction > Notes de frais). Le
+  statut est ensuite visible par l'employé concerné dans son
+  propre onglet Frais & Factures, sous "Remboursés".
+*/
+
+
+app.patch(
+  "/api/expenses/:id",
+  requireDirector,
+  (req, res) => {
+    const expense =
+      db.prepare(`SELECT * FROM expenses WHERE id = ?`).get(req.params.id);
+
+
+    if (!expense) {
+      return res.status(404).json({
+        error: "Note de frais introuvable."
+      });
+    }
+
+
+    const { refunded } = req.body;
+
+
+    db.prepare(`
+      UPDATE expenses
+      SET refunded = ?
+      WHERE id = ?
+    `).run(refunded ? 1 : 0, req.params.id);
+
+
+    const updated =
+      db.prepare(`SELECT * FROM expenses WHERE id = ?`).get(req.params.id);
+
+
+    res.json({
+      success: true,
+      expense: serializeExpense(updated)
+    });
   }
 );
 
@@ -3183,7 +3248,8 @@ app.get(
         LEFT JOIN users u
           ON u.id = e.user_id
         ORDER BY e.created_at DESC
-      `).all();
+      `).all()
+      .map(serializeExpense);
 
     res.json({ expenses });
   }
