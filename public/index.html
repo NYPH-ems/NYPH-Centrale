@@ -310,11 +310,6 @@
   .zoomable:hover { color: white; text-decoration: underline dotted; }
 
 
-  /* Table compacte (ex : liste du personnel en Direction) */
-  .compact-table-box { max-height: 260px; overflow-y: auto; }
-  .compact-table-box table th, .compact-table-box table td { padding: 8px 10px; font-size: 12px; }
-
-
   /* FORMS */
 
 
@@ -1080,166 +1075,166 @@
           <h2>Direction</h2>
           <p>Gestion de l'activité et des profils du personnel LSMC.</p>
         </div>
-        <div class="page-title-actions">
-          <button class="btn btn-dark btn-sm" id="toggleStaffTableBtn" onclick="toggleStaffTableSize()">🔍 Agrandir le tableau</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-directortab="personnel" onclick="switchDirectorTab('personnel')">👥 Personnel</button>
+        <button class="tab-btn" data-directortab="invoices" onclick="switchDirectorTab('invoices')">🧾 Factures LSMC</button>
+        <button class="tab-btn" data-directortab="expenses" onclick="switchDirectorTab('expenses')">💰 Notes de frais</button>
+        <button class="tab-btn" data-directortab="applications" onclick="switchDirectorTab('applications')">📋 Candidatures</button>
+      </div>
+
+      <!-- PERSONNEL -->
+      <div class="director-tab-panel" id="directorPanel-personnel">
+        <div class="service-box" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:15px;">
+          <div>
+            <div class="card-label" style="margin-bottom:2px;">Effectif LSMC</div>
+            <div class="card-value" id="staffTableCount" style="font-size:20px;">0 membre(s)</div>
+          </div>
+          <button class="btn btn-dark btn-sm" id="toggleStaffTableBtn" onclick="toggleStaffTableSize()">🔍 Afficher le tableau</button>
+        </div>
+
+        <div class="table-container table-scroll hidden" id="staffTableBox">
+          <table>
+            <colgroup>
+              <col style="width:22%">
+              <col style="width:18%">
+              <col style="width:18%">
+              <col style="width:10%">
+              <col style="width:12%">
+              <col style="width:20%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Membre</th>
+                <th>Métier</th>
+                <th>Grade</th>
+                <th>Services</th>
+                <th>Total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="directorTable"></tbody>
+          </table>
+        </div>
+
+        <br>
+
+        <div id="directorServicesBox" class="table-container hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #292929;">
+            <strong id="directorServicesTitle">Services du membre</strong>
+            <button class="btn btn-dark" onclick="closeDirectorServices()">✕ Fermer</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Membre</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Durée</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="directorServicesTable"></tbody>
+          </table>
         </div>
       </div>
 
-
-      <div class="table-container table-scroll compact-table-box" id="staffTableBox">
-        <table>
-          <colgroup>
-            <col style="width:22%">
-            <col style="width:18%">
-            <col style="width:18%">
-            <col style="width:10%">
-            <col style="width:12%">
-            <col style="width:20%">
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Membre</th>
-              <th>Métier</th>
-              <th>Grade</th>
-              <th>Services</th>
-              <th>Total</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="directorTable"></tbody>
-        </table>
-      </div>
-
-
-      <br>
-
-
-      <div id="directorServicesBox" class="table-container hidden">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px;border-bottom:1px solid #292929;">
-          <strong id="directorServicesTitle">Services du membre</strong>
-          <button class="btn btn-dark" onclick="closeDirectorServices()">✕ Fermer</button>
+      <!-- FACTURES LSMC -->
+      <div class="director-tab-panel hidden" id="directorPanel-invoices">
+        <div class="page-title">
+          <div>
+            <h2 style="font-size:22px;">Factures LSMC</h2>
+            <p>Toutes les factures enregistrées par le personnel LSMC. Clique sur un motif pour le voir en détail.</p>
+          </div>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Membre</th>
-              <th>Début</th>
-              <th>Fin</th>
-              <th>Durée</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="directorServicesTable"></tbody>
-        </table>
-      </div>
 
-
-      <hr class="section-divider">
-
-
-      <div class="page-title">
-        <div>
-          <h2 style="font-size:22px;">Factures LSMC</h2>
-          <p>Toutes les factures enregistrées par le personnel LSMC. Clique sur un motif pour le voir en détail.</p>
-        </div>
-        <div class="page-title-actions">
-          <button class="btn btn-dark btn-sm" onclick="openDirectorInvoicesModal()">🔍 Voir le détail complet</button>
+        <div class="table-container table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Employé</th>
+                <th>Service</th>
+                <th>Matricule</th>
+                <th>Motif</th>
+                <th>Montant</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="directorInvoicesTable">
+              <tr><td colspan="7" class="empty">Chargement...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-
-      <div class="table-container table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Employé</th>
-              <th>Service</th>
-              <th>Matricule</th>
-              <th>Motif</th>
-              <th>Montant</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="directorInvoicesTable">
-            <tr><td colspan="7" class="empty">Chargement...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-
-      <hr class="section-divider">
-
-
-      <div class="page-title">
-        <div>
-          <h2 style="font-size:22px;">Notes de frais du personnel</h2>
-          <p>Toutes les dépenses enregistrées par le personnel LSMC. Coche pour indiquer qu'une note a été remboursée.</p>
+      <!-- NOTES DE FRAIS DU PERSONNEL -->
+      <div class="director-tab-panel hidden" id="directorPanel-expenses">
+        <div class="page-title">
+          <div>
+            <h2 style="font-size:22px;">Notes de frais du personnel</h2>
+            <p>Toutes les dépenses enregistrées par le personnel LSMC. Coche pour indiquer qu'une note a été remboursée.</p>
+          </div>
         </div>
-        <div class="page-title-actions">
-          <button class="btn btn-dark btn-sm" onclick="openDirectorExpensesModal()">🔍 Voir le détail complet</button>
+
+        <div class="table-container table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Employé</th>
+                <th>Catégorie</th>
+                <th>Motif</th>
+                <th>Montant</th>
+                <th>Date</th>
+                <th>Remboursé</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="directorExpensesTable">
+              <tr><td colspan="7" class="empty">Chargement...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-
-      <div class="table-container table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Employé</th>
-              <th>Catégorie</th>
-              <th>Motif</th>
-              <th>Montant</th>
-              <th>Date</th>
-              <th>Remboursé</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="directorExpensesTable">
-            <tr><td colspan="7" class="empty">Chargement...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-
-      <hr class="section-divider">
-
-
-      <div class="page-title">
-        <div>
-          <h2 style="font-size:22px;">Candidatures</h2>
-          <p>Candidatures reçues via l'espace citoyen. Clique sur un texte long pour le zoomer.</p>
+      <!-- CANDIDATURES -->
+      <div class="director-tab-panel hidden" id="directorPanel-applications">
+        <div class="page-title">
+          <div>
+            <h2 style="font-size:22px;">Candidatures</h2>
+            <p>Candidatures reçues via l'espace citoyen. Clique sur un texte long pour le zoomer.</p>
+          </div>
         </div>
-      </div>
 
-
-      <div class="table-container table-scroll no-truncate">
-        <table>
-          <colgroup>
-            <col style="width:16%">
-            <col style="width:12%">
-            <col style="width:12%">
-            <col style="width:22%">
-            <col style="width:22%">
-            <col style="width:10%">
-            <col style="width:6%">
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Date de naissance</th>
-              <th>Téléphone</th>
-              <th>Expérience médicale</th>
-              <th>Motivations</th>
-              <th>Reçue le</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="applicationsTable">
-            <tr><td colspan="7" class="empty">Chargement...</td></tr>
-          </tbody>
-        </table>
+        <div class="table-container table-scroll no-truncate">
+          <table>
+            <colgroup>
+              <col style="width:16%">
+              <col style="width:12%">
+              <col style="width:12%">
+              <col style="width:22%">
+              <col style="width:22%">
+              <col style="width:10%">
+              <col style="width:6%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Date de naissance</th>
+                <th>Téléphone</th>
+                <th>Expérience médicale</th>
+                <th>Motivations</th>
+                <th>Reçue le</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="applicationsTable">
+              <tr><td colspan="7" class="empty">Chargement...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -1560,23 +1555,6 @@
       <button class="modal-close" onclick="closeModal('textZoomModal')">✕</button>
     </div>
     <div class="text-zoom-body" id="textZoomBody"></div>
-  </div>
-</div>
-
-
-<!-- MODAL : DÉTAIL COMPLET (Direction — factures / notes de frais) -->
-<div class="modal-overlay" id="directorListModal">
-  <div class="modal-box wide">
-    <div class="modal-head">
-      <h3 id="directorListModalTitle">Détail</h3>
-      <button class="modal-close" onclick="closeModal('directorListModal')">✕</button>
-    </div>
-    <div class="table-container table-scroll" style="border:none;">
-      <table>
-        <thead id="directorListModalHead"></thead>
-        <tbody id="directorListModalBody"></tbody>
-      </table>
-    </div>
   </div>
 </div>
 
@@ -3327,28 +3305,10 @@ async function loadDirectorInvoices() {
     directorInvoicesGrouped = groupInvoiceRows(asArray(data, "invoices"), ["employee", "service", "matricule"]);
 
 
-    renderInvoiceRowsInto(document.getElementById("directorInvoicesTable"), directorInvoicesGrouped.slice(0, 5), 7);
+    renderInvoiceRowsInto(document.getElementById("directorInvoicesTable"), directorInvoicesGrouped, 7);
   } catch (e) {
     toast(e.message);
   }
-}
-
-
-function openDirectorInvoicesModal() {
-  document.getElementById("directorListModalTitle").textContent = `Toutes les factures LSMC (${directorInvoicesGrouped.length})`;
-  document.getElementById("directorListModalHead").innerHTML = `
-    <tr>
-      <th>Employé</th>
-      <th>Service</th>
-      <th>Matricule</th>
-      <th>Motif</th>
-      <th>Montant</th>
-      <th>Date</th>
-      <th>Actions</th>
-    </tr>
-  `;
-  renderInvoiceRowsInto(document.getElementById("directorListModalBody"), directorInvoicesGrouped, 7);
-  openModal("directorListModal");
 }
 
 
@@ -3368,9 +3328,6 @@ async function deleteInvoice(ids) {
     }
     toast("Facture supprimée.");
     await loadDirectorInvoices();
-    if (document.getElementById("directorListModal").classList.contains("open")) {
-      openDirectorInvoicesModal();
-    }
   } catch (e) {
     toast(e.message);
   }
@@ -3422,33 +3379,16 @@ async function loadDirectorExpenses() {
     directorExpensesFull = asArray(data, "expenses");
 
 
-    renderExpenseRowsInto(document.getElementById("directorExpensesTable"), directorExpensesFull.slice(0, 5), 7);
+    renderExpenseRowsInto(document.getElementById("directorExpensesTable"), directorExpensesFull, 7);
   } catch (e) {
     toast(e.message);
   }
 }
 
 
-function openDirectorExpensesModal() {
-  document.getElementById("directorListModalTitle").textContent = `Toutes les notes de frais du personnel (${directorExpensesFull.length})`;
-  document.getElementById("directorListModalHead").innerHTML = `
-    <tr>
-      <th>Employé</th>
-      <th>Catégorie</th>
-      <th>Motif</th>
-      <th>Montant</th>
-      <th>Date</th>
-      <th>Remboursé</th>
-      <th>Actions</th>
-    </tr>
-  `;
-  renderExpenseRowsInto(document.getElementById("directorListModalBody"), directorExpensesFull, 7);
-  openModal("directorListModal");
-}
-
-
 /* Coche/décoche "Remboursé" sur une note de frais (Direction). Nécessite
-   que le back-end accepte PATCH /api/expenses/:id avec { refunded }. */
+   que le back-end accepte PATCH /api/expenses/:id avec { refunded } et
+   renvoie bien ce champ ensuite dans /api/expenses et /api/director/expenses. */
 async function toggleExpenseRefunded(id, refunded) {
   try {
     await api(`/api/expenses/${id}`, {
@@ -3457,9 +3397,6 @@ async function toggleExpenseRefunded(id, refunded) {
     });
     toast(refunded ? "Note de frais marquée comme remboursée." : "Note de frais marquée comme non remboursée.");
     await loadDirectorExpenses();
-    if (document.getElementById("directorListModal").classList.contains("open")) {
-      openDirectorExpensesModal();
-    }
   } catch (e) {
     toast(e.message);
   }
@@ -3478,9 +3415,6 @@ async function deleteDirectorExpense(id) {
     await api(`/api/expenses/${id}`, { method: "DELETE" });
     toast("Note de frais supprimée.");
     await loadDirectorExpenses();
-    if (document.getElementById("directorListModal").classList.contains("open")) {
-      openDirectorExpensesModal();
-    }
   } catch (e) {
     toast(e.message);
   }
@@ -3490,10 +3424,20 @@ async function deleteDirectorExpense(id) {
 /* ========================= DIRECTION ========================= */
 
 
+function switchDirectorTab(tab) {
+  document.querySelectorAll("#page-director .tab-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.directortab === tab);
+  });
+  document.querySelectorAll(".director-tab-panel").forEach(panel => {
+    panel.classList.toggle("hidden", panel.id !== `directorPanel-${tab}`);
+  });
+}
+
+
 function toggleStaffTableSize() {
   staffTableExpanded = !staffTableExpanded;
-  document.getElementById("staffTableBox").classList.toggle("compact-table-box", !staffTableExpanded);
-  document.getElementById("toggleStaffTableBtn").textContent = staffTableExpanded ? "🔽 Réduire le tableau" : "🔍 Agrandir le tableau";
+  document.getElementById("staffTableBox").classList.toggle("hidden", !staffTableExpanded);
+  document.getElementById("toggleStaffTableBtn").textContent = staffTableExpanded ? "🔽 Masquer le tableau" : "🔍 Afficher le tableau";
 }
 
 
@@ -3504,6 +3448,7 @@ async function loadDirector() {
   try {
     const data = await api("/api/director/users");
     emsMembersForAssign = asArray(data, "users");
+    document.getElementById("staffTableCount").textContent = `${emsMembersForAssign.length} membre(s)`;
     const tbody = document.getElementById("directorTable");
     tbody.innerHTML = "";
 
