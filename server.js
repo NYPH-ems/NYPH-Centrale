@@ -209,6 +209,18 @@ db.exec(`
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   );
+
+
+  CREATE TABLE IF NOT EXISTS document_templates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_by INTEGER,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT,
+    updated_by INTEGER,
+    FOREIGN KEY(created_by) REFERENCES users(id)
+  );
 `);
 
 
@@ -331,6 +343,386 @@ for (const service of oldServices) {
       );
     }
   }
+}
+
+
+/* =========================================================
+   MODÈLES DE DOCUMENTS PAR DÉFAUT
+
+
+   Insérés une seule fois, uniquement si la table est vide (pour ne
+   jamais écraser des modèles déjà créés/modifiés par la Direction).
+   Le Directeur peut ensuite les modifier ou les supprimer librement
+   depuis l'onglet Direction > Modèles.
+========================================================= */
+
+
+const DEFAULT_DOCUMENT_TEMPLATES = [
+  {
+    title: "Attestation médicale",
+    content: `ATTESTATION MÉDICALE
+
+Je soussigné(e), Dr. {{nom_medecin}}, certifie que :
+
+Nom et prénom : {{nom_patient}}
+Date de naissance : {{date_naissance}}
+
+a été examiné(e) le {{date_examen}}.
+
+Après examen, il est constaté que {{nom_patient}} présente un état de santé {{etat_sante}}.
+
+{{aptitude_ou_non}} à la pratique de {{activite}}.
+
+Commentaires : {{commentaires}}
+
+En foi de quoi, je délivre la présente attestation pour servir et valoir ce que de droit.
+
+Fait à New York, le {{date_delivrance}}
+Signature du médecin,`
+  },
+  {
+    title: "Certificat médical",
+    content: `CERTIFICAT MÉDICAL
+
+Je soussigné(e), Dr. {{nom_medecin}}, certifie que :
+
+Nom et prénom : {{nom_patient}}
+Date de naissance : {{date_naissance}}
+
+a été examiné(e) le {{date_examen}} et présente un état de santé nécessitant un {{type_arret}} pour une durée de {{duree}}.
+
+Diagnostic : {{diagnostic}}
+
+Restrictions éventuelles : {{restrictions}}
+
+Ce certificat est délivré à la demande du patient pour servir et valoir ce que de droit.
+
+Fait à New York, le {{date_delivrance}}
+Signature du médecin,`
+  },
+  {
+    title: "Acte de naissance",
+    content: `ACTE DE NAISSANCE
+
+En ma qualité de médecin, j'atteste Dr. {{nom_medecin}} que les informations suivantes concernant la naissance de l'enfant sont exactes et vérifiées. Ce document constitue un acte officiel consignant les éléments relatifs à cette naissance.
+
+INFORMATIONS SUR L'ENFANT
+Nom complet : {{nom_enfant}}
+Date de naissance : {{date_naissance_enfant}}
+Heure de naissance : {{heure_naissance}}
+Lieu de naissance : NEW YORK - PRESBYTERIAN HOSPITAL
+Sexe : {{sexe_enfant}}
+
+INFORMATIONS SUR LES PARENTS
+Nom complet du père : {{nom_pere}}
+Date de naissance du père : {{date_naissance_pere}}
+Lieu de naissance du père : {{lieu_naissance_pere}}
+Nom complet de la mère : {{nom_mere}}
+Date de naissance de la mère : {{date_naissance_mere}}
+Lieu de naissance de la mère : {{lieu_naissance_mere}}
+
+NATIONALITÉ(S)
+Enfant : Américaine
+Père : {{nationalite_pere}}
+Mère : {{nationalite_mere}}
+
+INFORMATIONS ADMINISTRATIVES
+Date de rédaction de l'acte : {{date_redaction}}
+
+Signature du médecin,`
+  },
+  {
+    title: "Acte de décès",
+    content: `ACTE DE DÉCÈS
+
+Je soussigné(e), Dr. {{nom_medecin}}, Médecin de NEW YORK - PRESBYTERIAN HOSPITAL,
+
+Certifie que :
+
+Nom et Prénom du défunt : {{nom_defunt}}
+Date de naissance : {{date_naissance}}
+Lieu de naissance : {{lieu_naissance}}
+Couleur de peau : {{couleur_peau}}
+Date et Heure du décès : {{date_heure_deces}}
+Lieu du décès : NEW YORK - PRESBYTERIAN HOSPITAL
+Cause du décès : {{cause_deces}}
+
+Fait à New York le, {{date_delivrance}}
+Signature du médecin,`
+  },
+  {
+    title: "Consultation gynécologique",
+    content: `CONSULTATION GYNÉCOLOGIQUE
+
+Nom et Prénom : {{nom_patiente}}
+Date de naissance : {{date_naissance}}
+
+MOTIF DE LA CONSULTATION
+(symptômes rapportés : nausées, douleurs, fatigue…)
+{{motif_consultation}}
+
+ANTÉCÉDENTS MÉDICAUX ET OBSTÉTRICAUX
+Grossesses précédentes : {{grossesses_precedentes}}
+Antécédents gynécologiques : {{antecedents_gyneco}}
+Antécédents familiaux : {{antecedents_familiaux}}
+
+EXAMEN CLINIQUE
+Tension artérielle : {{tension_arterielle}}
+Fréquence cardiaque : {{frequence_cardiaque}}
+Observations générales : {{observations_generales}}
+
+EXAMENS RÉALISÉS
+Echographie obstétricale : {{echographie}}
+Prise de sang : {{prise_de_sang}}
+Autres : {{autres_examens}}
+
+DIAGNOSTIC ET SUIVI
+Terme estimé : {{terme_estime}}
+État général de la grossesse : {{etat_grossesse}}
+Recommandations : {{recommandations}}
+
+SUIVI
+Prochain rendez-vous : {{prochain_rdv}}
+Conseils : {{conseils}}
+
+Signature du médecin,`
+  },
+  {
+    title: "Kinésithérapie",
+    content: `KINÉSITHÉRAPIE
+
+Praticien : Dr. {{nom_medecin}}
+
+INFORMATIONS GÉNÉRALES
+Nom : {{nom_patient}}
+Prénom : {{prenom_patient}}
+Date de naissance : {{date_naissance}}
+Date de la prise en charge : {{date_prise_en_charge}}
+
+MOTIF DE CONSULTATION
+{{motif_consultation}}
+
+ÉTAT INITIAL
+Douleur : {{douleur_initiale}}/10
+Mobilité : {{mobilite_initiale}}
+Observations : {{observations_initiales}}
+
+INTERVENTION RÉALISÉE
+{{intervention_realisee}}
+
+RÉSULTATS IMMÉDIATS
+Douleur après séance : {{douleur_finale}}/10
+Mobilité : {{mobilite_finale}}
+
+ORDONNANCE ET RECOMMANDATIONS
+Repos : {{repos}}
+Suivi : {{suivi}}
+Médication (si besoin) : {{medication}}
+
+Signature du médecin Kinésithérapie,`
+  },
+  {
+    title: "Rapport de consultation psychologique",
+    content: `RAPPORT DE CONSULTATION PSYCHOLOGIQUE
+
+Patient : {{nom_patient}}
+Date : {{date_consultation}}
+
+MOTIF DE LA CONSULTATION
+{{motif_consultation}}
+
+IDENTIFICATION
+Âge : {{age}}
+Situation familiale : {{situation_familiale}}
+Situation professionnelle : {{situation_professionnelle}}
+
+ANTÉCÉDENTS PSYCHOLOGIQUES ET PSYCHIATRIQUES
+{{antecedents_psy}}
+
+ANTÉCÉDENTS MÉDICAUX
+{{antecedents_medicaux}}
+
+HISTOIRE PERSONNELLE
+{{histoire_personnelle}}
+
+ÉVÉNEMENTS STRESSANTS RÉCENTS
+{{evenements_stressants}}
+
+OBSERVATIONS COMPORTEMENTALES
+Apparence générale : {{apparence}}
+Attitude : {{attitude}}
+Raisonnement : {{raisonnement}}
+Jugement : {{jugement}}
+Humeur : {{humeur}}
+
+CONCLUSIONS ET TRAITEMENTS RECOMMANDÉS
+{{conclusions}}
+
+Prochain rendez-vous : {{prochain_rdv}}
+
+Signature du médecin traitant,`
+  },
+  {
+    title: "Rendez-vous bilan",
+    content: `RENDEZ-VOUS BILAN
+
+Nom complet : {{nom_patient}}
+Date de naissance : {{date_naissance}}
+Date du bilan : {{date_bilan}}
+
+MOTIF DU RENDEZ-VOUS
+Motif principal : {{motif_principal}}
+Symptômes rapportés : {{symptomes}}
+
+EXAMEN CLINIQUE
+Tension artérielle : {{tension_arterielle}}
+Fréquence cardiaque : {{frequence_cardiaque}}
+Fréquence respiratoire : {{frequence_respiratoire}}
+Saturation en oxygène : {{saturation}}
+Observations générales : {{observations}}
+
+Prise de sang : {{prise_de_sang}}
+Analyse des urines : {{analyse_urines}}
+
+PLAN DE SUIVI
+Traitement proposé : {{traitement}}
+Recommandations : {{recommandations}}
+Prochain rendez-vous : {{prochain_rdv}}
+
+Fait le {{date_bilan}} par le Dr. {{nom_medecin}}
+Signature du médecin,`
+  },
+  {
+    title: "Visite médicale",
+    content: `VISITE MÉDICALE
+
+INFORMATIONS DU PATIENT
+Patient : {{nom_patient}}
+Date : {{date_visite}}
+Date de naissance : {{date_naissance}}
+Alcool : {{alcool}}
+Tabac : {{tabac}}
+Stupéfiants : {{stupefiants}}
+Allergie : {{allergie}}
+Diabète : {{diabete}}
+Asthme : {{asthme}}
+Pathologie cardiaque : {{pathologie_cardiaque}}
+Épilepsie : {{epilepsie}}
+Traitement en cours : {{traitement_en_cours}}
+
+ANTÉCÉDENTS MÉDICAUX
+{{antecedents_medicaux}}
+
+SUIVI PSYCHOLOGIQUE/PSYCHIATRIQUE
+{{suivi_psy}}
+
+EXAMEN CLINIQUE
+Tension artérielle : {{tension_arterielle}}
+Fréquence cardiaque : {{frequence_cardiaque}}
+Fréquence respiratoire : {{frequence_respiratoire}}
+Saturation en oxygène : {{saturation}}
+Température corporelle : {{temperature}}
+Observations générales : {{observations}}
+
+EXAMEN PHYSIQUE (IMC)
+Poids : {{poids}}
+Taille : {{taille}}
+IMC : {{imc}}
+
+CONCLUSION MÉDICALE
+État général : {{etat_general}}
+Recommandations spécifiques : {{recommandations}}
+
+CERTIFICAT D'APTITUDE
+Je soussigné, Dr. {{nom_medecin}}, certifie que le patient a passé avec succès sa visite médicale.
+
+Fait le {{date_visite}}
+Signature du médecin,`
+  },
+  {
+    title: "Certificat d'aptitude médicale",
+    content: `CERTIFICAT D'APTITUDE MÉDICALE
+
+Je soussigné Dr. {{nom_medecin}},
+
+Confirme avoir examiné {{nom_patient}} né(e) le {{date_naissance}} à {{lieu_naissance}}.
+
+Atteste qu'il n'y a pas de contre-indication psychique et physique pour exercer quelconque discipline et/ou métier.
+
+Pour faire valoir ce que de droit.
+
+Fait à New York, le {{date_delivrance}}
+Signature du médecin,
+
+Ce document, une fois signé, devient un document officiel. En signant ce document, vous êtes légalement responsable de son contexte et acceptez toutes les conséquences juridiques qu'il peut engendrer. Chaque copie de ce document a une valeur égale à son original.`
+  },
+  {
+    title: "Compte-rendu d'analyses de sang",
+    content: `COMPTE-RENDU D'ANALYSES DE SANG
+
+Patient : {{nom_patient}}
+Date : {{date_analyse}}
+Médecin : Dr. {{nom_medecin}}
+
+Laboratoire de New York - Presbyterian Hospital
+
+RÉSULTATS
+{{resultats_analyses}}
+
+CONCLUSION
+{{conclusion}}
+
+CONSEILS PRATIQUES
+{{conseils}}
+
+Certifié par le laboratoire de New York - Presbyterian Hospital
+Fait à New York le, {{date_analyse}}
+Signature du médecin,`
+  },
+  {
+    title: "Compte-rendu d'analyses urinaires",
+    content: `COMPTE-RENDU D'ANALYSES URINAIRES
+
+Patient : {{nom_patient}}
+Date : {{date_analyse}}
+Médecin : Dr. {{nom_medecin}}
+
+Laboratoire de New York - Presbyterian Hospital
+
+RÉSULTATS
+{{resultats_analyses}}
+
+CONCLUSION
+{{conclusion}}
+
+CONSEILS PRATIQUES
+{{conseils}}
+
+Certifié par le laboratoire de New York - Presbyterian Hospital
+Fait à New York le, {{date_analyse}}
+Signature du médecin,`
+  }
+];
+
+
+const existingTemplateCount = db.prepare(`
+  SELECT COUNT(*) AS count FROM document_templates
+`).get().count;
+
+
+if (existingTemplateCount === 0) {
+  const insertTemplate = db.prepare(`
+    INSERT INTO document_templates (title, content)
+    VALUES (?, ?)
+  `);
+
+  const insertAllTemplates = db.transaction(templates => {
+    for (const t of templates) {
+      insertTemplate.run(t.title, t.content);
+    }
+  });
+
+  insertAllTemplates(DEFAULT_DOCUMENT_TEMPLATES);
 }
 
 
@@ -3432,6 +3824,159 @@ app.get(
 
 
     res.json({ invoices });
+  }
+);
+
+
+/* =========================================================
+   MODÈLES DE DOCUMENTS (attestations, certificats médicaux...)
+
+
+   Le contenu d'un modèle peut contenir des paramètres au format
+   {{nom_du_parametre}}, détectés et remplacés côté front au moment
+   de générer le document. Seul le Directeur peut créer/modifier/
+   supprimer un modèle ; tout le personnel LSMC peut les utiliser.
+========================================================= */
+
+
+app.get(
+  "/api/document-templates",
+  requireEMS,
+  (req, res) => {
+    const templates =
+      db.prepare(`
+        SELECT
+          t.*,
+          COALESCE(u.nickname, u.username) AS creator
+        FROM document_templates t
+        LEFT JOIN users u
+          ON u.id = t.created_by
+        ORDER BY t.title ASC
+      `).all();
+
+
+    res.json({ templates });
+  }
+);
+
+
+app.post(
+  "/api/document-templates",
+  requireDirector,
+  (req, res) => {
+    const { title, content } = req.body;
+
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({
+        error: "Titre obligatoire."
+      });
+    }
+
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({
+        error: "Contenu obligatoire."
+      });
+    }
+
+
+    const result =
+      db.prepare(`
+        INSERT INTO document_templates (title, content, created_by)
+        VALUES (?, ?, ?)
+      `).run(
+        title.trim(),
+        content,
+        req.session.user.id
+      );
+
+
+    const template =
+      db.prepare(`SELECT * FROM document_templates WHERE id = ?`).get(result.lastInsertRowid);
+
+
+    res.json({ success: true, template });
+  }
+);
+
+
+app.put(
+  "/api/document-templates/:id",
+  requireDirector,
+  (req, res) => {
+    const existing =
+      db.prepare(`SELECT * FROM document_templates WHERE id = ?`).get(req.params.id);
+
+
+    if (!existing) {
+      return res.status(404).json({
+        error: "Modèle introuvable."
+      });
+    }
+
+
+    const { title, content } = req.body;
+
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({
+        error: "Titre obligatoire."
+      });
+    }
+
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({
+        error: "Contenu obligatoire."
+      });
+    }
+
+
+    db.prepare(`
+      UPDATE document_templates
+      SET title = ?, content = ?, updated_at = ?, updated_by = ?
+      WHERE id = ?
+    `).run(
+      title.trim(),
+      content,
+      isoNow(),
+      req.session.user.id,
+      req.params.id
+    );
+
+
+    const updated =
+      db.prepare(`SELECT * FROM document_templates WHERE id = ?`).get(req.params.id);
+
+
+    res.json({ success: true, template: updated });
+  }
+);
+
+
+app.delete(
+  "/api/document-templates/:id",
+  requireDirector,
+  (req, res) => {
+    const existing =
+      db.prepare(`SELECT * FROM document_templates WHERE id = ?`).get(req.params.id);
+
+
+    if (!existing) {
+      return res.status(404).json({
+        error: "Modèle introuvable."
+      });
+    }
+
+
+    db.prepare(`DELETE FROM document_templates WHERE id = ?`).run(req.params.id);
+
+
+    res.json({
+      success: true,
+      deletedTemplate: existing.id
+    });
   }
 );
 
