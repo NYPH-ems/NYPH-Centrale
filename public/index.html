@@ -327,43 +327,17 @@
   .doc-sheet {
     background: #fff;
     color: #111;
-    width: 794px;
-    min-height: 1123px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 800px;
     margin: 0 auto 24px;
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0,0,0,.35);
     font-family: 'Poppins', Arial, Helvetica, sans-serif;
-    display: flex; flex-direction: column;
-    position: relative;
-  }
-  .doc-template-image { position: absolute; pointer-events: none; z-index: 5; }
-
-
-  /* Mini-page A4 dans l'éditeur de modèle (Direction), pour positionner des images */
-  .doc-editor-canvas {
-    position: relative; width: 260px; height: 368px; background: #fff;
-    border: 1px solid var(--border); border-radius: 6px; margin: 10px 0; overflow: hidden;
-  }
-  .doc-editor-canvas-hint {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    color: #ccc; font-size: 11px; text-align: center; padding: 10px; pointer-events: none;
-  }
-  .doc-editor-image {
-    position: absolute; cursor: grab; border: 1px dashed transparent;
-  }
-  .doc-editor-image:hover { border-color: var(--red); }
-  .doc-editor-image.dragging { cursor: grabbing; opacity: .8; }
-  .doc-editor-image img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
-  .doc-editor-image-remove {
-    position: absolute; top: -8px; right: -8px; width: 18px; height: 18px; border-radius: 50%;
-    background: var(--red); color: white; font-size: 11px; line-height: 18px; text-align: center;
-    cursor: pointer; font-weight: 900;
   }
   .doc-sheet.hidden { display: none !important; }
-  .doc-sheet-bar { height: 6px; flex-shrink: 0; }
-  .doc-sheet-header { padding: 26px 40px 6px; text-align: center; flex-shrink: 0; }
+  .doc-sheet-bar { height: 6px; }
+  .doc-sheet-header { padding: 26px 40px 6px; text-align: center; }
   .doc-sheet-logo-fallback {
     font-weight: 900; font-size: 26px; line-height: 1.15; display: inline-block; text-align: left;
   }
@@ -371,14 +345,11 @@
   .doc-sheet-logo-img { max-height: 90px; max-width: 320px; object-fit: contain; }
   .doc-sheet-title {
     text-align: center; font-weight: 900; font-size: 22px; letter-spacing: .02em;
-    text-transform: uppercase; margin: 14px 0 18px; flex-shrink: 0;
+    text-transform: uppercase; margin: 14px 0 18px;
   }
   .doc-sheet-body {
-    padding: 0 40px 20px; font-size: 14px; line-height: 1.7;
-    flex: 1;
-  }
-  .doc-sheet-date-footer {
-    text-align: right; padding: 0 40px 16px; font-size: 10px; color: #999; flex-shrink: 0;
+    padding: 0 40px 30px; font-size: 14px; line-height: 1.7;
+    min-height: 160px;
   }
   .doc-section-header {
     text-align: center; font-weight: 800; text-decoration: underline;
@@ -401,10 +372,6 @@
   }
   .doc-field:focus { outline: none; border-bottom-color: var(--red); }
   select.doc-field { border: 1px solid #ddd; border-radius: 5px; background: #fafafa; padding: 4px 8px; }
-  textarea.doc-field-textarea {
-    display: block; width: 100%; resize: none; overflow: hidden; border: 1px solid #ddd;
-    border-radius: 5px; background: #fafafa; padding: 6px 8px; margin-top: 4px; min-width: 0;
-  }
   .doc-field-readonly {
     display: inline-block; padding: 3px 4px; border-bottom: 1px solid transparent; font-size: 13px; color: #111;
   }
@@ -414,24 +381,7 @@
     display: inline-block; border: 1px dashed #ccc; color: #aaa; font-size: 11px;
     padding: 22px 34px; border-radius: 6px;
   }
-  .doc-page-number { text-align: center; font-size: 11px; color: #999; padding-bottom: 14px; flex-shrink: 0; }
-
-
-  /* ÉDITEUR RICHE (Direction > Modèles) */
-  .doc-editor-toolbar {
-    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; align-items: center;
-  }
-  .doc-editor-toolbar select {
-    width: auto; padding: 6px 8px; font-size: 12px;
-  }
-  .doc-editor-area {
-    background: #fff; color: #111; border: 1px solid #303030; border-radius: 8px;
-    padding: 18px; min-height: 280px; max-height: 460px; overflow-y: auto;
-    font-family: 'Poppins', Arial, sans-serif; font-size: 14px; line-height: 1.7;
-  }
-  .doc-editor-area:focus { outline: none; border-color: var(--red); }
-  .tpl-img-wrap { cursor: move; }
-  .tpl-pagebreak { user-select: none; }
+  .doc-page-number { text-align: center; font-size: 11px; color: #999; padding-bottom: 14px; }
 
 
   /* Recherche patient intégrée dans un document */
@@ -1222,11 +1172,7 @@
       <div id="documentGeneratorBox" class="hidden">
         <div class="tabs hidden" id="documentPageTabs"></div>
         <div id="documentPreviewPages"></div>
-        <div id="documentDownloadOptions" class="hidden" style="margin:12px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-          <span style="color:var(--gray);font-size:12px;">Pages à télécharger :</span>
-          <div id="documentPageCheckboxes" style="display:flex;gap:12px;flex-wrap:wrap;"></div>
-        </div>
-        <button class="btn btn-red" style="margin-top:6px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
+        <button class="btn btn-red" style="margin-top:14px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
       </div>
 
       <div id="documentsEmptyState" class="empty hidden">Aucun modèle de document n'a encore été créé. Le Directeur peut en ajouter depuis l'onglet Direction.</div>
@@ -1782,43 +1728,14 @@
           <label>Couleur d'accent (bandeaux, titre)</label>
           <input type="color" id="templateColorInput" value="#e5352b" style="height:44px;padding:4px;">
         </div>
-        <div class="field">
-          <label>Police du document</label>
-          <select id="templateFontSelect">
-            <option value="Poppins">Poppins</option>
-            <option value="Calibri">Calibri</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Arial">Arial</option>
-            <option value="'Times New Roman'">Times New Roman</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Taille du texte (px)</label>
-          <input type="number" id="templateSizeInput" min="9" max="24" value="13">
-        </div>
         <div class="field full">
           <label>Contenu</label>
-          <div class="doc-editor-toolbar">
-            <button type="button" class="btn btn-dark btn-sm" onclick="wrapTemplateSelection('**')" title="Gras : sélectionne du texte puis clique"><b>G</b></button>
-            <button type="button" class="btn btn-dark btn-sm" onclick="wrapTemplateSelection('*')" title="Italique"><i>I</i></button>
-            <button type="button" class="btn btn-dark btn-sm" onclick="wrapTemplateSelection('__')" title="Souligné"><u>S</u></button>
-            <button type="button" class="btn btn-dark btn-sm" onclick="insertAtTemplateCursor('\n---PAGE---\n')">📄 Nouvelle page</button>
-          </div>
           <textarea id="templateContentInput" required style="min-height:280px;font-family:Georgia,'Times New Roman',serif;" placeholder="Je soussigné(e) {{nom_medecin}}, certifie avoir examiné {{nom_patient}} le {{date}}..."></textarea>
           <div style="color:var(--gray);font-size:12px;margin-top:8px;line-height:1.6;">
-            <code>{{nom_parametre}}</code> → champ texte libre (une ligne)<br>
-            <code>{{nom_parametre|textarea}}</code> ou <code>{{nom_parametre|textarea:6}}</code> → champ texte libre multi-lignes, retour à la ligne avec Entrée (6 = nombre de lignes visibles)<br>
+            <code>{{nom_parametre}}</code> → champ texte libre<br>
             <code>{{nom_parametre|Option A;Option B}}</code> → menu déroulant<br>
-            <code>{{signature}}</code> → signature · <code>{{nom_patient}}</code> → recherche patient · <code>{{nom_medecin}}</code> → rempli automatiquement · tout champ contenant "date" → format jj/mm/aaaa<br>
-            Pour mettre du texte en <b>gras</b>, <i>italique</i> ou <u>souligné</u> : sélectionne-le dans le champ ci-dessus puis clique sur G / I / S.<br>
-            Une ligne contenant uniquement <code>---PAGE---</code> démarre une nouvelle page A4.
-          </div>
-        </div>
-        <div class="field full">
-          <label>Images du document (upload puis glisse pour repositionner)</label>
-          <input type="file" id="templateImageFileInput" accept="image/*" onchange="onTemplateImageSelected(event)">
-          <div class="doc-editor-canvas" id="templateImageCanvas">
-            <div class="doc-editor-canvas-hint" id="templateImageCanvasHint">Aperçu format A4 — les images ajoutées apparaissent ici, glisse-les pour les positionner</div>
+            <code>{{signature}}</code> → emplacement réservé à l'image de signature<br>
+            Une ligne contenant uniquement <code>---PAGE---</code> démarre une nouvelle page
           </div>
         </div>
       </div>
@@ -4507,21 +4424,6 @@ function formatDocDate(isoDate) {
 /* ---- Rendu du contenu (texte + champs intégrés) ---- */
 
 
-/*
-  Formatage simple à la volée dans le texte d'un modèle :
-    **gras**, __souligné__, *italique*
-  Appliqué uniquement au texte statique (jamais à l'intérieur des
-  valeurs saisies dans les champs).
-*/
-function parseInlineFormatting(text) {
-  let out = text;
-  out = out.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-  out = out.replace(/__(.+?)__/g, "<u>$1</u>");
-  out = out.replace(/\*(.+?)\*/g, "<em>$1</em>");
-  return out;
-}
-
-
 function renderInlineContent(text) {
   const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
   let html = "";
@@ -4530,7 +4432,7 @@ function renderInlineContent(text) {
 
 
   while ((m = regex.exec(text)) !== null) {
-    html += parseInlineFormatting(escapeHtml(text.slice(lastIndex, m.index)));
+    html += escapeHtml(text.slice(lastIndex, m.index));
     const key = m[1];
     const optionsRaw = m[2] ? m[2].slice(1) : null;
 
@@ -4541,10 +4443,6 @@ function renderInlineContent(text) {
       html += renderDoctorField();
     } else if (key === "nom_patient" || key === "nom_patiente") {
       html += renderPatientSearchField(key);
-    } else if (optionsRaw && /^textarea(:\d+)?$/i.test(optionsRaw.trim())) {
-      const rowsMatch = /:(\d+)/.exec(optionsRaw);
-      const rows = rowsMatch ? Math.max(2, Math.min(20, Number(rowsMatch[1]))) : 4;
-      html += `<textarea class="doc-field doc-field-textarea" data-doc-param="${escapeHtml(key)}" rows="${rows}"></textarea>`;
     } else if (optionsRaw) {
       const options = optionsRaw.split(";").map(o => o.trim()).filter(Boolean);
       const optHtml = options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
@@ -4560,7 +4458,7 @@ function renderInlineContent(text) {
   }
 
 
-  html += parseInlineFormatting(escapeHtml(text.slice(lastIndex)));
+  html += escapeHtml(text.slice(lastIndex));
   return html;
 }
 
@@ -4582,7 +4480,7 @@ function renderPageBodyHtml(pageText) {
 
     const hasLower = /[a-zà-ÿ]/.test(trimmed);
     if (!hasLower && /[A-ZÀ-Ý]/.test(trimmed) && trimmed.length > 2 && !trimmed.includes("{{")) {
-      html += `<div class="doc-section-header">${parseInlineFormatting(escapeHtml(trimmed))}</div>`;
+      html += `<div class="doc-section-header">${escapeHtml(trimmed)}</div>`;
       return;
     }
 
@@ -4594,7 +4492,7 @@ function renderPageBodyHtml(pageText) {
       if (label.length <= 70 && !label.includes("{{")) {
         html += `
           <div class="doc-row">
-            <div class="doc-row-label">${parseInlineFormatting(escapeHtml(label))}</div>
+            <div class="doc-row-label">${escapeHtml(label)}</div>
             <div class="doc-row-divider"></div>
             <div class="doc-row-value">${renderInlineContent(rest)}</div>
           </div>
@@ -4625,29 +4523,11 @@ function renderDocumentLogoHtml() {
 }
 
 
-function currentDocDateLabel() {
-  return new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
-}
-
-
-function renderTemplateImagesHtml(images) {
-  if (!Array.isArray(images) || !images.length) return "";
-  return images.map(img => `
-    <div class="doc-template-image" style="top:${img.top}%;left:${img.left}%;width:${img.width}%;">
-      <img src="${img.src}" style="width:100%;display:block;" alt="">
-    </div>
-  `).join("");
-}
-
-
 function renderDocumentPreview() {
   if (!currentDocumentTemplate) return;
 
 
   const accent = currentDocumentTemplate.accent_color || "#e5352b";
-  const fontFamily = currentDocumentTemplate.font_family || "Poppins";
-  const fontSize = currentDocumentTemplate.font_size || "13";
-  const templateImages = parseJsonSafe(currentDocumentTemplate.images, []);
   const wrap = document.getElementById("documentPreviewPages");
   const tabsBox = document.getElementById("documentPageTabs");
   wrap.innerHTML = "";
@@ -4673,7 +4553,6 @@ function renderDocumentPreview() {
     const sheet = document.createElement("div");
     sheet.className = "doc-sheet";
     sheet.id = `documentPage-${index}`;
-    sheet.style.fontFamily = `'${fontFamily}', Arial, Helvetica, sans-serif`;
     if (index !== 0 && documentPages.length > 1) sheet.classList.add("hidden");
 
 
@@ -4685,10 +4564,8 @@ function renderDocumentPreview() {
       <div class="doc-sheet-header">${renderDocumentLogoHtml()}</div>
       <div class="doc-sheet-bar" style="background:${accent};"></div>
       ${index === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(currentDocumentTemplate.title)}</div>` : `<div style="height:14px;"></div>`}
-      <div class="doc-sheet-body" style="font-size:${fontSize}px;">${bodyHtml}</div>
-      <div class="doc-sheet-date-footer" data-doc-date-footer="1">Document généré le ${currentDocDateLabel()}</div>
+      <div class="doc-sheet-body">${bodyHtml}</div>
       ${documentPages.length > 1 ? `<div class="doc-page-number">Page ${index + 1} / ${documentPages.length}</div>` : ""}
-      ${renderTemplateImagesHtml(templateImages)}
     `;
 
 
@@ -4697,34 +4574,6 @@ function renderDocumentPreview() {
 
 
   wrap.querySelectorAll(".doc-row-divider").forEach(d => { d.style.background = accent; });
-  renderDocumentPageSelector();
-  startDocumentDateWatcher();
-}
-
-
-/*
-  Rafraîchit automatiquement le pied de page "Document généré le ..."
-  à chaque changement de date (minuit), tant que la page Documents
-  est ouverte.
-*/
-let documentDateWatcherInterval = null;
-let documentDateWatcherLastLabel = null;
-
-
-function startDocumentDateWatcher() {
-  documentDateWatcherLastLabel = currentDocDateLabel();
-  if (documentDateWatcherInterval) return;
-
-
-  documentDateWatcherInterval = setInterval(() => {
-    const label = currentDocDateLabel();
-    if (label !== documentDateWatcherLastLabel) {
-      documentDateWatcherLastLabel = label;
-      document.querySelectorAll('[data-doc-date-footer]').forEach(el => {
-        el.textContent = `Document généré le ${label}`;
-      });
-    }
-  }, 30000);
 }
 
 
@@ -4735,56 +4584,6 @@ function switchDocumentPage(index) {
   document.querySelectorAll("#documentPageTabs .tab-btn").forEach((btn, i) => {
     btn.classList.toggle("active", i === index);
   });
-}
-
-
-function renderDocumentPageSelector() {
-  const box = document.getElementById("documentPageCheckboxes");
-  const wrapper = document.getElementById("documentDownloadOptions");
-  box.innerHTML = "";
-
-
-  if (documentPages.length <= 1) {
-    wrapper.classList.add("hidden");
-    return;
-  }
-
-
-  wrapper.classList.remove("hidden");
-
-
-  const allLabel = document.createElement("label");
-  allLabel.style.cssText = "display:flex;align-items:center;gap:5px;font-size:12px;color:#ddd;";
-  allLabel.innerHTML = `<input type="checkbox" id="documentPageCheckAll" checked onchange="toggleAllDocumentPages(this.checked)"> Toutes`;
-  box.appendChild(allLabel);
-
-
-  documentPages.forEach((_, i) => {
-    const label = document.createElement("label");
-    label.style.cssText = "display:flex;align-items:center;gap:5px;font-size:12px;color:#ddd;";
-    label.innerHTML = `<input type="checkbox" class="doc-page-checkbox" value="${i}" checked onchange="onDocumentPageCheckChange()"> Page ${i + 1}`;
-    box.appendChild(label);
-  });
-}
-
-
-function toggleAllDocumentPages(checked) {
-  document.querySelectorAll(".doc-page-checkbox").forEach(cb => { cb.checked = checked; });
-}
-
-
-function onDocumentPageCheckChange() {
-  const boxes = Array.from(document.querySelectorAll(".doc-page-checkbox"));
-  const allChecked = boxes.every(cb => cb.checked);
-  const allCheckbox = document.getElementById("documentPageCheckAll");
-  if (allCheckbox) allCheckbox.checked = allChecked;
-}
-
-
-function getSelectedDocumentPageIndexes() {
-  const boxes = Array.from(document.querySelectorAll(".doc-page-checkbox"));
-  if (!boxes.length) return documentPages.map((_, i) => i);
-  return boxes.filter(cb => cb.checked).map(cb => Number(cb.value));
 }
 
 
@@ -4805,9 +4604,7 @@ function swapFieldsForExport(container) {
       text = field.value || "……………………..";
     }
     span.textContent = text;
-    span.style.borderBottom = field.tagName === "TEXTAREA" ? "none" : "1px solid #999";
-    span.style.whiteSpace = "pre-wrap";
-    span.style.display = field.tagName === "TEXTAREA" ? "block" : "inline";
+    span.style.borderBottom = "1px solid #999";
     span.style.padding = "3px 4px";
     span.style.fontFamily = "inherit";
     span.style.fontSize = "13px";
@@ -4838,26 +4635,18 @@ function downloadDocumentAsPng() {
     .replace(/(^-|-$)/g, "") || "document";
 
 
-  const selectedIndexes = getSelectedDocumentPageIndexes();
-  if (!selectedIndexes.length) { toast("Sélectionne au moins une page."); return; }
-
-
   const pages = documentPages.map((_, i) => document.getElementById(`documentPage-${i}`)).filter(Boolean);
   const previouslyHidden = pages.map(p => p.classList.contains("hidden"));
 
 
-  const exportPage = (i) => {
-    if (i >= selectedIndexes.length) {
-      pages.forEach((p, idx) => p.classList.toggle("hidden", previouslyHidden[idx]));
+  const exportPage = (index) => {
+    if (index >= pages.length) {
+      pages.forEach((p, i) => p.classList.toggle("hidden", previouslyHidden[i]));
       return;
     }
 
 
-    const index = selectedIndexes[i];
     const page = pages[index];
-    if (!page) { exportPage(i + 1); return; }
-
-
     page.classList.remove("hidden");
     const restoreFields = swapFieldsForExport(page);
 
@@ -4873,7 +4662,7 @@ function downloadDocumentAsPng() {
       link.click();
 
 
-      setTimeout(() => exportPage(i + 1), 350);
+      setTimeout(() => exportPage(index + 1), 350);
     }).catch(e => {
       restoreFields();
       page.classList.toggle("hidden", previouslyHidden[index]);
@@ -4989,153 +4778,12 @@ function renderDirectorTemplates() {
 }
 
 
-let editingTemplateImages = [];
-
-
-function wrapTemplateSelection(marker) {
-  const textarea = document.getElementById("templateContentInput");
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const value = textarea.value;
-  const selected = value.slice(start, end) || "texte";
-
-
-  textarea.value = value.slice(0, start) + marker + selected + marker + value.slice(end);
-  textarea.focus();
-  textarea.selectionStart = start + marker.length;
-  textarea.selectionEnd = start + marker.length + selected.length;
-}
-
-
-function insertAtTemplateCursor(text) {
-  const textarea = document.getElementById("templateContentInput");
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const value = textarea.value;
-
-
-  textarea.value = value.slice(0, start) + text + value.slice(end);
-  textarea.focus();
-  const pos = start + text.length;
-  textarea.selectionStart = textarea.selectionEnd = pos;
-}
-
-
-/* ---- Images du modèle (upload + glisser-déposer sur mini-page A4) ---- */
-
-
-function onTemplateImageSelected(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-
-  if (file.size > 2 * 1024 * 1024) {
-    toast("Image trop lourde (2 Mo max).");
-    event.target.value = "";
-    return;
-  }
-
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    editingTemplateImages.push({ src: reader.result, top: 10, left: 10, width: 25 });
-    renderTemplateImageCanvas();
-  };
-  reader.readAsDataURL(file);
-  event.target.value = "";
-}
-
-
-function renderTemplateImageCanvas() {
-  const canvas = document.getElementById("templateImageCanvas");
-  canvas.innerHTML = "";
-
-
-  if (!editingTemplateImages.length) {
-    canvas.innerHTML = `<div class="doc-editor-canvas-hint" id="templateImageCanvasHint">Aperçu format A4 — les images ajoutées apparaissent ici, glisse-les pour les positionner</div>`;
-    return;
-  }
-
-
-  editingTemplateImages.forEach((img, index) => {
-    const wrap = document.createElement("div");
-    wrap.className = "doc-editor-image";
-    wrap.style.top = `${img.top}%`;
-    wrap.style.left = `${img.left}%`;
-    wrap.style.width = `${img.width}%`;
-    wrap.dataset.imgIndex = index;
-    wrap.innerHTML = `<img src="${img.src}" alt=""><span class="doc-editor-image-remove" onclick="removeTemplateImage(${index}, event)">✕</span>`;
-    wrap.addEventListener("mousedown", onTemplateImageDragStart);
-    canvas.appendChild(wrap);
-  });
-}
-
-
-function removeTemplateImage(index, event) {
-  event.stopPropagation();
-  editingTemplateImages.splice(index, 1);
-  renderTemplateImageCanvas();
-}
-
-
-let templateImageDrag = null;
-
-
-function onTemplateImageDragStart(e) {
-  if (e.target.classList.contains("doc-editor-image-remove")) return;
-  const wrap = e.currentTarget;
-  const canvas = document.getElementById("templateImageCanvas");
-  const canvasRect = canvas.getBoundingClientRect();
-
-
-  templateImageDrag = {
-    wrap,
-    index: Number(wrap.dataset.imgIndex),
-    canvasRect,
-    offsetX: e.clientX - wrap.getBoundingClientRect().left,
-    offsetY: e.clientY - wrap.getBoundingClientRect().top
-  };
-  wrap.classList.add("dragging");
-  e.preventDefault();
-}
-
-
-document.addEventListener("mousemove", e => {
-  if (!templateImageDrag) return;
-  const { wrap, canvasRect, offsetX, offsetY } = templateImageDrag;
-
-
-  let left = ((e.clientX - canvasRect.left - offsetX) / canvasRect.width) * 100;
-  let top = ((e.clientY - canvasRect.top - offsetY) / canvasRect.height) * 100;
-  left = Math.max(0, Math.min(90, left));
-  top = Math.max(0, Math.min(90, top));
-
-
-  wrap.style.left = `${left}%`;
-  wrap.style.top = `${top}%`;
-});
-
-
-document.addEventListener("mouseup", () => {
-  if (!templateImageDrag) return;
-  const { wrap, index } = templateImageDrag;
-  wrap.classList.remove("dragging");
-  editingTemplateImages[index].left = parseFloat(wrap.style.left);
-  editingTemplateImages[index].top = parseFloat(wrap.style.top);
-  templateImageDrag = null;
-});
-
-
 function openNewTemplateModal() {
   editingTemplateId = null;
-  editingTemplateImages = [];
   document.getElementById("templateModalTitle").textContent = "Nouveau modèle";
   document.getElementById("templateTitleInput").value = "";
   document.getElementById("templateContentInput").value = "";
   document.getElementById("templateColorInput").value = "#e5352b";
-  document.getElementById("templateFontSelect").value = "Poppins";
-  document.getElementById("templateSizeInput").value = "13";
-  renderTemplateImageCanvas();
   openModal("templateModal");
 }
 
@@ -5146,14 +4794,10 @@ function openEditTemplateModal(id) {
 
 
   editingTemplateId = id;
-  editingTemplateImages = parseJsonSafe(template.images, []);
   document.getElementById("templateModalTitle").textContent = "Modifier le modèle";
   document.getElementById("templateTitleInput").value = template.title;
   document.getElementById("templateContentInput").value = template.content;
   document.getElementById("templateColorInput").value = template.accent_color || "#e5352b";
-  document.getElementById("templateFontSelect").value = template.font_family || "Poppins";
-  document.getElementById("templateSizeInput").value = template.font_size || "13";
-  renderTemplateImageCanvas();
   openModal("templateModal");
 }
 
@@ -5165,10 +4809,7 @@ async function submitTemplateForm(event) {
   const payload = {
     title: document.getElementById("templateTitleInput").value,
     content: document.getElementById("templateContentInput").value,
-    accent_color: document.getElementById("templateColorInput").value,
-    font_family: document.getElementById("templateFontSelect").value,
-    font_size: document.getElementById("templateSizeInput").value,
-    images: JSON.stringify(editingTemplateImages)
+    accent_color: document.getElementById("templateColorInput").value
   };
 
 
