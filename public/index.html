@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Los Santos Medical Services — LSMC Administration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Carlito:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -324,19 +327,29 @@
   /* DOCUMENTS (feuille façon vrai document, avec bandeau) */
 
 
+  /* Format A4 (210mm x 297mm) pour toutes les feuilles de document */
+  :root {
+    --a4-width: 210mm;
+    --a4-height: 297mm;
+  }
+
   .doc-sheet {
     background: #fff;
     color: #111;
-    width: 100%;
-    max-width: 800px;
+    width: var(--a4-width);
+    min-height: var(--a4-height);
+    max-width: 100%;
     margin: 0 auto 24px;
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0,0,0,.35);
     font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
   }
+  .doc-sheet-scroll { overflow-x: auto; }
   .doc-sheet.hidden { display: none !important; }
-  .doc-sheet-bar { height: 6px; }
+  .doc-sheet-bar { height: 6px; flex-shrink: 0; }
   .doc-sheet-header { padding: 26px 40px 6px; text-align: center; }
   .doc-sheet-logo-fallback {
     font-weight: 900; font-size: 26px; line-height: 1.15; display: inline-block; text-align: left;
@@ -349,7 +362,7 @@
   }
   .doc-sheet-body {
     padding: 0 40px 30px; font-size: 14px; line-height: 1.7;
-    min-height: 160px;
+    flex: 1;
   }
   .doc-section-header {
     text-align: center; font-weight: 800; text-decoration: underline;
@@ -369,9 +382,14 @@
   .doc-field {
     font-family: inherit; font-size: 13px; border: none; border-bottom: 1px solid #ccc;
     background: transparent; padding: 3px 4px; min-width: 130px; color: #111;
+    vertical-align: middle;
   }
   .doc-field:focus { outline: none; border-bottom-color: var(--red); }
   select.doc-field { border: 1px solid #ddd; border-radius: 5px; background: #fafafa; padding: 4px 8px; }
+  textarea.doc-field {
+    display: inline-block; resize: vertical; border: 1px solid #ddd; border-radius: 5px;
+    background: #fafafa; padding: 6px 8px; line-height: 1.5; vertical-align: top;
+  }
   .doc-field-readonly {
     display: inline-block; padding: 3px 4px; border-bottom: 1px solid transparent; font-size: 13px; color: #111;
   }
@@ -381,7 +399,65 @@
     display: inline-block; border: 1px dashed #ccc; color: #aaa; font-size: 11px;
     padding: 22px 34px; border-radius: 6px;
   }
-  .doc-page-number { text-align: center; font-size: 11px; color: #999; padding-bottom: 14px; }
+  .doc-page-number { text-align: center; font-size: 11px; color: #999; padding-bottom: 6px; }
+  .doc-date-footer { text-align: right; font-size: 11px; color: #999; padding: 0 40px 16px; }
+
+  /* Images insérées dans un document (support déplacement directionnel) */
+  .doc-img-wrap { display: inline-block; position: relative; max-width: 100%; }
+  .doc-img-wrap img { display: block; max-width: 260px; max-height: 260px; object-fit: contain; }
+
+  @media print {
+    .doc-sheet { box-shadow: none; margin: 0 auto; }
+  }
+  @media (max-width: 900px) {
+    .doc-sheet { transform-origin: top center; }
+  }
+
+  /* ÉDITEUR DE MODÈLE (Direction) */
+
+  .tpl-toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    background: var(--black-3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px; margin-bottom: 10px;
+  }
+  .tpl-toolbar select, .tpl-toolbar button {
+    background: #1f1f1f; color: #eee; border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 9px; font-size: 12px;
+  }
+  .tpl-toolbar button:hover { background: #2a2a2a; }
+  .tpl-toolbar button.active { background: var(--red); border-color: var(--red); color: #fff; }
+  .tpl-toolbar .tpl-sep { width: 1px; align-self: stretch; background: var(--border); margin: 0 2px; }
+
+  .tpl-pages-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+
+  .tpl-editor-scroll { overflow-x: auto; padding: 10px 0; background: #2b2b2b; border-radius: 10px; }
+  .tpl-editor-page {
+    background: #fff; color: #111; width: var(--a4-width); min-height: var(--a4-height);
+    margin: 0 auto; padding: 30px 40px; font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    font-size: 14px; line-height: 1.7; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.4);
+  }
+  .tpl-editor-page:focus { outline: 2px solid var(--red); outline-offset: 2px; }
+
+  .doc-img-wrap.tpl-editing { outline: 1px dashed #bbb; }
+  .doc-img-wrap.tpl-editing.tpl-img-selected { outline: 2px solid var(--red); }
+  .tpl-img-controls {
+    position: absolute; top: -34px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 3px; background: #111; border-radius: 6px; padding: 3px; white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0,0,0,.4); z-index: 5;
+  }
+  .tpl-img-controls button {
+    background: #222; color: #fff; border: 1px solid #444; border-radius: 4px;
+    width: 24px; height: 24px; font-size: 11px; padding: 0; line-height: 1;
+  }
+  .tpl-img-controls button:hover { background: var(--red); border-color: var(--red); }
+
+  .tpl-field-settings {
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    background: var(--black-3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 10px; font-size: 12px; color: var(--gray);
+  }
+  .tpl-field-settings input[type="number"] { width: 70px; }
+  .tpl-field-settings label { color: #ddd; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 
 
   /* Recherche patient intégrée dans un document */
@@ -1172,6 +1248,32 @@
       <div id="documentGeneratorBox" class="hidden">
         <div class="tabs hidden" id="documentPageTabs"></div>
         <div id="documentPreviewPages"></div>
+
+        <div class="form" id="documentDownloadOptions" style="margin-top:14px;">
+          <div class="form-grid">
+            <div class="field">
+              <label>Pages à télécharger</label>
+              <select id="documentDownloadMode" onchange="onDocumentDownloadModeChange()">
+                <option value="all">Toutes les pages</option>
+                <option value="single">Une seule page</option>
+                <option value="range">Une plage de pages</option>
+              </select>
+            </div>
+            <div class="field hidden" id="documentDownloadSingleField">
+              <label>Numéro de page</label>
+              <input type="number" id="documentDownloadSingle" min="1" placeholder="Ex : 1">
+            </div>
+            <div class="field hidden" id="documentDownloadFromField">
+              <label>De la page</label>
+              <input type="number" id="documentDownloadFrom" min="1" placeholder="Ex : 2">
+            </div>
+            <div class="field hidden" id="documentDownloadToField">
+              <label>À la page</label>
+              <input type="number" id="documentDownloadTo" min="1" placeholder="Ex : 3">
+            </div>
+          </div>
+        </div>
+
         <button class="btn btn-red" style="margin-top:14px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
       </div>
 
@@ -1728,17 +1830,74 @@
           <label>Couleur d'accent (bandeaux, titre)</label>
           <input type="color" id="templateColorInput" value="#e5352b" style="height:44px;padding:4px;">
         </div>
-        <div class="field full">
-          <label>Contenu</label>
-          <textarea id="templateContentInput" required style="min-height:280px;font-family:Georgia,'Times New Roman',serif;" placeholder="Je soussigné(e) {{nom_medecin}}, certifie avoir examiné {{nom_patient}} le {{date}}..."></textarea>
-          <div style="color:var(--gray);font-size:12px;margin-top:8px;line-height:1.6;">
-            <code>{{nom_parametre}}</code> → champ texte libre<br>
-            <code>{{nom_parametre|Option A;Option B}}</code> → menu déroulant<br>
-            <code>{{signature}}</code> → emplacement réservé à l'image de signature<br>
-            Une ligne contenant uniquement <code>---PAGE---</code> démarre une nouvelle page
-          </div>
-        </div>
       </div>
+
+      <br>
+
+      <div class="tpl-field-settings">
+        <label>Police par défaut
+          <select id="templateDefaultFont">
+            <option value="Poppins">Poppins</option>
+            <option value="Calibri">Calibri</option>
+          </select>
+        </label>
+        <label>Largeur des champs texte libre (px)
+          <input type="number" id="templateFieldWidth" min="60" max="700" value="220">
+        </label>
+        <label>Lignes des champs texte libre
+          <input type="number" id="templateFieldRows" min="1" max="20" value="1" onchange="onTemplateFieldRowsChange()">
+        </label>
+      </div>
+
+      <div class="tpl-toolbar" id="tplToolbar">
+        <select id="tplFontSelect" title="Police du texte sélectionné" onchange="tplApplyFont(this.value)">
+          <option value="">Police...</option>
+          <option value="Poppins">Poppins</option>
+          <option value="Calibri">Calibri</option>
+        </select>
+        <select id="tplSizeSelect" title="Taille du texte sélectionné" onchange="tplApplySize(this.value)">
+          <option value="">Taille...</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+          <option value="14">14</option>
+          <option value="16">16</option>
+          <option value="18">18</option>
+          <option value="20">20</option>
+          <option value="24">24</option>
+          <option value="28">28</option>
+          <option value="32">32</option>
+          <option value="36">36</option>
+        </select>
+        <div class="tpl-sep"></div>
+        <button type="button" onclick="tplExec('bold')" title="Gras"><b>G</b></button>
+        <button type="button" onclick="tplExec('italic')" title="Italique"><i>I</i></button>
+        <button type="button" onclick="tplExec('underline')" title="Souligné"><u>S</u></button>
+        <div class="tpl-sep"></div>
+        <button type="button" onclick="tplInsertImage()" title="Insérer une image">🖼️ Image</button>
+        <button type="button" onclick="tplInsertField()" title="Insérer un champ texte libre">🔤 Champ libre</button>
+        <button type="button" onclick="tplInsertSignature()" title="Insérer la signature">✍️ Signature</button>
+        <button type="button" onclick="tplInsertDoctor()" title="Insérer le nom du soignant">🩺 Nom soignant</button>
+        <div class="tpl-sep"></div>
+        <button type="button" onclick="addTemplatePage()" title="Ajouter une page">➕ Page</button>
+        <button type="button" onclick="removeTemplatePage()" title="Supprimer la page active">🗑️ Page</button>
+      </div>
+      <input type="file" id="tplImageFileInput" accept="image/*" class="hidden" onchange="onTplImageFileChosen(event)">
+
+      <div class="tpl-pages-tabs" id="tplPagesTabs"></div>
+
+      <div class="tpl-editor-scroll">
+        <div id="templateEditorPages"></div>
+      </div>
+
+      <div style="color:var(--gray);font-size:12px;margin-top:10px;line-height:1.6;">
+        Sélectionne du texte puis utilise la barre d'outils pour changer sa police, sa taille, ou le mettre en gras / italique / souligné.<br>
+        <code>🔤 Champ libre</code> insère un champ modifiable par l'utilisateur (ex : <code>{{nom_parametre}}</code>). Ajoute <code>|Option A;Option B</code> dans son nom pour en faire un menu déroulant.<br>
+        <code>🖼️ Image</code> insère une image déplaçable : clique dessus puis utilise les flèches ↑ ↓ ← → pour la positionner.<br>
+        La date du jour est ajoutée automatiquement en bas de chaque page et se met à jour toute seule à minuit.
+      </div>
+
       <br>
       <button class="btn btn-red">Enregistrer</button>
     </form>
@@ -4204,6 +4363,8 @@ let currentDocumentTemplate = null;
 let documentPages = [];
 let documentLogo = null;
 let documentSignatureData = null;
+let documentTemplateSettings = { font: "Poppins", fieldWidth: 220, fieldRows: 1 };
+let documentTemplateRich = false;
 
 
 /*
@@ -4224,6 +4385,29 @@ function extractDocumentParams(content) {
     seen.set(key, { key, options });
   });
   return Array.from(seen.values());
+}
+
+
+/*
+  Un modèle "riche" (créé/modifié avec le nouvel éditeur) commence par un
+  commentaire HTML contenant ses réglages (police par défaut, taille des
+  champs texte libre). Les anciens modèles (texte brut) n'ont pas ce
+  commentaire et restent affichés avec l'ancien rendu, pour rester
+  compatibles.
+*/
+function parseTemplateContent(raw) {
+  const settings = { font: "Poppins", fieldWidth: 220, fieldRows: 1 };
+  const source = raw || "";
+  const m = /^<!--LSMC:(.*?)-->\r?\n?/.exec(source);
+  let rest = source;
+  let rich = false;
+  if (m) {
+    rich = true;
+    try { Object.assign(settings, JSON.parse(m[1])); } catch {}
+    rest = source.slice(m[0].length);
+  }
+  const pages = rest.split(/\r?\n---PAGE---\r?\n|^---PAGE---$/m);
+  return { rich, settings, pages };
 }
 
 
@@ -4319,8 +4503,21 @@ async function onDocumentTemplateChange() {
 
 
   box.classList.remove("hidden");
-  documentPages = currentDocumentTemplate.content.split(/\r?\n---PAGE---\r?\n|^---PAGE---$/m);
+  const parsed = parseTemplateContent(currentDocumentTemplate.content);
+  documentPages = parsed.pages;
+  documentTemplateSettings = parsed.settings;
+  documentTemplateRich = parsed.rich;
+  document.getElementById("documentDownloadMode").value = "all";
+  onDocumentDownloadModeChange();
   renderDocumentPreview();
+}
+
+
+function onDocumentDownloadModeChange() {
+  const mode = document.getElementById("documentDownloadMode").value;
+  document.getElementById("documentDownloadSingleField").classList.toggle("hidden", mode !== "single");
+  document.getElementById("documentDownloadFromField").classList.toggle("hidden", mode !== "range");
+  document.getElementById("documentDownloadToField").classList.toggle("hidden", mode !== "range");
 }
 
 
@@ -4424,11 +4621,13 @@ function formatDocDate(isoDate) {
 /* ---- Rendu du contenu (texte + champs intégrés) ---- */
 
 
-function renderInlineContent(text) {
+function renderInlineContent(text, fieldWidth, fieldRows) {
   const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
   let html = "";
   let lastIndex = 0;
   let m;
+  const width = Math.max(60, Number(fieldWidth) || 220);
+  const rows = Math.max(1, Number(fieldRows) || 1);
 
 
   while ((m = regex.exec(text)) !== null) {
@@ -4449,8 +4648,10 @@ function renderInlineContent(text) {
       html += `<select class="doc-field" data-doc-param="${escapeHtml(key)}"><option value="">— Sélectionner —</option>${optHtml}</select>`;
     } else if (key.includes("date")) {
       html += `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" placeholder="jj/mm/aaaa" maxlength="10" oninput="onDocDateInput(this)">`;
+    } else if (rows > 1) {
+      html += `<textarea class="doc-field" data-doc-param="${escapeHtml(key)}" rows="${rows}" style="width:${width}px;"></textarea>`;
     } else {
-      html += `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}">`;
+      html += `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" style="width:${width}px;">`;
     }
 
 
@@ -4463,7 +4664,40 @@ function renderInlineContent(text) {
 }
 
 
-function renderPageBodyHtml(pageText) {
+/*
+  Équivalent de renderInlineContent, mais pour du contenu déjà en HTML
+  (pages créées avec l'éditeur riche). Le texte autour des {{champs}}
+  est déjà échappé/formaté par le navigateur (contenteditable), donc on
+  ne fait ici qu'une substitution directe dans la chaîne HTML.
+*/
+function renderInlineContentHtml(html, fieldWidth, fieldRows) {
+  const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
+  const width = Math.max(60, Number(fieldWidth) || 220);
+  const rows = Math.max(1, Number(fieldRows) || 1);
+
+  return (html || "").replace(regex, (whole, key, optsPart) => {
+    const optionsRaw = optsPart ? optsPart.slice(1) : null;
+
+    if (key === "signature") return renderSignatureSlot();
+    if (key === "nom_medecin") return renderDoctorField();
+    if (key === "nom_patient" || key === "nom_patiente") return renderPatientSearchField(key);
+    if (optionsRaw) {
+      const options = optionsRaw.split(";").map(o => o.trim()).filter(Boolean);
+      const optHtml = options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+      return `<select class="doc-field" data-doc-param="${escapeHtml(key)}"><option value="">— Sélectionner —</option>${optHtml}</select>`;
+    }
+    if (key.includes("date")) {
+      return `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" placeholder="jj/mm/aaaa" maxlength="10" oninput="onDocDateInput(this)">`;
+    }
+    if (rows > 1) {
+      return `<textarea class="doc-field" data-doc-param="${escapeHtml(key)}" rows="${rows}" style="width:${width}px;"></textarea>`;
+    }
+    return `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" style="width:${width}px;">`;
+  });
+}
+
+
+function renderPageBodyHtml(pageText, fieldWidth, fieldRows) {
   const lines = pageText.split(/\r?\n/);
   let html = "";
 
@@ -4494,7 +4728,7 @@ function renderPageBodyHtml(pageText) {
           <div class="doc-row">
             <div class="doc-row-label">${escapeHtml(label)}</div>
             <div class="doc-row-divider"></div>
-            <div class="doc-row-value">${renderInlineContent(rest)}</div>
+            <div class="doc-row-value">${renderInlineContent(rest, fieldWidth, fieldRows)}</div>
           </div>
         `;
         return;
@@ -4502,11 +4736,32 @@ function renderPageBodyHtml(pageText) {
     }
 
 
-    html += `<div class="doc-paragraph">${renderInlineContent(trimmed)}</div>`;
+    html += `<div class="doc-paragraph">${renderInlineContent(trimmed, fieldWidth, fieldRows)}</div>`;
   });
 
 
   return html;
+}
+
+
+/* La date en bas de chaque page se met à jour toute seule, y compris
+   pile à minuit si le document reste ouvert à l'écran. */
+function updateDocDateFooters() {
+  const todayText = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  document.querySelectorAll("[data-doc-date-footer]").forEach(el => {
+    el.textContent = `Document généré le ${todayText}`;
+  });
+}
+
+
+function scheduleDocDateMidnightRefresh() {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 2, 0);
+  const delay = next.getTime() - now.getTime();
+  setTimeout(() => {
+    updateDocDateFooters();
+    setInterval(updateDocDateFooters, 24 * 60 * 60 * 1000);
+  }, delay);
 }
 
 
@@ -4528,6 +4783,9 @@ function renderDocumentPreview() {
 
 
   const accent = currentDocumentTemplate.accent_color || "#e5352b";
+  const fontFamily = documentTemplateSettings.font === "Calibri"
+    ? "Calibri, Carlito, Arial, Helvetica, sans-serif"
+    : "'Poppins', Arial, Helvetica, sans-serif";
   const wrap = document.getElementById("documentPreviewPages");
   const tabsBox = document.getElementById("documentPageTabs");
   wrap.innerHTML = "";
@@ -4549,14 +4807,20 @@ function renderDocumentPreview() {
   }
 
 
-  documentPages.forEach((pageText, index) => {
+  const todayText = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+
+  documentPages.forEach((pageContent, index) => {
     const sheet = document.createElement("div");
     sheet.className = "doc-sheet";
     sheet.id = `documentPage-${index}`;
+    sheet.style.fontFamily = fontFamily;
     if (index !== 0 && documentPages.length > 1) sheet.classList.add("hidden");
 
 
-    const bodyHtml = renderPageBodyHtml(pageText);
+    const bodyHtml = documentTemplateRich
+      ? renderInlineContentHtml(pageContent, documentTemplateSettings.fieldWidth, documentTemplateSettings.fieldRows)
+      : renderPageBodyHtml(pageContent, documentTemplateSettings.fieldWidth, documentTemplateSettings.fieldRows);
 
 
     sheet.innerHTML = `
@@ -4566,6 +4830,7 @@ function renderDocumentPreview() {
       ${index === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(currentDocumentTemplate.title)}</div>` : `<div style="height:14px;"></div>`}
       <div class="doc-sheet-body">${bodyHtml}</div>
       ${documentPages.length > 1 ? `<div class="doc-page-number">Page ${index + 1} / ${documentPages.length}</div>` : ""}
+      <div class="doc-date-footer" data-doc-date-footer="1">Document généré le ${todayText}</div>
     `;
 
 
@@ -4574,6 +4839,13 @@ function renderDocumentPreview() {
 
 
   wrap.querySelectorAll(".doc-row-divider").forEach(d => { d.style.background = accent; });
+
+
+  document.getElementById("documentDownloadOptions").classList.toggle("hidden", documentPages.length <= 1);
+  ["documentDownloadSingle", "documentDownloadFrom", "documentDownloadTo"].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.max = documentPages.length;
+  });
 }
 
 
@@ -4609,6 +4881,12 @@ function swapFieldsForExport(container) {
     span.style.fontFamily = "inherit";
     span.style.fontSize = "13px";
     span.style.color = field.value ? "#111" : "#999";
+    if (field.tagName === "TEXTAREA") {
+      span.style.whiteSpace = "pre-wrap";
+      span.style.display = "inline-block";
+      span.style.minWidth = field.style.width || "220px";
+      span.style.verticalAlign = "top";
+    }
     field.parentNode.insertBefore(span, field);
     field.style.display = "none";
     restore.push({ field, span });
@@ -4624,6 +4902,35 @@ function swapFieldsForExport(container) {
 }
 
 
+/*
+  Détermine les indices de pages (0-based) à exporter selon le mode
+  choisi dans "Pages à télécharger" : toutes / une seule / une plage.
+*/
+function getDocumentDownloadIndices() {
+  const total = documentPages.length;
+  if (total <= 1) return [0];
+
+  const mode = document.getElementById("documentDownloadMode").value;
+
+  if (mode === "single") {
+    const n = Number(document.getElementById("documentDownloadSingle").value);
+    if (!n || n < 1 || n > total) { toast("Numéro de page invalide."); return null; }
+    return [n - 1];
+  }
+
+  if (mode === "range") {
+    const from = Number(document.getElementById("documentDownloadFrom").value);
+    const to = Number(document.getElementById("documentDownloadTo").value);
+    if (!from || !to || from < 1 || to > total || from > to) { toast("Plage de pages invalide."); return null; }
+    const indices = [];
+    for (let i = from - 1; i <= to - 1; i++) indices.push(i);
+    return indices;
+  }
+
+  return documentPages.map((_, i) => i);
+}
+
+
 function downloadDocumentAsPng() {
   if (!currentDocumentTemplate) return;
 
@@ -4635,37 +4942,49 @@ function downloadDocumentAsPng() {
     .replace(/(^-|-$)/g, "") || "document";
 
 
-  const pages = documentPages.map((_, i) => document.getElementById(`documentPage-${i}`)).filter(Boolean);
-  const previouslyHidden = pages.map(p => p.classList.contains("hidden"));
+  const indices = getDocumentDownloadIndices();
+  if (!indices) return;
 
 
-  const exportPage = (index) => {
-    if (index >= pages.length) {
-      pages.forEach((p, i) => p.classList.toggle("hidden", previouslyHidden[i]));
+  const pages = indices.map(i => document.getElementById(`documentPage-${i}`)).filter(Boolean);
+  const previouslyHiddenByIndex = new Map();
+  documentPages.forEach((_, i) => {
+    const el = document.getElementById(`documentPage-${i}`);
+    if (el) previouslyHiddenByIndex.set(i, el.classList.contains("hidden"));
+  });
+
+
+  const exportPage = (pos) => {
+    if (pos >= pages.length) {
+      previouslyHiddenByIndex.forEach((hidden, i) => {
+        const el = document.getElementById(`documentPage-${i}`);
+        if (el) el.classList.toggle("hidden", hidden);
+      });
       return;
     }
 
 
-    const page = pages[index];
+    const realIndex = indices[pos];
+    const page = pages[pos];
     page.classList.remove("hidden");
     const restoreFields = swapFieldsForExport(page);
 
 
     html2canvas(page, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
       restoreFields();
-      page.classList.toggle("hidden", previouslyHidden[index]);
+      page.classList.toggle("hidden", previouslyHiddenByIndex.get(realIndex));
 
 
       const link = document.createElement("a");
-      link.download = pages.length > 1 ? `${safeName}-page-${index + 1}.png` : `${safeName}.png`;
+      link.download = indices.length > 1 ? `${safeName}-page-${realIndex + 1}.png` : `${safeName}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
 
 
-      setTimeout(() => exportPage(index + 1), 350);
+      setTimeout(() => exportPage(pos + 1), 350);
     }).catch(e => {
       restoreFields();
-      page.classList.toggle("hidden", previouslyHidden[index]);
+      page.classList.toggle("hidden", previouslyHiddenByIndex.get(realIndex));
       toast("Impossible de générer l'image : " + e.message);
     });
   };
@@ -4778,12 +5097,329 @@ function renderDirectorTemplates() {
 }
 
 
+/* ---- Éditeur riche du contenu d'un modèle (pages A4, police, taille,
+   gras/italique/souligné, images déplaçables, champs libres) ---- */
+
+
+let tplPages = [""];
+let tplActivePage = 0;
+let tplSavedRange = null;
+
+
+function getActiveTplEditor() {
+  const editor = document.getElementById(`tplEditorPage-${tplActivePage}`);
+  if (!editor) return null;
+  if (tplSavedRange) {
+    try {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(tplSavedRange);
+    } catch {}
+  }
+  editor.focus();
+  return editor;
+}
+
+
+function trackTplSelection(e) {
+  const editor = e.currentTarget;
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0 && editor.contains(sel.anchorNode)) {
+    tplSavedRange = sel.getRangeAt(0).cloneRange();
+  }
+}
+
+
+function syncActiveTplPageFromDom() {
+  const editor = document.getElementById(`tplEditorPage-${tplActivePage}`);
+  if (editor) tplPages[tplActivePage] = editor.innerHTML;
+}
+
+
+function renderTplEditor() {
+  const tabsBox = document.getElementById("tplPagesTabs");
+  const pagesBox = document.getElementById("templateEditorPages");
+  tabsBox.innerHTML = "";
+  pagesBox.innerHTML = "";
+
+
+  tplPages.forEach((html, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `tab-btn ${i === tplActivePage ? "active" : ""}`;
+    btn.textContent = `Page ${i + 1}`;
+    btn.onclick = () => switchTplPage(i);
+    tabsBox.appendChild(btn);
+
+
+    const editor = document.createElement("div");
+    editor.className = `tpl-editor-page ${i === tplActivePage ? "" : "hidden"}`;
+    editor.id = `tplEditorPage-${i}`;
+    editor.contentEditable = "true";
+    editor.innerHTML = html;
+    editor.addEventListener("mouseup", trackTplSelection);
+    editor.addEventListener("keyup", trackTplSelection);
+    editor.addEventListener("focus", trackTplSelection);
+    pagesBox.appendChild(editor);
+  });
+}
+
+
+function switchTplPage(i) {
+  syncActiveTplPageFromDom();
+  tplActivePage = i;
+  tplSavedRange = null;
+  renderTplEditor();
+}
+
+
+function addTemplatePage() {
+  syncActiveTplPageFromDom();
+  tplPages.push("");
+  tplActivePage = tplPages.length - 1;
+  tplSavedRange = null;
+  renderTplEditor();
+}
+
+
+function removeTemplatePage() {
+  if (tplPages.length <= 1) { toast("Il faut au moins une page."); return; }
+  syncActiveTplPageFromDom();
+  tplPages.splice(tplActivePage, 1);
+  tplActivePage = Math.max(0, tplActivePage - 1);
+  tplSavedRange = null;
+  renderTplEditor();
+}
+
+
+/* Mise en forme du texte sélectionné */
+
+
+function tplExec(cmd) {
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  document.execCommand(cmd, false, null);
+}
+
+
+function tplApplyFont(font) {
+  if (!font) return;
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  const family = font === "Calibri" ? "Calibri, Carlito, Arial, sans-serif" : "'Poppins', Arial, Helvetica, sans-serif";
+  applyInlineStyleToSelection(`font-family:${family}`);
+  document.getElementById("tplFontSelect").value = "";
+}
+
+
+function tplApplySize(size) {
+  if (!size) return;
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  applyInlineStyleToSelection(`font-size:${size}px`);
+  document.getElementById("tplSizeSelect").value = "";
+}
+
+
+function applyInlineStyleToSelection(styleText) {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+    toast("Sélectionne d'abord du texte dans la page.");
+    return;
+  }
+  const range = sel.getRangeAt(0);
+  const span = document.createElement("span");
+  span.setAttribute("style", styleText);
+  try {
+    range.surroundContents(span);
+  } catch {
+    const content = range.extractContents();
+    span.appendChild(content);
+    range.insertNode(span);
+  }
+  sel.removeAllRanges();
+  const newRange = document.createRange();
+  newRange.selectNodeContents(span);
+  sel.addRange(newRange);
+  tplSavedRange = newRange.cloneRange();
+}
+
+
+/* Champs texte libre / signature / nom du soignant */
+
+
+function tplInsertField() {
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  const name = prompt("Nom du champ (sans espaces, ex : nom_patient) :");
+  if (!name) return;
+  const key = name.trim().replace(/\s+/g, "_");
+  if (!key) return;
+  let token = `{{${key}}}`;
+  if (confirm("Ce champ doit-il être un menu déroulant avec plusieurs choix ?")) {
+    const opts = prompt("Options séparées par des points-virgules (ex : Oui;Non)");
+    if (opts && opts.trim()) token = `{{${key}|${opts.trim()}}}`;
+  }
+  editor.focus();
+  document.execCommand("insertText", false, token);
+}
+
+
+function tplInsertSignature() {
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  document.execCommand("insertText", false, "{{signature}}");
+}
+
+
+function tplInsertDoctor() {
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  document.execCommand("insertText", false, "{{nom_medecin}}");
+}
+
+
+/* Images déplaçables (uniquement dans l'éditeur, avec flèches directionnelles) */
+
+
+function tplInsertImage() {
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  document.getElementById("tplImageFileInput").click();
+}
+
+
+function onTplImageFileChosen(event) {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) {
+    toast("Image trop lourde (3 Mo max).");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => insertImageIntoActiveEditor(reader.result);
+  reader.readAsDataURL(file);
+}
+
+
+function insertImageIntoActiveEditor(dataUrl) {
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  const id = "imgwrap-" + Math.random().toString(36).slice(2, 9);
+  const html = `<span class="doc-img-wrap tpl-editing" id="${id}" contenteditable="false" style="position:relative;top:0px;left:0px;" onclick="selectTplImage(event,'${id}')">` +
+    `<img src="${dataUrl}" alt="Image">` +
+    `<span class="tpl-img-controls hidden">` +
+    `<button type="button" onclick="nudgeTplImage(event,'${id}','up')">↑</button>` +
+    `<button type="button" onclick="nudgeTplImage(event,'${id}','left')">←</button>` +
+    `<button type="button" onclick="nudgeTplImage(event,'${id}','right')">→</button>` +
+    `<button type="button" onclick="nudgeTplImage(event,'${id}','down')">↓</button>` +
+    `<button type="button" onclick="removeTplImageWrap(event,'${id}')">✕</button>` +
+    `</span></span>&nbsp;`;
+  document.execCommand("insertHTML", false, html);
+}
+
+
+function selectTplImage(event, id) {
+  event.stopPropagation();
+  document.querySelectorAll(".doc-img-wrap.tpl-img-selected").forEach(w => w.classList.remove("tpl-img-selected"));
+  document.querySelectorAll(".tpl-img-controls").forEach(c => c.classList.add("hidden"));
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  wrap.classList.add("tpl-img-selected");
+  const ctrl = wrap.querySelector(".tpl-img-controls");
+  if (ctrl) ctrl.classList.remove("hidden");
+}
+
+
+function nudgeTplImage(event, id, dir) {
+  event.stopPropagation();
+  event.preventDefault();
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  const step = 6;
+  let top = parseInt(wrap.style.top || "0", 10) || 0;
+  let left = parseInt(wrap.style.left || "0", 10) || 0;
+  if (dir === "up") top -= step;
+  if (dir === "down") top += step;
+  if (dir === "left") left -= step;
+  if (dir === "right") left += step;
+  wrap.style.top = `${top}px`;
+  wrap.style.left = `${left}px`;
+}
+
+
+function removeTplImageWrap(event, id) {
+  event.stopPropagation();
+  const wrap = document.getElementById(id);
+  if (wrap) wrap.remove();
+}
+
+
+document.addEventListener("click", e => {
+  if (e.target.closest(".doc-img-wrap")) return;
+  document.querySelectorAll(".tpl-img-controls").forEach(c => c.classList.add("hidden"));
+  document.querySelectorAll(".doc-img-wrap.tpl-img-selected").forEach(w => w.classList.remove("tpl-img-selected"));
+});
+
+
+/* Nettoyage avant sauvegarde (retire les boutons d'édition des images) /
+   Réhydratation à l'ouverture (les remet pour pouvoir re-modifier) */
+
+
+function cleanTplPageHtmlForSave(html) {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  div.querySelectorAll(".tpl-img-controls").forEach(el => el.remove());
+  div.querySelectorAll(".doc-img-wrap").forEach(el => {
+    el.classList.remove("tpl-editing", "tpl-img-selected");
+    el.removeAttribute("contenteditable");
+    el.removeAttribute("onclick");
+  });
+  return div.innerHTML;
+}
+
+
+function hydrateTplPageHtmlForEdit(html) {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  div.querySelectorAll(".doc-img-wrap").forEach(el => {
+    if (!el.id) el.id = "imgwrap-" + Math.random().toString(36).slice(2, 9);
+    el.classList.add("tpl-editing");
+    el.setAttribute("contenteditable", "false");
+    el.setAttribute("onclick", `selectTplImage(event,'${el.id}')`);
+    if (!el.querySelector(".tpl-img-controls")) {
+      const ctrl = document.createElement("span");
+      ctrl.className = "tpl-img-controls hidden";
+      ctrl.innerHTML = `
+        <button type="button" onclick="nudgeTplImage(event,'${el.id}','up')">↑</button>
+        <button type="button" onclick="nudgeTplImage(event,'${el.id}','left')">←</button>
+        <button type="button" onclick="nudgeTplImage(event,'${el.id}','right')">→</button>
+        <button type="button" onclick="nudgeTplImage(event,'${el.id}','down')">↓</button>
+        <button type="button" onclick="removeTplImageWrap(event,'${el.id}')">✕</button>
+      `;
+      el.appendChild(ctrl);
+    }
+  });
+  return div.innerHTML;
+}
+
+
+/* ---- Ouverture / soumission du modal de modèle ---- */
+
+
 function openNewTemplateModal() {
   editingTemplateId = null;
   document.getElementById("templateModalTitle").textContent = "Nouveau modèle";
   document.getElementById("templateTitleInput").value = "";
-  document.getElementById("templateContentInput").value = "";
   document.getElementById("templateColorInput").value = "#e5352b";
+  document.getElementById("templateDefaultFont").value = "Poppins";
+  document.getElementById("templateFieldWidth").value = 220;
+  document.getElementById("templateFieldRows").value = 1;
+  tplPages = [""];
+  tplActivePage = 0;
+  tplSavedRange = null;
+  renderTplEditor();
   openModal("templateModal");
 }
 
@@ -4796,19 +5432,51 @@ function openEditTemplateModal(id) {
   editingTemplateId = id;
   document.getElementById("templateModalTitle").textContent = "Modifier le modèle";
   document.getElementById("templateTitleInput").value = template.title;
-  document.getElementById("templateContentInput").value = template.content;
   document.getElementById("templateColorInput").value = template.accent_color || "#e5352b";
+
+
+  const parsed = parseTemplateContent(template.content);
+  document.getElementById("templateDefaultFont").value = parsed.settings.font || "Poppins";
+  document.getElementById("templateFieldWidth").value = parsed.settings.fieldWidth || 220;
+  document.getElementById("templateFieldRows").value = parsed.settings.fieldRows || 1;
+
+
+  if (parsed.rich) {
+    tplPages = parsed.pages.map(p => hydrateTplPageHtmlForEdit(p));
+  } else {
+    // Ancien modèle en texte brut : converti en page éditable (une ligne = un bloc)
+    tplPages = parsed.pages.map(p =>
+      `<div>${escapeHtml(p).replace(/\r?\n/g, "</div><div>") || "<br>"}</div>`
+    );
+  }
+  tplActivePage = 0;
+  tplSavedRange = null;
+  renderTplEditor();
+
+
   openModal("templateModal");
 }
 
 
 async function submitTemplateForm(event) {
   event.preventDefault();
+  syncActiveTplPageFromDom();
+
+
+  const settings = {
+    font: document.getElementById("templateDefaultFont").value || "Poppins",
+    fieldWidth: Number(document.getElementById("templateFieldWidth").value) || 220,
+    fieldRows: Number(document.getElementById("templateFieldRows").value) || 1
+  };
+
+
+  const cleanedPages = tplPages.map(p => cleanTplPageHtmlForSave(p));
+  const content = `<!--LSMC:${JSON.stringify(settings)}-->\n${cleanedPages.join("\n---PAGE---\n")}`;
 
 
   const payload = {
     title: document.getElementById("templateTitleInput").value,
-    content: document.getElementById("templateContentInput").value,
+    content,
     accent_color: document.getElementById("templateColorInput").value
   };
 
@@ -4952,6 +5620,7 @@ async function submitApplicationForm(event) {
 
 
 loadUser();
+scheduleDocDateMidnightRefresh();
 
 
 </script>
