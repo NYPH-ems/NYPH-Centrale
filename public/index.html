@@ -324,10 +324,11 @@
     box-shadow: 0 10px 40px rgba(0,0,0,.35);
     font-family: 'Poppins', Arial, Helvetica, sans-serif;
   }
+  .doc-sheet.hidden { display: none !important; }
   .doc-sheet-bar { height: 6px; }
-  .doc-sheet-header { padding: 26px 40px 10px; }
+  .doc-sheet-header { padding: 26px 40px 6px; text-align: center; }
   .doc-sheet-logo-fallback {
-    font-weight: 900; font-size: 26px; line-height: 1.15; display: inline-block;
+    font-weight: 900; font-size: 26px; line-height: 1.15; display: inline-block; text-align: left;
   }
   .doc-sheet-logo-fallback div { border-left: 4px solid; padding-left: 8px; margin-bottom: 2px; }
   .doc-sheet-logo-img { max-height: 90px; max-width: 320px; object-fit: contain; }
@@ -336,19 +337,54 @@
     text-transform: uppercase; margin: 14px 0 18px;
   }
   .doc-sheet-body {
-    padding: 0 40px 30px; font-size: 14px; line-height: 1.85; white-space: pre-wrap;
+    padding: 0 40px 30px; font-size: 14px; line-height: 1.7;
     min-height: 160px;
   }
-  .doc-sheet-body select, .doc-sheet-body input {
-    font-family: inherit; font-size: 13px; border-radius: 6px; border: 1px solid #ccc;
-    padding: 3px 8px; background: #fafafa; color: #111;
+  .doc-section-header {
+    text-align: center; font-weight: 800; text-decoration: underline;
+    margin: 18px 0 12px; font-size: 14px;
   }
-  .doc-signature-img {
-    display: block; max-height: 100px; max-width: 220px; object-fit: contain; margin-top: 6px;
+  .doc-row {
+    display: flex; align-items: center; gap: 14px; padding: 6px 0; flex-wrap: wrap;
   }
-  .doc-page-number {
-    text-align: center; font-size: 11px; color: #999; padding-bottom: 14px;
+  .doc-row-label {
+    flex: 0 0 42%; max-width: 42%; font-weight: 700; color: #111; font-size: 13px;
   }
+  .doc-row-divider {
+    width: 2px; align-self: stretch; min-height: 22px; flex-shrink: 0;
+  }
+  .doc-row-value { flex: 1; min-width: 140px; font-size: 13px; color: #222; }
+  .doc-paragraph { margin: 10px 0; font-size: 14px; line-height: 1.8; }
+  .doc-field {
+    font-family: inherit; font-size: 13px; border: none; border-bottom: 1px solid #ccc;
+    background: transparent; padding: 3px 4px; min-width: 130px; color: #111;
+  }
+  .doc-field:focus { outline: none; border-bottom-color: var(--red); }
+  select.doc-field { border: 1px solid #ddd; border-radius: 5px; background: #fafafa; padding: 4px 8px; }
+  .doc-field-readonly {
+    display: inline-block; padding: 3px 4px; border-bottom: 1px solid transparent; font-size: 13px; color: #111;
+  }
+  .doc-signature-slot { display: inline-block; min-width: 140px; min-height: 70px; vertical-align: middle; }
+  .doc-signature-img { display: block; max-height: 100px; max-width: 220px; object-fit: contain; }
+  .doc-signature-placeholder {
+    display: inline-block; border: 1px dashed #ccc; color: #aaa; font-size: 11px;
+    padding: 22px 34px; border-radius: 6px;
+  }
+  .doc-page-number { text-align: center; font-size: 11px; color: #999; padding-bottom: 14px; }
+
+
+  /* Recherche patient intégrée dans un document */
+  .doc-patient-search-box { position: relative; display: inline-block; min-width: 220px; }
+  .doc-patient-search-results {
+    position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px);
+    background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    max-height: 200px; overflow-y: auto; text-align: left;
+  }
+  .doc-patient-search-results div {
+    padding: 8px 10px; cursor: pointer; font-size: 13px; color: #111; border-bottom: 1px solid #eee;
+  }
+  .doc-patient-search-results div:last-child { border-bottom: none; }
+  .doc-patient-search-results div:hover { background: #f2f2f2; }
 
 
   /* FORMS */
@@ -1113,19 +1149,15 @@
             </select>
           </div>
           <div class="field">
-            <label>Signature (image, optionnel)</label>
+            <label>Signature (image)</label>
             <input type="file" id="documentSignatureInput" accept="image/*" onchange="onDocumentSignatureChange(event)">
+            <a href="https://onlinesignatures.net/fr" target="_blank" rel="noopener" style="color:var(--red);font-size:12px;margin-top:6px;display:inline-block;">✍️ Pas encore de signature ? Crée-en une ici</a>
           </div>
         </div>
       </div>
 
       <div id="documentGeneratorBox" class="hidden">
-        <div class="form" id="documentParamsForm">
-          <div class="card-label" style="margin-bottom:14px;">Paramètres</div>
-          <div class="form-grid" id="documentParamsFields"></div>
-        </div>
-
-        <div class="card-label" style="margin-bottom:14px;">Aperçu</div>
+        <div class="tabs hidden" id="documentPageTabs"></div>
         <div id="documentPreviewPages"></div>
         <button class="btn btn-red" style="margin-top:14px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
       </div>
@@ -4166,8 +4198,6 @@ let documentSignatureData = null;
   d'apparition, sans doublons. Deux formats supportés :
     {{cle}}                    -> champ texte libre
     {{cle|Option A;Option B}}  -> menu déroulant
-  Le paramètre spécial {{signature}} est réservé à l'image de
-  signature et ne génère pas de champ texte/menu.
 */
 function extractDocumentParams(content) {
   const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
@@ -4175,17 +4205,12 @@ function extractDocumentParams(content) {
   const seen = new Map();
   matches.forEach(m => {
     const key = m[1];
-    if (key === "signature" || seen.has(key)) return;
+    if (seen.has(key)) return;
     const optionsRaw = m[2] ? m[2].slice(1) : null;
     const options = optionsRaw ? optionsRaw.split(";").map(o => o.trim()).filter(Boolean) : null;
     seen.set(key, { key, options });
   });
   return Array.from(seen.values());
-}
-
-
-function prettifyParamName(key) {
-  return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 }
 
 
@@ -4220,6 +4245,7 @@ async function loadDocuments() {
 
     document.getElementById("documentsEmptyState").classList.toggle("hidden", documentTemplates.length > 0);
     document.getElementById("documentGeneratorBox").classList.add("hidden");
+    document.getElementById("documentPageTabs").innerHTML = "";
     select.value = "";
     documentSignatureData = null;
     document.getElementById("documentSignatureInput").value = "";
@@ -4229,21 +4255,36 @@ async function loadDocuments() {
 }
 
 
+/* ---- Signature (image) ---- */
+
+
 function onDocumentSignatureChange(event) {
   const file = event.target.files[0];
-  if (!file) { documentSignatureData = null; renderDocumentPreview(); return; }
+  if (!file) { documentSignatureData = null; refreshSignatureSlots(); return; }
 
 
   const reader = new FileReader();
   reader.onload = () => {
     documentSignatureData = reader.result;
-    renderDocumentPreview();
+    refreshSignatureSlots();
   };
   reader.readAsDataURL(file);
 }
 
 
-function onDocumentTemplateChange() {
+function refreshSignatureSlots() {
+  document.querySelectorAll(".doc-signature-slot").forEach(slot => {
+    slot.innerHTML = documentSignatureData
+      ? `<img class="doc-signature-img" src="${documentSignatureData}" alt="Signature">`
+      : `<span class="doc-signature-placeholder">Signature</span>`;
+  });
+}
+
+
+/* ---- Sélection du modèle ---- */
+
+
+async function onDocumentTemplateChange() {
   const id = Number(document.getElementById("documentTemplateSelect").value);
   const box = document.getElementById("documentGeneratorBox");
 
@@ -4259,82 +4300,197 @@ function onDocumentTemplateChange() {
   if (!currentDocumentTemplate) return;
 
 
-  box.classList.remove("hidden");
-
-
-  documentPages = currentDocumentTemplate.content.split(/\r?\n---PAGE---\r?\n|^---PAGE---$/m);
-
-
-  const allParams = extractDocumentParams(currentDocumentTemplate.content);
-  const fieldsBox = document.getElementById("documentParamsFields");
-  fieldsBox.innerHTML = "";
-
-
-  if (!allParams.length) {
-    fieldsBox.innerHTML = `<div class="empty" style="padding:10px;">Ce modèle ne contient aucun paramètre à remplir.</div>`;
+  if (!patients.length) {
+    try { await loadPatients(); } catch {}
   }
 
 
-  allParams.forEach(p => {
-    const field = document.createElement("div");
-    field.className = "field";
-
-
-    if (p.options) {
-      const optionsHtml = p.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
-      field.innerHTML = `
-        <label>${escapeHtml(prettifyParamName(p.key))}</label>
-        <select data-doc-param="${escapeHtml(p.key)}" onchange="renderDocumentPreview()">
-          <option value="">— Sélectionner —</option>
-          ${optionsHtml}
-        </select>
-      `;
-    } else {
-      field.innerHTML = `
-        <label>${escapeHtml(prettifyParamName(p.key))}</label>
-        <input type="text" data-doc-param="${escapeHtml(p.key)}" oninput="renderDocumentPreview()">
-      `;
-    }
-    fieldsBox.appendChild(field);
-  });
-
-
+  box.classList.remove("hidden");
+  documentPages = currentDocumentTemplate.content.split(/\r?\n---PAGE---\r?\n|^---PAGE---$/m);
   renderDocumentPreview();
 }
 
 
-function getDocumentParamValues() {
-  const values = {};
-  document.querySelectorAll("#documentParamsFields [data-doc-param]").forEach(el => {
-    values[el.dataset.docParam] = el.value.trim();
-  });
-  return values;
+/* ---- Champs spéciaux intégrés directement dans le document ---- */
+
+
+function renderSignatureSlot() {
+  const inner = documentSignatureData
+    ? `<img class="doc-signature-img" src="${documentSignatureData}" alt="Signature">`
+    : `<span class="doc-signature-placeholder">Signature</span>`;
+  return `<span class="doc-signature-slot">${inner}</span>`;
 }
 
 
-/*
-  Construit le HTML d'une page : échappe le texte, puis remplace
-  chaque occurrence de {{cle}} / {{cle|options}} par la valeur saisie
-  (ou par l'image de signature pour {{signature}}).
-*/
-function buildPageBodyHtml(pageText, values) {
-  let html = escapeHtml(pageText);
+function renderDoctorField() {
+  const name = currentUser?.nickname || currentUser?.username || "";
+  return `<span class="doc-field-readonly">${escapeHtml(name)}</span>`;
+}
 
 
-  const params = extractDocumentParams(pageText);
-  params.forEach(p => {
-    const regex = new RegExp(`\\{\\{\\s*${p.key}\\s*(\\|[^}]*)?\\}\\}`, "g");
-    const value = values[p.key];
-    const display = value ? escapeHtml(value) : `<span style="color:#b91c1c;">[${escapeHtml(prettifyParamName(p.key))}]</span>`;
-    html = html.replace(regex, display);
+function renderPatientSearchField(key) {
+  return `
+    <span class="doc-patient-search-box">
+      <input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" data-doc-patient="1"
+             placeholder="Rechercher un patient..." autocomplete="off"
+             oninput="onDocPatientSearchInput(this)" onfocus="onDocPatientSearchInput(this)">
+      <div class="doc-patient-search-results hidden"></div>
+    </span>
+  `;
+}
+
+
+function onDocPatientSearchInput(input) {
+  const box = input.nextElementSibling;
+  const search = input.value.trim().toLowerCase();
+
+
+  if (!search) { box.classList.add("hidden"); box.innerHTML = ""; return; }
+
+
+  const matches = patients
+    .filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(search))
+    .slice(0, 8);
+
+
+  box.innerHTML = "";
+
+
+  if (!matches.length) {
+    box.innerHTML = `<div style="color:#999;cursor:default;">Aucun dossier patient trouvé.</div>`;
+  } else {
+    matches.forEach(p => {
+      const div = document.createElement("div");
+      div.textContent = `${p.first_name} ${p.last_name}`;
+      div.onclick = () => selectDocPatient(input, p);
+      box.appendChild(div);
+    });
+  }
+
+
+  box.classList.remove("hidden");
+}
+
+
+function selectDocPatient(input, patient) {
+  input.value = `${patient.first_name} ${patient.last_name}`;
+  input.nextElementSibling.classList.add("hidden");
+  input.nextElementSibling.innerHTML = "";
+
+
+  if (patient.birth_date) {
+    document.querySelectorAll('[data-doc-param="date_naissance"]').forEach(el => {
+      el.value = formatDocDate(patient.birth_date);
+    });
+  }
+}
+
+
+document.addEventListener("click", e => {
+  if (e.target.closest(".doc-patient-search-box")) return;
+  document.querySelectorAll(".doc-patient-search-results").forEach(box => box.classList.add("hidden"));
+});
+
+
+function onDocDateInput(input) {
+  const digits = input.value.replace(/\D/g, "").slice(0, 8);
+  let formatted = digits;
+  if (digits.length > 4) formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+  else if (digits.length > 2) formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  input.value = formatted;
+}
+
+
+function formatDocDate(isoDate) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate || "");
+  if (!m) return isoDate || "";
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
+
+/* ---- Rendu du contenu (texte + champs intégrés) ---- */
+
+
+function renderInlineContent(text) {
+  const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
+  let html = "";
+  let lastIndex = 0;
+  let m;
+
+
+  while ((m = regex.exec(text)) !== null) {
+    html += escapeHtml(text.slice(lastIndex, m.index));
+    const key = m[1];
+    const optionsRaw = m[2] ? m[2].slice(1) : null;
+
+
+    if (key === "signature") {
+      html += renderSignatureSlot();
+    } else if (key === "nom_medecin") {
+      html += renderDoctorField();
+    } else if (key === "nom_patient" || key === "nom_patiente") {
+      html += renderPatientSearchField(key);
+    } else if (optionsRaw) {
+      const options = optionsRaw.split(";").map(o => o.trim()).filter(Boolean);
+      const optHtml = options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+      html += `<select class="doc-field" data-doc-param="${escapeHtml(key)}"><option value="">— Sélectionner —</option>${optHtml}</select>`;
+    } else if (key.includes("date")) {
+      html += `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" placeholder="jj/mm/aaaa" maxlength="10" oninput="onDocDateInput(this)">`;
+    } else {
+      html += `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}">`;
+    }
+
+
+    lastIndex = regex.lastIndex;
+  }
+
+
+  html += escapeHtml(text.slice(lastIndex));
+  return html;
+}
+
+
+function renderPageBodyHtml(pageText) {
+  const lines = pageText.split(/\r?\n/);
+  let html = "";
+
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+
+
+    if (!trimmed) {
+      html += `<div style="height:8px;"></div>`;
+      return;
+    }
+
+
+    const hasLower = /[a-zà-ÿ]/.test(trimmed);
+    if (!hasLower && /[A-ZÀ-Ý]/.test(trimmed) && trimmed.length > 2 && !trimmed.includes("{{")) {
+      html += `<div class="doc-section-header">${escapeHtml(trimmed)}</div>`;
+      return;
+    }
+
+
+    const colonIndex = trimmed.indexOf(":");
+    if (colonIndex > 0 && colonIndex < trimmed.length - 1) {
+      const label = trimmed.slice(0, colonIndex).trim();
+      const rest = trimmed.slice(colonIndex + 1).trim();
+      if (label.length <= 70 && !label.includes("{{")) {
+        html += `
+          <div class="doc-row">
+            <div class="doc-row-label">${escapeHtml(label)}</div>
+            <div class="doc-row-divider"></div>
+            <div class="doc-row-value">${renderInlineContent(rest)}</div>
+          </div>
+        `;
+        return;
+      }
+    }
+
+
+    html += `<div class="doc-paragraph">${renderInlineContent(trimmed)}</div>`;
   });
-
-
-  const signatureRegex = /\{\{\s*signature\s*\}\}/g;
-  const signatureHtml = documentSignatureData
-    ? `<img class="doc-signature-img" src="${documentSignatureData}" alt="Signature">`
-    : `<span style="color:#999;">[Signature]</span>`;
-  html = html.replace(signatureRegex, signatureHtml);
 
 
   return html;
@@ -4358,26 +4514,41 @@ function renderDocumentPreview() {
   if (!currentDocumentTemplate) return;
 
 
-  const values = getDocumentParamValues();
   const accent = currentDocumentTemplate.accent_color || "#e5352b";
   const wrap = document.getElementById("documentPreviewPages");
+  const tabsBox = document.getElementById("documentPageTabs");
   wrap.innerHTML = "";
+  tabsBox.innerHTML = "";
+
+
+  if (documentPages.length > 1) {
+    tabsBox.classList.remove("hidden");
+    documentPages.forEach((_, i) => {
+      const btn = document.createElement("button");
+      btn.className = `tab-btn ${i === 0 ? "active" : ""}`;
+      btn.textContent = `Page ${i + 1}`;
+      btn.type = "button";
+      btn.onclick = () => switchDocumentPage(i);
+      tabsBox.appendChild(btn);
+    });
+  } else {
+    tabsBox.classList.add("hidden");
+  }
 
 
   documentPages.forEach((pageText, index) => {
     const sheet = document.createElement("div");
     sheet.className = "doc-sheet";
     sheet.id = `documentPage-${index}`;
+    if (index !== 0 && documentPages.length > 1) sheet.classList.add("hidden");
 
 
-    const bodyHtml = buildPageBodyHtml(pageText, values);
+    const bodyHtml = renderPageBodyHtml(pageText);
 
 
     sheet.innerHTML = `
       <div class="doc-sheet-bar" style="background:${accent};"></div>
-      <div class="doc-sheet-header" style="text-align:${documentLogo ? "left" : "left"};color:${accent};">
-        ${renderDocumentLogoHtml()}
-      </div>
+      <div class="doc-sheet-header">${renderDocumentLogoHtml()}</div>
       <div class="doc-sheet-bar" style="background:${accent};"></div>
       ${index === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(currentDocumentTemplate.title)}</div>` : `<div style="height:14px;"></div>`}
       <div class="doc-sheet-body">${bodyHtml}</div>
@@ -4387,6 +4558,56 @@ function renderDocumentPreview() {
 
     wrap.appendChild(sheet);
   });
+
+
+  wrap.querySelectorAll(".doc-row-divider").forEach(d => { d.style.background = accent; });
+}
+
+
+function switchDocumentPage(index) {
+  document.querySelectorAll("#documentPreviewPages .doc-sheet").forEach((el, i) => {
+    el.classList.toggle("hidden", i !== index);
+  });
+  document.querySelectorAll("#documentPageTabs .tab-btn").forEach((btn, i) => {
+    btn.classList.toggle("active", i === index);
+  });
+}
+
+
+/* ---- Export PNG ---- */
+
+
+function swapFieldsForExport(container) {
+  const fields = container.querySelectorAll(".doc-field");
+  const restore = [];
+
+
+  fields.forEach(field => {
+    const span = document.createElement("span");
+    let text;
+    if (field.tagName === "SELECT") {
+      text = field.value ? field.options[field.selectedIndex].text : "……………………..";
+    } else {
+      text = field.value || "……………………..";
+    }
+    span.textContent = text;
+    span.style.borderBottom = "1px solid #999";
+    span.style.padding = "3px 4px";
+    span.style.fontFamily = "inherit";
+    span.style.fontSize = "13px";
+    span.style.color = field.value ? "#111" : "#999";
+    field.parentNode.insertBefore(span, field);
+    field.style.display = "none";
+    restore.push({ field, span });
+  });
+
+
+  return () => {
+    restore.forEach(({ field, span }) => {
+      field.style.display = "";
+      span.remove();
+    });
+  };
 }
 
 
@@ -4402,19 +4623,36 @@ function downloadDocumentAsPng() {
 
 
   const pages = documentPages.map((_, i) => document.getElementById(`documentPage-${i}`)).filter(Boolean);
+  const previouslyHidden = pages.map(p => p.classList.contains("hidden"));
 
 
   const exportPage = (index) => {
-    if (index >= pages.length) return;
+    if (index >= pages.length) {
+      pages.forEach((p, i) => p.classList.toggle("hidden", previouslyHidden[i]));
+      return;
+    }
 
 
-    html2canvas(pages[index], { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+    const page = pages[index];
+    page.classList.remove("hidden");
+    const restoreFields = swapFieldsForExport(page);
+
+
+    html2canvas(page, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+      restoreFields();
+      page.classList.toggle("hidden", previouslyHidden[index]);
+
+
       const link = document.createElement("a");
       link.download = pages.length > 1 ? `${safeName}-page-${index + 1}.png` : `${safeName}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
-      setTimeout(() => exportPage(index + 1), 400);
+
+
+      setTimeout(() => exportPage(index + 1), 350);
     }).catch(e => {
+      restoreFields();
+      page.classList.toggle("hidden", previouslyHidden[index]);
       toast("Impossible de générer l'image : " + e.message);
     });
   };
