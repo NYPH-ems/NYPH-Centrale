@@ -3,7 +3,6 @@ const session = require("express-session");
 const Database = require("better-sqlite3");const path = require("path");
 const app = express();const PORT = process.env.PORT || 8080;
 
-app.use(express.json());
 // Sert le dossier publicapp.use(express.static(path.join(__dirname, "public")));
 // Page principaleapp.get("/", (req, res) => {res.sendFile(path.join(__dirname, "index.html"));})
 app.listen(PORT, "0.0.0.0", () => {
@@ -812,25 +811,44 @@ Signature du médecin,
 ];
 
 
-const existingTemplateCount = db.prepare(`
-  SELECT COUNT(*) AS count FROM document_templates
-`).get().count;
+/*
+  Insère les modèles par défaut manquants, et met automatiquement à
+  niveau ceux qui correspondent encore à une ancienne version (sans le
+  paramètre {{signature}}) — ça évite d'avoir à supprimer manuellement
+  les modèles à chaque mise à jour de ce fichier. Un modèle déjà
+  personnalisé par le Directeur (donc contenant déjà {{signature}})
+  n'est jamais écrasé.
+*/
 
 
-if (existingTemplateCount === 0) {
-  const insertTemplate = db.prepare(`
-    INSERT INTO document_templates (title, content, accent_color)
-    VALUES (?, ?, ?)
-  `);
+const findTemplateByTitle = db.prepare(`
+  SELECT id, content FROM document_templates WHERE title = ?
+`);
 
-  const insertAllTemplates = db.transaction(templates => {
-    for (const t of templates) {
-      insertTemplate.run(t.title, t.content, t.accent_color || "#e5352b");
+const insertDefaultTemplate = db.prepare(`
+  INSERT INTO document_templates (title, content, accent_color)
+  VALUES (?, ?, ?)
+`);
+
+const upgradeDefaultTemplate = db.prepare(`
+  UPDATE document_templates
+  SET content = ?, accent_color = ?
+  WHERE id = ?
+`);
+
+const seedTemplates = db.transaction(templates => {
+  for (const t of templates) {
+    const existing = findTemplateByTitle.get(t.title);
+
+    if (!existing) {
+      insertDefaultTemplate.run(t.title, t.content, t.accent_color || "#e5352b");
+    } else if (!existing.content.includes("{{signature}}")) {
+      upgradeDefaultTemplate.run(t.content, t.accent_color || "#e5352b", existing.id);
     }
-  });
+  }
+});
 
-  insertAllTemplates(DEFAULT_DOCUMENT_TEMPLATES);
-}
+seedTemplates(DEFAULT_DOCUMENT_TEMPLATES);
 
 
 
