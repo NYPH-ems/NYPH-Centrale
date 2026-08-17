@@ -346,6 +346,7 @@
     font-family: 'Poppins', Arial, Helvetica, sans-serif;
     display: flex;
     flex-direction: column;
+    position: relative;
   }
   .doc-sheet-scroll { overflow-x: auto; }
   .doc-sheet.hidden { display: none !important; }
@@ -435,6 +436,7 @@
     background: #fff; color: #111; width: var(--a4-width); min-height: var(--a4-height);
     margin: 0 auto; padding: 30px 40px; font-family: 'Poppins', Arial, Helvetica, sans-serif;
     font-size: 14px; line-height: 1.7; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.4);
+    position: relative;
   }
   .tpl-editor-page:focus { outline: 2px solid var(--red); outline-offset: 2px; }
 
@@ -467,6 +469,21 @@
 
   /* Mise en page éditeur / aperçu côte à côte */
   .modal-box.xwide { width: min(1320px, 97vw); }
+
+  .tpl-section {
+    border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px; overflow: hidden;
+  }
+  .tpl-section-title {
+    background: var(--black-3); padding: 10px 14px; font-weight: 800; font-size: 13px;
+    text-transform: uppercase; letter-spacing: .04em; color: #ddd; border-bottom: 1px solid var(--border);
+  }
+  .tpl-section-body { padding: 14px; }
+
+  .tpl-help { color: var(--gray); font-size: 12px; margin-top: 10px; }
+  .tpl-help summary { cursor: pointer; color: #ccc; font-weight: 700; padding: 4px 0; }
+  .tpl-help summary:hover { color: #fff; }
+  .tpl-help div { line-height: 1.6; padding: 8px 2px 2px; }
+
   .tpl-layout { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
   .tpl-editor-col { flex: 1 1 600px; min-width: 320px; }
   .tpl-preview-col { flex: 0 0 300px; position: sticky; top: 0; }
@@ -486,6 +503,50 @@
   @media (max-width: 1050px) {
     .tpl-preview-col { position: static; flex-basis: 100%; }
     .tpl-preview-frame { width: 100%; max-width: 300px; margin: 0 auto; }
+  }
+
+  /* Page Documents : formulaire d'infos séparé de l'aperçu du document */
+  .doc-gen-layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .doc-gen-form-col { flex: 1 1 340px; min-width: 280px; max-width: 420px; }
+  .doc-gen-preview-col { flex: 1 1 500px; min-width: 320px; }
+  .doc-form-input {
+    width: 100%; background: #1a1a1a; border: 1px solid var(--border); color: #eee;
+    border-radius: 7px; padding: 9px 10px; font-family: inherit; font-size: 13px;
+  }
+  .doc-form-input:focus { outline: none; border-color: var(--red); }
+  .doc-form-patient-results {
+    position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px);
+    background: #1a1a1a; border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4); max-height: 200px; overflow-y: auto;
+  }
+  .doc-form-patient-results div { padding: 8px 10px; cursor: pointer; font-size: 13px; color: #eee; border-bottom: 1px solid #2a2a2a; }
+  .doc-form-patient-results div:last-child { border-bottom: none; }
+  .doc-form-patient-results div:hover { background: #2a2a2a; }
+
+  /* Champs déjà remplis, affichés en lecture seule directement sur le document */
+  .doc-resolved-field { display: inline-block; padding: 3px 4px; border-bottom: 1px solid #ccc; min-width: 60px; color: #111; vertical-align: middle; }
+  .doc-resolved-multiline {
+    display: inline-block; white-space: pre-wrap; border: 1px solid #eee; border-radius: 5px;
+    background: #fafafa; padding: 6px 8px; vertical-align: top; min-width: 120px;
+  }
+  .doc-resolved-empty { color: #aaa; }
+
+  /* Fond de page importé depuis un PDF (reproduit sa forme exacte) */
+  .doc-sheet.doc-sheet-bg-page { padding: 0; }
+  .doc-sheet-body.doc-sheet-body-bg { padding: 0; position: relative; min-height: var(--a4-height); }
+  .tpl-editor-page.tpl-editor-page-bg { padding: 0; }
+  .doc-page-bg-wrap { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .doc-page-bg-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; background: #fff; }
+
+  /* Zone de texte positionnée librement (utile par-dessus un fond PDF importé) */
+  .doc-text-wrap { display: inline-block; border: 1px dashed transparent; position: relative; }
+  .doc-text-wrap.tpl-editing { border-color: #bbb; }
+  .doc-text-wrap.tpl-editing.tpl-img-selected { border-color: var(--red); }
+  .doc-text-wrap.tpl-editing.tpl-dragging { border-color: var(--red); }
+  .doc-text-wrap-inner { display: block; padding: 2px 4px; min-height: 1em; outline: none; }
+  .tpl-text-drag-handle {
+    position: absolute; top: -18px; left: 0; cursor: grab; background: #111; color: #fff;
+    font-size: 11px; padding: 1px 5px; border-radius: 4px; opacity: .85; z-index: 6; user-select: none;
   }
 
 
@@ -824,6 +885,12 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== "undefined") {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
+  }
+</script>
 </head>
 <body>
 
@@ -1259,51 +1326,54 @@
       </div>
 
       <div class="form">
-        <div class="form-grid">
-          <div class="field">
-            <label>Modèle de document</label>
-            <select id="documentTemplateSelect" onchange="onDocumentTemplateChange()">
-              <option value="">— Choisir un modèle —</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Signature (image)</label>
-            <input type="file" id="documentSignatureInput" accept="image/*" onchange="onDocumentSignatureChange(event)">
-            <a href="https://onlinesignatures.net/fr" target="_blank" rel="noopener" style="color:var(--red);font-size:12px;margin-top:6px;display:inline-block;">✍️ Pas encore de signature ? Crée-en une ici</a>
-          </div>
+        <div class="field">
+          <label>Modèle de document</label>
+          <select id="documentTemplateSelect" onchange="onDocumentTemplateChange()">
+            <option value="">— Choisir un modèle —</option>
+          </select>
         </div>
       </div>
 
       <div id="documentGeneratorBox" class="hidden">
-        <div class="tabs hidden" id="documentPageTabs"></div>
-        <div id="documentPreviewPages"></div>
+        <div class="doc-gen-layout">
+          <div class="doc-gen-form-col">
+            <div class="tpl-preview-label">Informations à remplir</div>
+            <div id="documentFieldsForm"></div>
 
-        <div class="form" id="documentDownloadOptions" style="margin-top:14px;">
-          <div class="form-grid">
-            <div class="field">
-              <label>Pages à télécharger</label>
-              <select id="documentDownloadMode" onchange="onDocumentDownloadModeChange()">
-                <option value="all">Toutes les pages</option>
-                <option value="single">Une seule page</option>
-                <option value="range">Une plage de pages</option>
-              </select>
+            <div class="form" id="documentDownloadOptions" style="margin-top:6px;">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Pages à télécharger</label>
+                  <select id="documentDownloadMode" onchange="onDocumentDownloadModeChange()">
+                    <option value="all">Toutes les pages</option>
+                    <option value="single">Une seule page</option>
+                    <option value="range">Une plage de pages</option>
+                  </select>
+                </div>
+                <div class="field hidden" id="documentDownloadSingleField">
+                  <label>Numéro de page</label>
+                  <input type="number" id="documentDownloadSingle" min="1" placeholder="Ex : 1">
+                </div>
+                <div class="field hidden" id="documentDownloadFromField">
+                  <label>De la page</label>
+                  <input type="number" id="documentDownloadFrom" min="1" placeholder="Ex : 2">
+                </div>
+                <div class="field hidden" id="documentDownloadToField">
+                  <label>À la page</label>
+                  <input type="number" id="documentDownloadTo" min="1" placeholder="Ex : 3">
+                </div>
+              </div>
             </div>
-            <div class="field hidden" id="documentDownloadSingleField">
-              <label>Numéro de page</label>
-              <input type="number" id="documentDownloadSingle" min="1" placeholder="Ex : 1">
-            </div>
-            <div class="field hidden" id="documentDownloadFromField">
-              <label>De la page</label>
-              <input type="number" id="documentDownloadFrom" min="1" placeholder="Ex : 2">
-            </div>
-            <div class="field hidden" id="documentDownloadToField">
-              <label>À la page</label>
-              <input type="number" id="documentDownloadTo" min="1" placeholder="Ex : 3">
-            </div>
+
+            <button class="btn btn-red" style="margin-top:6px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
+          </div>
+
+          <div class="doc-gen-preview-col">
+            <div class="tpl-preview-label" id="documentPreviewLabel">Aperçu du document</div>
+            <div class="tabs hidden" id="documentPageTabs"></div>
+            <div id="documentPreviewPages"></div>
           </div>
         </div>
-
-        <button class="btn btn-red" style="margin-top:14px;" onclick="downloadDocumentAsPng()">🖼️ Télécharger en PNG</button>
       </div>
 
       <div id="documentsEmptyState" class="empty hidden">Aucun modèle de document n'a encore été créé. Le Directeur peut en ajouter depuis l'onglet Direction.</div>
@@ -1850,90 +1920,107 @@
     </div>
 
     <form onsubmit="submitTemplateForm(event)">
-      <div class="form-grid">
-        <div class="field">
-          <label>Titre du modèle</label>
-          <input type="text" id="templateTitleInput" required placeholder="Ex : Attestation médicale" oninput="renderTplPreview()">
-        </div>
-        <div class="field">
-          <label>Couleur d'accent (bandeaux, titre)</label>
-          <input type="color" id="templateColorInput" value="#e5352b" style="height:44px;padding:4px;" oninput="renderTplPreview()">
-        </div>
-      </div>
-
-      <br>
-
-      <div class="tpl-field-settings">
-        <label>Police par défaut
-          <select id="templateDefaultFont" onchange="renderTplPreview()">
-            <option value="Poppins">Poppins</option>
-            <option value="Calibri">Calibri</option>
-          </select>
-        </label>
-        <label>Largeur des champs texte libre (px)
-          <input type="number" id="templateFieldWidth" min="60" max="700" value="220" oninput="renderTplPreview()">
-        </label>
-        <label>Lignes des champs texte libre
-          <input type="number" id="templateFieldRows" min="1" max="20" value="1" oninput="renderTplPreview()">
-        </label>
-      </div>
-
-      <div class="tpl-toolbar" id="tplToolbar">
-        <select id="tplFontSelect" title="Police du texte sélectionné" onchange="tplApplyFont(this.value)">
-          <option value="">Police...</option>
-          <option value="Poppins">Poppins</option>
-          <option value="Calibri">Calibri</option>
-        </select>
-        <select id="tplSizeSelect" title="Taille du texte sélectionné" onchange="tplApplySize(this.value)">
-          <option value="">Taille...</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-          <option value="13">13</option>
-          <option value="14">14</option>
-          <option value="16">16</option>
-          <option value="18">18</option>
-          <option value="20">20</option>
-          <option value="24">24</option>
-          <option value="28">28</option>
-          <option value="32">32</option>
-          <option value="36">36</option>
-        </select>
-        <div class="tpl-sep"></div>
-        <button type="button" onclick="tplExec('bold')" title="Gras"><b>G</b></button>
-        <button type="button" onclick="tplExec('italic')" title="Italique"><i>I</i></button>
-        <button type="button" onclick="tplExec('underline')" title="Souligné"><u>S</u></button>
-        <div class="tpl-sep"></div>
-        <button type="button" onclick="tplInsertImage()" title="Insérer une image">🖼️ Image</button>
-        <button type="button" onclick="tplInsertField()" title="Insérer un champ texte libre">🔤 Champ libre</button>
-        <button type="button" onclick="tplInsertSignature()" title="Insérer la signature">✍️ Signature</button>
-        <button type="button" onclick="tplInsertDoctor()" title="Insérer le nom du soignant">🩺 Nom soignant</button>
-        <div class="tpl-sep"></div>
-        <button type="button" onclick="addTemplatePage()" title="Ajouter une page">➕ Page</button>
-        <button type="button" onclick="removeTemplatePage()" title="Supprimer la page active">🗑️ Page</button>
-      </div>
-      <input type="file" id="tplImageFileInput" accept="image/*" class="hidden" onchange="onTplImageFileChosen(event)">
-
-      <div class="tpl-layout">
-        <div class="tpl-editor-col">
-          <div class="tpl-pages-tabs" id="tplPagesTabs"></div>
-
-          <div class="tpl-editor-scroll">
-            <div id="templateEditorPages"></div>
+      <div class="tpl-section">
+        <div class="tpl-section-title">📋 Informations du modèle</div>
+        <div class="tpl-section-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Titre du modèle</label>
+              <input type="text" id="templateTitleInput" required placeholder="Ex : Attestation médicale" oninput="renderTplPreview()">
+            </div>
+            <div class="field">
+              <label>Couleur d'accent (bandeaux, titre)</label>
+              <input type="color" id="templateColorInput" value="#e5352b" style="height:44px;padding:4px;" oninput="renderTplPreview()">
+            </div>
           </div>
 
-          <div style="color:var(--gray);font-size:12px;margin-top:10px;line-height:1.6;">
-            Sélectionne du texte puis utilise la barre d'outils pour changer sa police, sa taille, ou le mettre en gras / italique / souligné.<br>
-            <code>🔤 Champ libre</code> insère un champ modifiable par l'utilisateur (ex : <code>{{nom_parametre}}</code>). Ajoute <code>|Option A;Option B</code> dans son nom pour en faire un menu déroulant.<br>
-            <code>🖼️ Image</code> insère une image : glisse-la où tu veux directement à la souris, utilise le petit carré rouge en bas à droite pour la redimensionner / rogner, ou les flèches et boutons ＋ / － pour un réglage précis.<br>
-            La date du jour est ajoutée automatiquement en bas de chaque page et se met à jour toute seule à minuit.
+          <div class="tpl-field-settings" style="margin-top:12px;margin-bottom:0;">
+            <label>Police par défaut
+              <select id="templateDefaultFont" onchange="renderTplPreview()">
+                <option value="Poppins">Poppins</option>
+                <option value="Calibri">Calibri</option>
+              </select>
+            </label>
+            <label>Largeur des champs texte libre (px)
+              <input type="number" id="templateFieldWidth" min="60" max="700" value="220" oninput="renderTplPreview()">
+            </label>
+            <label>Lignes des champs texte libre
+              <input type="number" id="templateFieldRows" min="1" max="20" value="1" oninput="renderTplPreview()">
+            </label>
           </div>
         </div>
+      </div>
 
-        <div class="tpl-preview-col">
-          <div class="tpl-preview-label" id="tplPreviewPageLabel">Aperçu</div>
-          <div class="tpl-preview-frame">
-            <div class="tpl-preview-scale" id="tplPreviewSheet"></div>
+      <div class="tpl-section">
+        <div class="tpl-section-title">📄 Document</div>
+        <div class="tpl-section-body">
+          <div class="tpl-toolbar" id="tplToolbar">
+            <select id="tplFontSelect" title="Police du texte sélectionné" onchange="tplApplyFont(this.value)">
+              <option value="">Police...</option>
+              <option value="Poppins">Poppins</option>
+              <option value="Calibri">Calibri</option>
+            </select>
+            <select id="tplSizeSelect" title="Taille du texte sélectionné" onchange="tplApplySize(this.value)">
+              <option value="">Taille...</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="16">16</option>
+              <option value="18">18</option>
+              <option value="20">20</option>
+              <option value="24">24</option>
+              <option value="28">28</option>
+              <option value="32">32</option>
+              <option value="36">36</option>
+            </select>
+            <div class="tpl-sep"></div>
+            <button type="button" onclick="tplExec('bold')" title="Gras"><b>G</b></button>
+            <button type="button" onclick="tplExec('italic')" title="Italique"><i>I</i></button>
+            <button type="button" onclick="tplExec('underline')" title="Souligné"><u>S</u></button>
+            <div class="tpl-sep"></div>
+            <button type="button" onclick="tplInsertImage()" title="Insérer une image">🖼️ Image</button>
+            <button type="button" onclick="tplInsertTextBox()" title="Insérer une zone de texte positionnée librement">📍 Zone positionnée</button>
+            <button type="button" onclick="tplInsertField()" title="Insérer un champ texte libre">🔤 Champ libre</button>
+            <button type="button" onclick="tplInsertSignature()" title="Insérer la signature">✍️ Signature</button>
+            <button type="button" onclick="tplInsertDoctor()" title="Insérer le nom du soignant">🩺 Nom soignant</button>
+            <div class="tpl-sep"></div>
+            <button type="button" onclick="tplImportPdf()" title="Importer un PDF comme fond de page (reproduit sa forme exacte)">📄 Importer un PDF</button>
+            <button type="button" onclick="tplRemovePageBackground()" title="Retirer le fond PDF de la page active">🗑️ Retirer le fond</button>
+            <div class="tpl-sep"></div>
+            <button type="button" onclick="addTemplatePage()" title="Ajouter une page">➕ Page</button>
+            <button type="button" onclick="removeTemplatePage()" title="Supprimer la page active">🗑️ Page</button>
+          </div>
+          <input type="file" id="tplImageFileInput" accept="image/*" class="hidden" onchange="onTplImageFileChosen(event)">
+          <input type="file" id="tplPdfFileInput" accept="application/pdf" class="hidden" onchange="onTplPdfFileChosen(event)">
+
+          <div class="tpl-layout">
+            <div class="tpl-editor-col">
+              <div class="tpl-pages-tabs" id="tplPagesTabs"></div>
+
+              <div class="tpl-editor-scroll">
+                <div id="templateEditorPages"></div>
+              </div>
+
+              <details class="tpl-help">
+                <summary>Comment ça marche ?</summary>
+                <div>
+                  Sélectionne du texte puis utilise la barre d'outils pour changer sa police, sa taille, ou le mettre en gras / italique / souligné.<br>
+                  <code>🔤 Champ libre</code> insère un champ modifiable par l'utilisateur (ex : <code>{{nom_parametre}}</code>). Ajoute <code>|Option A;Option B</code> dans son nom pour en faire un menu déroulant.<br>
+                  <code>🖼️ Image</code> insère une image : glisse-la où tu veux directement à la souris, utilise le petit carré rouge en bas à droite pour la redimensionner / rogner, ou les flèches et boutons ＋ / － pour un réglage précis.<br>
+                  <code>📄 Importer un PDF</code> remplace les pages du modèle par une image exacte de chaque page du PDF (même mise en page, même forme). Utilise ensuite <code>📍 Zone positionnée</code> pour placer un champ ou du texte pile à l'endroit voulu par-dessus le PDF.<br>
+                  La date du jour est ajoutée automatiquement en bas de chaque page et se met à jour toute seule à minuit.
+                </div>
+              </details>
+            </div>
+
+            <div class="tpl-preview-col">
+              <div class="tpl-preview-label" id="tplPreviewPageLabel">Aperçu</div>
+              <div class="tpl-preview-frame">
+                <div class="tpl-preview-scale" id="tplPreviewSheet"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -4405,6 +4492,7 @@ let documentLogo = null;
 let documentSignatureData = null;
 let documentTemplateSettings = { font: "Poppins", fieldWidth: 220, fieldRows: 1 };
 let documentTemplateRich = false;
+let documentFieldValues = {};
 
 
 /*
@@ -4547,8 +4635,11 @@ async function onDocumentTemplateChange() {
   documentPages = parsed.pages;
   documentTemplateSettings = parsed.settings;
   documentTemplateRich = parsed.rich;
+  documentFieldValues = {};
+  documentSignatureData = null;
   document.getElementById("documentDownloadMode").value = "all";
   onDocumentDownloadModeChange();
+  renderDocumentFieldsForm();
   renderDocumentPreview();
 }
 
@@ -4559,6 +4650,173 @@ function onDocumentDownloadModeChange() {
   document.getElementById("documentDownloadFromField").classList.toggle("hidden", mode !== "range");
   document.getElementById("documentDownloadToField").classList.toggle("hidden", mode !== "range");
 }
+
+
+/* ---- Formulaire "Informations à remplir", séparé de l'aperçu du document ---- */
+
+
+function getAllTemplateParams() {
+  return extractDocumentParams(documentPages.join("\n"));
+}
+
+
+function humanizeFieldKey(key) {
+  const label = key.replace(/_/g, " ").trim();
+  return label ? label.charAt(0).toUpperCase() + label.slice(1) : key;
+}
+
+
+function renderDocumentFieldsForm() {
+  const box = document.getElementById("documentFieldsForm");
+  if (!box) return;
+  box.innerHTML = "";
+
+
+  const params = getAllTemplateParams();
+  if (!params.length) {
+    box.innerHTML = `<p style="color:var(--gray);font-size:13px;">Ce modèle ne contient aucune information à remplir.</p>`;
+    return;
+  }
+
+
+  params.forEach(({ key, options }) => {
+    const field = document.createElement("div");
+    field.className = "field";
+    field.style.marginBottom = "14px";
+    const fieldId = `docFormField-${key}`;
+
+
+    if (key === "signature") {
+      field.innerHTML = `
+        <label>Signature</label>
+        <input type="file" accept="image/*" onchange="onDocumentSignatureChange(event)">
+        <a href="https://onlinesignatures.net/fr" target="_blank" rel="noopener" style="color:var(--red);font-size:12px;margin-top:6px;display:inline-block;">✍️ Pas encore de signature ? Crée-en une ici</a>
+      `;
+      box.appendChild(field);
+      return;
+    }
+
+
+    if (key === "nom_patient" || key === "nom_patiente") {
+      field.innerHTML = `
+        <label>${humanizeFieldKey(key)}</label>
+        <div style="position:relative;">
+          <input type="text" class="doc-form-input" id="${fieldId}" placeholder="Rechercher un patient..." autocomplete="off"
+                 oninput="onDocFormPatientSearchInput(this,'${key}')" onfocus="onDocFormPatientSearchInput(this,'${key}')">
+          <div class="doc-form-patient-results hidden"></div>
+        </div>
+      `;
+      box.appendChild(field);
+      return;
+    }
+
+
+    if (key === "nom_medecin") {
+      const defaultName = currentUser?.nickname || currentUser?.username || "";
+      documentFieldValues[key] = defaultName;
+      field.innerHTML = `
+        <label>${humanizeFieldKey(key)}</label>
+        <input type="text" class="doc-form-input" id="${fieldId}" value="${escapeHtml(defaultName)}"
+               oninput="onDocumentFieldInput('${key}', this.value)">
+      `;
+      box.appendChild(field);
+      return;
+    }
+
+
+    if (options && options.length) {
+      const optHtml = options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+      field.innerHTML = `
+        <label>${humanizeFieldKey(key)}</label>
+        <select class="doc-form-input" id="${fieldId}" onchange="onDocumentFieldInput('${key}', this.value)">
+          <option value="">— Sélectionner —</option>${optHtml}
+        </select>
+      `;
+      box.appendChild(field);
+      return;
+    }
+
+
+    if (key.includes("date")) {
+      field.innerHTML = `
+        <label>${humanizeFieldKey(key)}</label>
+        <input type="date" class="doc-form-input" id="${fieldId}" oninput="onDocumentFieldInput('${key}', this.value)">
+      `;
+      box.appendChild(field);
+      return;
+    }
+
+
+    const rows = Math.max(1, Number(documentTemplateSettings.fieldRows) || 1);
+    field.innerHTML = rows > 1
+      ? `<label>${humanizeFieldKey(key)}</label><textarea class="doc-form-input" id="${fieldId}" rows="${rows}" oninput="onDocumentFieldInput('${key}', this.value)"></textarea>`
+      : `<label>${humanizeFieldKey(key)}</label><input type="text" class="doc-form-input" id="${fieldId}" oninput="onDocumentFieldInput('${key}', this.value)">`;
+    box.appendChild(field);
+  });
+}
+
+
+function onDocumentFieldInput(key, value) {
+  documentFieldValues[key] = value;
+  renderDocumentPreview();
+}
+
+
+function onDocFormPatientSearchInput(input, key) {
+  const box = input.parentElement.querySelector(".doc-form-patient-results");
+  const search = input.value.trim().toLowerCase();
+  documentFieldValues[key] = input.value;
+
+
+  if (!search) { box.classList.add("hidden"); box.innerHTML = ""; renderDocumentPreview(); return; }
+
+
+  const matches = patients
+    .filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(search))
+    .slice(0, 8);
+
+
+  box.innerHTML = "";
+  if (!matches.length) {
+    box.innerHTML = `<div style="cursor:default;color:#888;">Aucun dossier patient trouvé.</div>`;
+  } else {
+    matches.forEach(p => {
+      const div = document.createElement("div");
+      div.textContent = `${p.first_name} ${p.last_name}`;
+      div.onclick = () => selectDocFormPatient(input, key, p);
+      box.appendChild(div);
+    });
+  }
+  box.classList.remove("hidden");
+  renderDocumentPreview();
+}
+
+
+function selectDocFormPatient(input, key, patient) {
+  const fullName = `${patient.first_name} ${patient.last_name}`;
+  input.value = fullName;
+  documentFieldValues[key] = fullName;
+  const box = input.parentElement.querySelector(".doc-form-patient-results");
+  box.classList.add("hidden");
+  box.innerHTML = "";
+
+
+  if (patient.birth_date) {
+    const dobInput = document.getElementById("docFormField-date_naissance");
+    const iso = patient.birth_date.slice(0, 10);
+    if (dobInput) dobInput.value = iso;
+    documentFieldValues.date_naissance = iso;
+  }
+
+
+  renderDocumentPreview();
+}
+
+
+document.addEventListener("click", e => {
+  if (e.target.closest(".doc-form-patient-results") || (e.target.id && e.target.id.startsWith("docFormField-"))) return;
+  document.querySelectorAll(".doc-form-patient-results").forEach(box => box.classList.add("hidden"));
+});
 
 
 /* ---- Champs spéciaux intégrés directement dans le document ---- */
@@ -4661,6 +4919,46 @@ function formatDocDate(isoDate) {
 /* ---- Rendu du contenu (texte + champs intégrés) ---- */
 
 
+/*
+  Affiche un champ déjà résolu (valeur saisie dans le formulaire "Informations
+  à remplir", à gauche) directement sur le document, en lecture seule. C'est
+  ce qui permet de séparer la saisie des informations de l'aperçu du document.
+*/
+function renderResolvedField(key, optionsRaw, fieldValues) {
+  if (key === "signature") return renderSignatureSlot();
+
+
+  let text = fieldValues[key] || "";
+  let placeholder = "……………………..";
+  let multiline = false;
+
+
+  if (key.includes("date")) {
+    text = text ? formatDocDate(text) : "";
+    placeholder = "jj/mm/aaaa";
+  } else if (!optionsRaw && key !== "nom_medecin" && key !== "nom_patient" && key !== "nom_patiente") {
+    multiline = true;
+  }
+
+
+  const displayText = text
+    ? (multiline ? escapeHtml(text).replace(/\r?\n/g, "<br>") : escapeHtml(text))
+    : `<span class="doc-resolved-empty">${escapeHtml(placeholder)}</span>`;
+
+
+  return `<span class="doc-resolved-field${multiline ? " doc-resolved-multiline" : ""}">${displayText}</span>`;
+}
+
+
+function renderInlineContentResolved(html, fieldValues) {
+  const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
+  return (html || "").replace(regex, (whole, key, optsPart) => {
+    const optionsRaw = optsPart ? optsPart.slice(1) : null;
+    return renderResolvedField(key, optionsRaw, fieldValues);
+  });
+}
+
+
 function renderInlineContent(text, fieldWidth, fieldRows) {
   const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
   let html = "";
@@ -4737,9 +5035,26 @@ function renderInlineContentHtml(html, fieldWidth, fieldRows) {
 }
 
 
-function renderPageBodyHtml(pageText, fieldWidth, fieldRows) {
+function renderPageBodyHtml(pageText, fieldValues) {
   const lines = pageText.split(/\r?\n/);
   let html = "";
+
+
+  const resolveText = (text) => {
+    const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
+    let out = "";
+    let lastIndex = 0;
+    let m;
+    while ((m = regex.exec(text)) !== null) {
+      out += escapeHtml(text.slice(lastIndex, m.index));
+      const key = m[1];
+      const optionsRaw = m[2] ? m[2].slice(1) : null;
+      out += renderResolvedField(key, optionsRaw, fieldValues);
+      lastIndex = regex.lastIndex;
+    }
+    out += escapeHtml(text.slice(lastIndex));
+    return out;
+  };
 
 
   lines.forEach(line => {
@@ -4768,7 +5083,7 @@ function renderPageBodyHtml(pageText, fieldWidth, fieldRows) {
           <div class="doc-row">
             <div class="doc-row-label">${escapeHtml(label)}</div>
             <div class="doc-row-divider"></div>
-            <div class="doc-row-value">${renderInlineContent(rest, fieldWidth, fieldRows)}</div>
+            <div class="doc-row-value">${resolveText(rest)}</div>
           </div>
         `;
         return;
@@ -4776,7 +5091,7 @@ function renderPageBodyHtml(pageText, fieldWidth, fieldRows) {
     }
 
 
-    html += `<div class="doc-paragraph">${renderInlineContent(trimmed, fieldWidth, fieldRows)}</div>`;
+    html += `<div class="doc-paragraph">${resolveText(trimmed)}</div>`;
   });
 
 
@@ -4858,17 +5173,23 @@ function renderDocumentPreview() {
     if (index !== 0 && documentPages.length > 1) sheet.classList.add("hidden");
 
 
+    const hasBg = pageContent.includes("doc-page-bg-wrap");
+    if (hasBg) sheet.classList.add("doc-sheet-bg-page");
+
+
     const bodyHtml = documentTemplateRich
-      ? renderInlineContentHtml(pageContent, documentTemplateSettings.fieldWidth, documentTemplateSettings.fieldRows)
-      : renderPageBodyHtml(pageContent, documentTemplateSettings.fieldWidth, documentTemplateSettings.fieldRows);
+      ? renderInlineContentResolved(pageContent, documentFieldValues)
+      : renderPageBodyHtml(pageContent, documentFieldValues);
 
 
     sheet.innerHTML = `
-      <div class="doc-sheet-bar" style="background:${accent};"></div>
-      <div class="doc-sheet-header">${renderDocumentLogoHtml()}</div>
-      <div class="doc-sheet-bar" style="background:${accent};"></div>
-      ${index === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(currentDocumentTemplate.title)}</div>` : `<div style="height:14px;"></div>`}
-      <div class="doc-sheet-body">${bodyHtml}</div>
+      ${hasBg ? "" : `
+        <div class="doc-sheet-bar" style="background:${accent};"></div>
+        <div class="doc-sheet-header">${renderDocumentLogoHtml()}</div>
+        <div class="doc-sheet-bar" style="background:${accent};"></div>
+        ${index === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(currentDocumentTemplate.title)}</div>` : `<div style="height:14px;"></div>`}
+      `}
+      <div class="doc-sheet-body ${hasBg ? "doc-sheet-body-bg" : ""}">${bodyHtml}</div>
       ${documentPages.length > 1 ? `<div class="doc-page-number">Page ${index + 1} / ${documentPages.length}</div>` : ""}
       <div class="doc-date-footer" data-doc-date-footer="1">Document généré le ${todayText}</div>
     `;
@@ -4900,46 +5221,6 @@ function switchDocumentPage(index) {
 
 
 /* ---- Export PNG ---- */
-
-
-function swapFieldsForExport(container) {
-  const fields = container.querySelectorAll(".doc-field");
-  const restore = [];
-
-
-  fields.forEach(field => {
-    const span = document.createElement("span");
-    let text;
-    if (field.tagName === "SELECT") {
-      text = field.value ? field.options[field.selectedIndex].text : "……………………..";
-    } else {
-      text = field.value || "……………………..";
-    }
-    span.textContent = text;
-    span.style.borderBottom = "1px solid #999";
-    span.style.padding = "3px 4px";
-    span.style.fontFamily = "inherit";
-    span.style.fontSize = "13px";
-    span.style.color = field.value ? "#111" : "#999";
-    if (field.tagName === "TEXTAREA") {
-      span.style.whiteSpace = "pre-wrap";
-      span.style.display = "inline-block";
-      span.style.minWidth = field.style.width || "220px";
-      span.style.verticalAlign = "top";
-    }
-    field.parentNode.insertBefore(span, field);
-    field.style.display = "none";
-    restore.push({ field, span });
-  });
-
-
-  return () => {
-    restore.forEach(({ field, span }) => {
-      field.style.display = "";
-      span.remove();
-    });
-  };
-}
 
 
 /*
@@ -4994,6 +5275,8 @@ function downloadDocumentAsPng() {
   });
 
 
+  // Le document est déjà entièrement en texte résolu (les informations viennent
+  // du formulaire séparé) : l'export capture directement la page, sans manipulation.
   const exportPage = (pos) => {
     if (pos >= pages.length) {
       previouslyHiddenByIndex.forEach((hidden, i) => {
@@ -5007,11 +5290,9 @@ function downloadDocumentAsPng() {
     const realIndex = indices[pos];
     const page = pages[pos];
     page.classList.remove("hidden");
-    const restoreFields = swapFieldsForExport(page);
 
 
     html2canvas(page, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
-      restoreFields();
       page.classList.toggle("hidden", previouslyHiddenByIndex.get(realIndex));
 
 
@@ -5023,7 +5304,6 @@ function downloadDocumentAsPng() {
 
       setTimeout(() => exportPage(pos + 1), 350);
     }).catch(e => {
-      restoreFields();
       page.classList.toggle("hidden", previouslyHiddenByIndex.get(realIndex));
       toast("Impossible de générer l'image : " + e.message);
     });
@@ -5193,7 +5473,7 @@ function renderTplEditor() {
 
 
     const editor = document.createElement("div");
-    editor.className = `tpl-editor-page ${i === tplActivePage ? "" : "hidden"}`;
+    editor.className = `tpl-editor-page ${i === tplActivePage ? "" : "hidden"} ${html.includes("doc-page-bg-wrap") ? "tpl-editor-page-bg" : ""}`;
     editor.id = `tplEditorPage-${i}`;
     editor.contentEditable = "true";
     editor.innerHTML = html;
@@ -5256,18 +5536,22 @@ function renderTplPreview() {
   const rawHtml = editor ? editor.innerHTML : (tplPages[tplActivePage] || "");
   const cleaned = cleanTplPageHtmlForSave(rawHtml);
   const bodyHtml = renderInlineContentHtml(cleaned, fieldWidth, fieldRows);
+  const hasBg = cleaned.includes("doc-page-bg-wrap");
 
 
   const todayText = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
 
 
   previewBox.style.fontFamily = fontFamily;
+  previewBox.classList.toggle("doc-sheet-bg-page", hasBg);
   previewBox.innerHTML = `
-    <div class="doc-sheet-bar" style="background:${accent};"></div>
-    <div class="doc-sheet-header">${renderDocumentLogoHtml()}</div>
-    <div class="doc-sheet-bar" style="background:${accent};"></div>
-    ${tplActivePage === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(title)}</div>` : `<div style="height:14px;"></div>`}
-    <div class="doc-sheet-body">${bodyHtml}</div>
+    ${hasBg ? "" : `
+      <div class="doc-sheet-bar" style="background:${accent};"></div>
+      <div class="doc-sheet-header">${renderDocumentLogoHtml()}</div>
+      <div class="doc-sheet-bar" style="background:${accent};"></div>
+      ${tplActivePage === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(title)}</div>` : `<div style="height:14px;"></div>`}
+    `}
+    <div class="doc-sheet-body ${hasBg ? "doc-sheet-body-bg" : ""}">${bodyHtml}</div>
     ${tplPages.length > 1 ? `<div class="doc-page-number">Page ${tplActivePage + 1} / ${tplPages.length}</div>` : ""}
     <div class="doc-date-footer">Document généré le ${todayText}</div>
   `;
@@ -5395,6 +5679,100 @@ function onTplImageFileChosen(event) {
 }
 
 
+/* Zone de texte positionnée librement (utile par-dessus un fond PDF importé) */
+
+
+function tplInsertTextBox() {
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  const id = "textwrap-" + Math.random().toString(36).slice(2, 9);
+  const html = `<span class="doc-text-wrap tpl-editing" id="${id}" contenteditable="false" ` +
+    `style="position:absolute;top:40px;left:40px;width:200px;min-height:26px;" ` +
+    `onclick="selectTplImage(event,'${id}')">` +
+    `<span class="tpl-text-drag-handle" onmousedown="startDragTplImage(event,'${id}')" title="Déplacer">⠿</span>` +
+    `<span class="doc-text-wrap-inner" contenteditable="true">{{champ}}</span>` +
+    `<span class="tpl-img-resize" onmousedown="startResizeTplImage(event,'${id}')"></span>` +
+    `<span class="tpl-img-controls hidden">` +
+    `<button type="button" onmousedown="event.stopPropagation()" onclick="removeTplImageWrap(event,'${id}')">✕</button>` +
+    `</span></span>&nbsp;`;
+  document.execCommand("insertHTML", false, html);
+  renderTplPreview();
+  toast("Zone de texte ajoutée : fais-la glisser par sa poignée ⠿ pour la placer, puis modifie son texte.");
+}
+
+
+/* Import d'un PDF comme fond de page (reproduit sa forme exacte) */
+
+
+function tplImportPdf() {
+  document.getElementById("tplPdfFileInput").click();
+}
+
+
+async function onTplPdfFileChosen(event) {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file) return;
+
+
+  if (typeof pdfjsLib === "undefined") {
+    toast("Le lecteur PDF n'a pas pu se charger (connexion internet requise).");
+    return;
+  }
+  if (file.type !== "application/pdf") {
+    toast("Merci de choisir un fichier PDF.");
+    return;
+  }
+  if (!confirm("Importer ce PDF va remplacer toutes les pages actuelles du modèle par une image de chaque page du PDF. Continuer ?")) {
+    return;
+  }
+
+
+  toast("Import du PDF en cours...");
+
+
+  try {
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+    const newPages = [];
+
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d");
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+      newPages.push(`<div class="doc-page-bg-wrap" contenteditable="false" data-doc-bg="1"><img src="${dataUrl}" alt="Fond de page importé du PDF"></div>`);
+    }
+
+
+    tplPages = newPages;
+    tplActivePage = 0;
+    tplSavedRange = null;
+    renderTplEditor();
+    toast(`PDF importé (${newPages.length} page${newPages.length > 1 ? "s" : ""}). Utilise "📍 Zone positionnée" pour ajouter des champs par-dessus.`);
+  } catch (e) {
+    toast("Impossible de lire ce PDF : " + e.message);
+  }
+}
+
+
+function tplRemovePageBackground() {
+  const editor = document.getElementById(`tplEditorPage-${tplActivePage}`);
+  if (!editor) return;
+  const bg = editor.querySelector(".doc-page-bg-wrap");
+  if (!bg) { toast("Cette page n'a pas de fond PDF."); return; }
+  bg.remove();
+  syncActiveTplPageFromDom();
+  renderTplEditor();
+  toast("Fond retiré.");
+}
+
+
 function insertImageIntoActiveEditor(dataUrl) {
   const editor = getActiveTplEditor();
   if (!editor) return;
@@ -5420,7 +5798,7 @@ function insertImageIntoActiveEditor(dataUrl) {
 
 function selectTplImage(event, id) {
   event.stopPropagation();
-  document.querySelectorAll(".doc-img-wrap.tpl-img-selected").forEach(w => w.classList.remove("tpl-img-selected"));
+  document.querySelectorAll(".doc-img-wrap.tpl-img-selected, .doc-text-wrap.tpl-img-selected").forEach(w => w.classList.remove("tpl-img-selected"));
   document.querySelectorAll(".tpl-img-controls").forEach(c => c.classList.add("hidden"));
   const wrap = document.getElementById(id);
   if (!wrap) return;
@@ -5536,9 +5914,9 @@ function removeTplImageWrap(event, id) {
 
 
 document.addEventListener("click", e => {
-  if (e.target.closest(".doc-img-wrap")) return;
+  if (e.target.closest(".doc-img-wrap") || e.target.closest(".doc-text-wrap")) return;
   document.querySelectorAll(".tpl-img-controls").forEach(c => c.classList.add("hidden"));
-  document.querySelectorAll(".doc-img-wrap.tpl-img-selected").forEach(w => w.classList.remove("tpl-img-selected"));
+  document.querySelectorAll(".doc-img-wrap.tpl-img-selected, .doc-text-wrap.tpl-img-selected").forEach(w => w.classList.remove("tpl-img-selected"));
 });
 
 
@@ -5551,12 +5929,14 @@ function cleanTplPageHtmlForSave(html) {
   div.innerHTML = html;
   div.querySelectorAll(".tpl-img-controls").forEach(el => el.remove());
   div.querySelectorAll(".tpl-img-resize").forEach(el => el.remove());
-  div.querySelectorAll(".doc-img-wrap").forEach(el => {
+  div.querySelectorAll(".tpl-text-drag-handle").forEach(el => el.remove());
+  div.querySelectorAll(".doc-img-wrap, .doc-text-wrap").forEach(el => {
     el.classList.remove("tpl-editing", "tpl-img-selected", "tpl-dragging");
     el.removeAttribute("contenteditable");
     el.removeAttribute("onclick");
     el.removeAttribute("onmousedown");
   });
+  div.querySelectorAll(".doc-text-wrap-inner").forEach(el => el.removeAttribute("contenteditable"));
   return div.innerHTML;
 }
 
@@ -5564,6 +5944,8 @@ function cleanTplPageHtmlForSave(html) {
 function hydrateTplPageHtmlForEdit(html) {
   const div = document.createElement("div");
   div.innerHTML = html;
+
+
   div.querySelectorAll(".doc-img-wrap").forEach(el => {
     if (!el.id) el.id = "imgwrap-" + Math.random().toString(36).slice(2, 9);
     el.classList.add("tpl-editing");
@@ -5593,8 +5975,41 @@ function hydrateTplPageHtmlForEdit(html) {
       el.appendChild(ctrl);
     }
   });
+
+
+  div.querySelectorAll(".doc-text-wrap").forEach(el => {
+    if (!el.id) el.id = "textwrap-" + Math.random().toString(36).slice(2, 9);
+    el.classList.add("tpl-editing");
+    el.setAttribute("contenteditable", "false");
+    el.setAttribute("onclick", `selectTplImage(event,'${el.id}')`);
+    const inner = el.querySelector(".doc-text-wrap-inner");
+    if (inner) inner.setAttribute("contenteditable", "true");
+    if (!el.querySelector(".tpl-text-drag-handle")) {
+      const handle = document.createElement("span");
+      handle.className = "tpl-text-drag-handle";
+      handle.title = "Déplacer";
+      handle.textContent = "⠿";
+      handle.setAttribute("onmousedown", `startDragTplImage(event,'${el.id}')`);
+      el.insertBefore(handle, el.firstChild);
+    }
+    if (!el.querySelector(".tpl-img-resize")) {
+      const handle = document.createElement("span");
+      handle.className = "tpl-img-resize";
+      handle.setAttribute("onmousedown", `startResizeTplImage(event,'${el.id}')`);
+      el.appendChild(handle);
+    }
+    if (!el.querySelector(".tpl-img-controls")) {
+      const ctrl = document.createElement("span");
+      ctrl.className = "tpl-img-controls hidden";
+      ctrl.innerHTML = `<button type="button" onmousedown="event.stopPropagation()" onclick="removeTplImageWrap(event,'${el.id}')">✕</button>`;
+      el.appendChild(ctrl);
+    }
+  });
+
+
   return div.innerHTML;
 }
+
 
 
 /* ---- Ouverture / soumission du modal de modèle ---- */
