@@ -403,8 +403,8 @@
   .doc-date-footer { text-align: right; font-size: 11px; color: #999; padding: 0 40px 16px; }
 
   /* Images insérées dans un document (support déplacement directionnel) */
-  .doc-img-wrap { display: inline-block; position: relative; max-width: 100%; }
-  .doc-img-wrap img { display: block; max-width: 260px; max-height: 260px; object-fit: contain; }
+  .doc-img-wrap { display: inline-block; position: relative; max-width: 100%; overflow: hidden; vertical-align: middle; }
+  .doc-img-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none; }
 
   @media print {
     .doc-sheet { box-shadow: none; margin: 0 auto; }
@@ -438,8 +438,14 @@
   }
   .tpl-editor-page:focus { outline: 2px solid var(--red); outline-offset: 2px; }
 
-  .doc-img-wrap.tpl-editing { outline: 1px dashed #bbb; }
+  .doc-img-wrap.tpl-editing { outline: 1px dashed #bbb; cursor: grab; }
   .doc-img-wrap.tpl-editing.tpl-img-selected { outline: 2px solid var(--red); }
+  .doc-img-wrap.tpl-editing.tpl-dragging { cursor: grabbing; outline: 2px solid var(--red); }
+  .tpl-img-resize {
+    position: absolute; right: -5px; bottom: -5px; width: 15px; height: 15px;
+    background: var(--red); border: 2px solid #fff; border-radius: 4px;
+    cursor: nwse-resize; z-index: 6;
+  }
   .tpl-img-controls {
     position: absolute; top: -34px; left: 50%; transform: translateX(-50%);
     display: flex; gap: 3px; background: #111; border-radius: 6px; padding: 3px; white-space: nowrap;
@@ -458,6 +464,29 @@
   }
   .tpl-field-settings input[type="number"] { width: 70px; }
   .tpl-field-settings label { color: #ddd; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+  /* Mise en page éditeur / aperçu côte à côte */
+  .modal-box.xwide { width: min(1320px, 97vw); }
+  .tpl-layout { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+  .tpl-editor-col { flex: 1 1 600px; min-width: 320px; }
+  .tpl-preview-col { flex: 0 0 300px; position: sticky; top: 0; }
+  .tpl-preview-label {
+    color: var(--gray); font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .06em; margin-bottom: 8px;
+  }
+  .tpl-preview-frame {
+    width: 300px; height: 424px; overflow: hidden; border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.5); background: #2b2b2b;
+  }
+  .tpl-preview-scale {
+    width: var(--a4-width); transform: scale(0.378); transform-origin: top left;
+  }
+  .tpl-preview-scale .doc-field:disabled,
+  .tpl-preview-scale .doc-field[disabled] { opacity: .65; cursor: default; }
+  @media (max-width: 1050px) {
+    .tpl-preview-col { position: static; flex-basis: 100%; }
+    .tpl-preview-frame { width: 100%; max-width: 300px; margin: 0 auto; }
+  }
 
 
   /* Recherche patient intégrée dans un document */
@@ -1814,7 +1843,7 @@
 
 <!-- MODAL : NOUVEAU / MODIFIER MODÈLE DE DOCUMENT -->
 <div class="modal-overlay" id="templateModal">
-  <div class="modal-box wide">
+  <div class="modal-box wide xwide">
     <div class="modal-head">
       <h3 id="templateModalTitle">Nouveau modèle</h3>
       <button class="modal-close" onclick="closeModal('templateModal')">✕</button>
@@ -1824,11 +1853,11 @@
       <div class="form-grid">
         <div class="field">
           <label>Titre du modèle</label>
-          <input type="text" id="templateTitleInput" required placeholder="Ex : Attestation médicale">
+          <input type="text" id="templateTitleInput" required placeholder="Ex : Attestation médicale" oninput="renderTplPreview()">
         </div>
         <div class="field">
           <label>Couleur d'accent (bandeaux, titre)</label>
-          <input type="color" id="templateColorInput" value="#e5352b" style="height:44px;padding:4px;">
+          <input type="color" id="templateColorInput" value="#e5352b" style="height:44px;padding:4px;" oninput="renderTplPreview()">
         </div>
       </div>
 
@@ -1836,16 +1865,16 @@
 
       <div class="tpl-field-settings">
         <label>Police par défaut
-          <select id="templateDefaultFont">
+          <select id="templateDefaultFont" onchange="renderTplPreview()">
             <option value="Poppins">Poppins</option>
             <option value="Calibri">Calibri</option>
           </select>
         </label>
         <label>Largeur des champs texte libre (px)
-          <input type="number" id="templateFieldWidth" min="60" max="700" value="220">
+          <input type="number" id="templateFieldWidth" min="60" max="700" value="220" oninput="renderTplPreview()">
         </label>
         <label>Lignes des champs texte libre
-          <input type="number" id="templateFieldRows" min="1" max="20" value="1" onchange="onTemplateFieldRowsChange()">
+          <input type="number" id="templateFieldRows" min="1" max="20" value="1" oninput="renderTplPreview()">
         </label>
       </div>
 
@@ -1885,17 +1914,28 @@
       </div>
       <input type="file" id="tplImageFileInput" accept="image/*" class="hidden" onchange="onTplImageFileChosen(event)">
 
-      <div class="tpl-pages-tabs" id="tplPagesTabs"></div>
+      <div class="tpl-layout">
+        <div class="tpl-editor-col">
+          <div class="tpl-pages-tabs" id="tplPagesTabs"></div>
 
-      <div class="tpl-editor-scroll">
-        <div id="templateEditorPages"></div>
-      </div>
+          <div class="tpl-editor-scroll">
+            <div id="templateEditorPages"></div>
+          </div>
 
-      <div style="color:var(--gray);font-size:12px;margin-top:10px;line-height:1.6;">
-        Sélectionne du texte puis utilise la barre d'outils pour changer sa police, sa taille, ou le mettre en gras / italique / souligné.<br>
-        <code>🔤 Champ libre</code> insère un champ modifiable par l'utilisateur (ex : <code>{{nom_parametre}}</code>). Ajoute <code>|Option A;Option B</code> dans son nom pour en faire un menu déroulant.<br>
-        <code>🖼️ Image</code> insère une image déplaçable : clique dessus puis utilise les flèches ↑ ↓ ← → pour la positionner.<br>
-        La date du jour est ajoutée automatiquement en bas de chaque page et se met à jour toute seule à minuit.
+          <div style="color:var(--gray);font-size:12px;margin-top:10px;line-height:1.6;">
+            Sélectionne du texte puis utilise la barre d'outils pour changer sa police, sa taille, ou le mettre en gras / italique / souligné.<br>
+            <code>🔤 Champ libre</code> insère un champ modifiable par l'utilisateur (ex : <code>{{nom_parametre}}</code>). Ajoute <code>|Option A;Option B</code> dans son nom pour en faire un menu déroulant.<br>
+            <code>🖼️ Image</code> insère une image : glisse-la où tu veux directement à la souris, utilise le petit carré rouge en bas à droite pour la redimensionner / rogner, ou les flèches et boutons ＋ / － pour un réglage précis.<br>
+            La date du jour est ajoutée automatiquement en bas de chaque page et se met à jour toute seule à minuit.
+          </div>
+        </div>
+
+        <div class="tpl-preview-col">
+          <div class="tpl-preview-label" id="tplPreviewPageLabel">Aperçu</div>
+          <div class="tpl-preview-frame">
+            <div class="tpl-preview-scale" id="tplPreviewSheet"></div>
+          </div>
+        </div>
       </div>
 
       <br>
@@ -5160,8 +5200,12 @@ function renderTplEditor() {
     editor.addEventListener("mouseup", trackTplSelection);
     editor.addEventListener("keyup", trackTplSelection);
     editor.addEventListener("focus", trackTplSelection);
+    editor.addEventListener("input", renderTplPreview);
     pagesBox.appendChild(editor);
   });
+
+
+  renderTplPreview();
 }
 
 
@@ -5192,6 +5236,49 @@ function removeTemplatePage() {
 }
 
 
+/* Aperçu en direct, affiché à droite de l'éditeur */
+function renderTplPreview() {
+  const previewBox = document.getElementById("tplPreviewSheet");
+  if (!previewBox) return;
+
+
+  const accent = document.getElementById("templateColorInput").value || "#e5352b";
+  const font = document.getElementById("templateDefaultFont").value;
+  const fieldWidth = Number(document.getElementById("templateFieldWidth").value) || 220;
+  const fieldRows = Number(document.getElementById("templateFieldRows").value) || 1;
+  const fontFamily = font === "Calibri"
+    ? "Calibri, Carlito, Arial, Helvetica, sans-serif"
+    : "'Poppins', Arial, Helvetica, sans-serif";
+  const title = document.getElementById("templateTitleInput").value || "Titre du document";
+
+
+  const editor = document.getElementById(`tplEditorPage-${tplActivePage}`);
+  const rawHtml = editor ? editor.innerHTML : (tplPages[tplActivePage] || "");
+  const cleaned = cleanTplPageHtmlForSave(rawHtml);
+  const bodyHtml = renderInlineContentHtml(cleaned, fieldWidth, fieldRows);
+
+
+  const todayText = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+
+  previewBox.style.fontFamily = fontFamily;
+  previewBox.innerHTML = `
+    <div class="doc-sheet-bar" style="background:${accent};"></div>
+    <div class="doc-sheet-header">${renderDocumentLogoHtml()}</div>
+    <div class="doc-sheet-bar" style="background:${accent};"></div>
+    ${tplActivePage === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(title)}</div>` : `<div style="height:14px;"></div>`}
+    <div class="doc-sheet-body">${bodyHtml}</div>
+    ${tplPages.length > 1 ? `<div class="doc-page-number">Page ${tplActivePage + 1} / ${tplPages.length}</div>` : ""}
+    <div class="doc-date-footer">Document généré le ${todayText}</div>
+  `;
+  previewBox.querySelectorAll(".doc-field").forEach(f => f.setAttribute("disabled", "disabled"));
+
+
+  const label = document.getElementById("tplPreviewPageLabel");
+  if (label) label.textContent = tplPages.length > 1 ? `Aperçu — page ${tplActivePage + 1}/${tplPages.length}` : "Aperçu";
+}
+
+
 /* Mise en forme du texte sélectionné */
 
 
@@ -5199,6 +5286,7 @@ function tplExec(cmd) {
   const editor = getActiveTplEditor();
   if (!editor) return;
   document.execCommand(cmd, false, null);
+  renderTplPreview();
 }
 
 
@@ -5242,6 +5330,7 @@ function applyInlineStyleToSelection(styleText) {
   newRange.selectNodeContents(span);
   sel.addRange(newRange);
   tplSavedRange = newRange.cloneRange();
+  renderTplPreview();
 }
 
 
@@ -5262,6 +5351,7 @@ function tplInsertField() {
   }
   editor.focus();
   document.execCommand("insertText", false, token);
+  renderTplPreview();
 }
 
 
@@ -5269,6 +5359,7 @@ function tplInsertSignature() {
   const editor = getActiveTplEditor();
   if (!editor) return;
   document.execCommand("insertText", false, "{{signature}}");
+  renderTplPreview();
 }
 
 
@@ -5276,10 +5367,11 @@ function tplInsertDoctor() {
   const editor = getActiveTplEditor();
   if (!editor) return;
   document.execCommand("insertText", false, "{{nom_medecin}}");
+  renderTplPreview();
 }
 
 
-/* Images déplaçables (uniquement dans l'éditeur, avec flèches directionnelles) */
+/* Images (déplacement libre à la souris + rognage/redimensionnement) */
 
 
 function tplInsertImage() {
@@ -5307,16 +5399,22 @@ function insertImageIntoActiveEditor(dataUrl) {
   const editor = getActiveTplEditor();
   if (!editor) return;
   const id = "imgwrap-" + Math.random().toString(36).slice(2, 9);
-  const html = `<span class="doc-img-wrap tpl-editing" id="${id}" contenteditable="false" style="position:relative;top:0px;left:0px;" onclick="selectTplImage(event,'${id}')">` +
-    `<img src="${dataUrl}" alt="Image">` +
+  const html = `<span class="doc-img-wrap tpl-editing" id="${id}" contenteditable="false" ` +
+    `style="position:relative;top:0px;left:0px;width:220px;height:160px;" ` +
+    `onmousedown="startDragTplImage(event,'${id}')" onclick="selectTplImage(event,'${id}')">` +
+    `<img src="${dataUrl}" alt="Image" draggable="false">` +
+    `<span class="tpl-img-resize" onmousedown="startResizeTplImage(event,'${id}')"></span>` +
     `<span class="tpl-img-controls hidden">` +
-    `<button type="button" onclick="nudgeTplImage(event,'${id}','up')">↑</button>` +
-    `<button type="button" onclick="nudgeTplImage(event,'${id}','left')">←</button>` +
-    `<button type="button" onclick="nudgeTplImage(event,'${id}','right')">→</button>` +
-    `<button type="button" onclick="nudgeTplImage(event,'${id}','down')">↓</button>` +
-    `<button type="button" onclick="removeTplImageWrap(event,'${id}')">✕</button>` +
+    `<button type="button" onmousedown="event.stopPropagation()" onclick="nudgeTplImage(event,'${id}','up')">↑</button>` +
+    `<button type="button" onmousedown="event.stopPropagation()" onclick="nudgeTplImage(event,'${id}','left')">←</button>` +
+    `<button type="button" onmousedown="event.stopPropagation()" onclick="nudgeTplImage(event,'${id}','right')">→</button>` +
+    `<button type="button" onmousedown="event.stopPropagation()" onclick="nudgeTplImage(event,'${id}','down')">↓</button>` +
+    `<button type="button" onmousedown="event.stopPropagation()" onclick="resizeTplImageStep(event,'${id}',1)">＋</button>` +
+    `<button type="button" onmousedown="event.stopPropagation()" onclick="resizeTplImageStep(event,'${id}',-1)">－</button>` +
+    `<button type="button" onmousedown="event.stopPropagation()" onclick="removeTplImageWrap(event,'${id}')">✕</button>` +
     `</span></span>&nbsp;`;
   document.execCommand("insertHTML", false, html);
+  renderTplPreview();
 }
 
 
@@ -5329,6 +5427,85 @@ function selectTplImage(event, id) {
   wrap.classList.add("tpl-img-selected");
   const ctrl = wrap.querySelector(".tpl-img-controls");
   if (ctrl) ctrl.classList.remove("hidden");
+}
+
+
+/* Déplacement libre à la souris (glisser-déposer n'importe où sur la page) */
+function startDragTplImage(event, id) {
+  if (event.target.closest(".tpl-img-resize") || event.target.closest(".tpl-img-controls")) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  selectTplImage(event, id);
+
+
+  const startX = event.clientX;
+  const startY = event.clientY;
+  const startTop = parseInt(wrap.style.top || "0", 10) || 0;
+  const startLeft = parseInt(wrap.style.left || "0", 10) || 0;
+  wrap.classList.add("tpl-dragging");
+  document.body.style.userSelect = "none";
+
+
+  function onMove(e) {
+    wrap.style.left = `${startLeft + (e.clientX - startX)}px`;
+    wrap.style.top = `${startTop + (e.clientY - startY)}px`;
+  }
+  function onUp() {
+    wrap.classList.remove("tpl-dragging");
+    document.body.style.userSelect = "";
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    renderTplPreview();
+  }
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onUp);
+}
+
+
+/* Redimensionnement / rognage à la souris via la poignée du coin */
+function startResizeTplImage(event, id) {
+  event.preventDefault();
+  event.stopPropagation();
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  selectTplImage(event, id);
+
+
+  const startX = event.clientX;
+  const startY = event.clientY;
+  const startWidth = wrap.offsetWidth;
+  const startHeight = wrap.offsetHeight;
+  document.body.style.userSelect = "none";
+
+
+  function onMove(e) {
+    const newWidth = Math.max(30, startWidth + (e.clientX - startX));
+    const newHeight = Math.max(30, startHeight + (e.clientY - startY));
+    wrap.style.width = `${newWidth}px`;
+    wrap.style.height = `${newHeight}px`;
+  }
+  function onUp() {
+    document.body.style.userSelect = "";
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    renderTplPreview();
+  }
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onUp);
+}
+
+
+function resizeTplImageStep(event, id, dir) {
+  event.stopPropagation();
+  event.preventDefault();
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  const step = 16;
+  wrap.style.width = `${Math.max(30, (wrap.offsetWidth || 220) + dir * step)}px`;
+  wrap.style.height = `${Math.max(30, (wrap.offsetHeight || 160) + dir * step)}px`;
+  renderTplPreview();
 }
 
 
@@ -5346,6 +5523,7 @@ function nudgeTplImage(event, id, dir) {
   if (dir === "right") left += step;
   wrap.style.top = `${top}px`;
   wrap.style.left = `${left}px`;
+  renderTplPreview();
 }
 
 
@@ -5353,6 +5531,7 @@ function removeTplImageWrap(event, id) {
   event.stopPropagation();
   const wrap = document.getElementById(id);
   if (wrap) wrap.remove();
+  renderTplPreview();
 }
 
 
@@ -5371,10 +5550,12 @@ function cleanTplPageHtmlForSave(html) {
   const div = document.createElement("div");
   div.innerHTML = html;
   div.querySelectorAll(".tpl-img-controls").forEach(el => el.remove());
+  div.querySelectorAll(".tpl-img-resize").forEach(el => el.remove());
   div.querySelectorAll(".doc-img-wrap").forEach(el => {
-    el.classList.remove("tpl-editing", "tpl-img-selected");
+    el.classList.remove("tpl-editing", "tpl-img-selected", "tpl-dragging");
     el.removeAttribute("contenteditable");
     el.removeAttribute("onclick");
+    el.removeAttribute("onmousedown");
   });
   return div.innerHTML;
 }
@@ -5388,15 +5569,26 @@ function hydrateTplPageHtmlForEdit(html) {
     el.classList.add("tpl-editing");
     el.setAttribute("contenteditable", "false");
     el.setAttribute("onclick", `selectTplImage(event,'${el.id}')`);
+    el.setAttribute("onmousedown", `startDragTplImage(event,'${el.id}')`);
+    if (!el.style.width) el.style.width = `${el.querySelector("img")?.naturalWidth || 220}px`;
+    if (!el.style.height) el.style.height = "160px";
+    if (!el.querySelector(".tpl-img-resize")) {
+      const handle = document.createElement("span");
+      handle.className = "tpl-img-resize";
+      handle.setAttribute("onmousedown", `startResizeTplImage(event,'${el.id}')`);
+      el.appendChild(handle);
+    }
     if (!el.querySelector(".tpl-img-controls")) {
       const ctrl = document.createElement("span");
       ctrl.className = "tpl-img-controls hidden";
       ctrl.innerHTML = `
-        <button type="button" onclick="nudgeTplImage(event,'${el.id}','up')">↑</button>
-        <button type="button" onclick="nudgeTplImage(event,'${el.id}','left')">←</button>
-        <button type="button" onclick="nudgeTplImage(event,'${el.id}','right')">→</button>
-        <button type="button" onclick="nudgeTplImage(event,'${el.id}','down')">↓</button>
-        <button type="button" onclick="removeTplImageWrap(event,'${el.id}')">✕</button>
+        <button type="button" onmousedown="event.stopPropagation()" onclick="nudgeTplImage(event,'${el.id}','up')">↑</button>
+        <button type="button" onmousedown="event.stopPropagation()" onclick="nudgeTplImage(event,'${el.id}','left')">←</button>
+        <button type="button" onmousedown="event.stopPropagation()" onclick="nudgeTplImage(event,'${el.id}','right')">→</button>
+        <button type="button" onmousedown="event.stopPropagation()" onclick="nudgeTplImage(event,'${el.id}','down')">↓</button>
+        <button type="button" onmousedown="event.stopPropagation()" onclick="resizeTplImageStep(event,'${el.id}',1)">＋</button>
+        <button type="button" onmousedown="event.stopPropagation()" onclick="resizeTplImageStep(event,'${el.id}',-1)">－</button>
+        <button type="button" onmousedown="event.stopPropagation()" onclick="removeTplImageWrap(event,'${el.id}')">✕</button>
       `;
       el.appendChild(ctrl);
     }
