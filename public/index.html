@@ -885,11 +885,46 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
 <script>
-  if (typeof pdfjsLib !== "undefined") {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
-  }
+  /*
+    Chargement de pdf.js avec plusieurs CDN de secours : si le premier est
+    bloqué / indisponible / mauvaise version, on essaie automatiquement le
+    suivant. Version 3.11.174 = build "classique" (pas ESM), compatible
+    avec une simple balise <script>, qui expose window.pdfjsLib.
+  */
+  (function loadPdfJs(sources) {
+    if (!sources.length) {
+      window.__pdfJsUnavailable = true;
+      return;
+    }
+    const [scriptUrl, workerUrl] = sources[0];
+    const s = document.createElement("script");
+    s.src = scriptUrl;
+    s.onload = function () {
+      if (typeof pdfjsLib !== "undefined") {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+      } else {
+        loadPdfJs(sources.slice(1));
+      }
+    };
+    s.onerror = function () {
+      loadPdfJs(sources.slice(1));
+    };
+    document.head.appendChild(s);
+  })([
+    [
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"
+    ],
+    [
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js",
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js"
+    ],
+    [
+      "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js",
+      "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js"
+    ]
+  ]);
 </script>
 </head>
 <body>
@@ -4573,7 +4608,6 @@ async function loadDocuments() {
     document.getElementById("documentPageTabs").innerHTML = "";
     select.value = "";
     documentSignatureData = null;
-    document.getElementById("documentSignatureInput").value = "";
   } catch (e) {
     toast(e.message);
   }
@@ -5709,19 +5743,43 @@ function tplImportPdf() {
 }
 
 
+function waitForPdfJs(timeoutMs) {
+  return new Promise(resolve => {
+    if (typeof pdfjsLib !== "undefined") { resolve(true); return; }
+    if (window.__pdfJsUnavailable) { resolve(false); return; }
+    const start = Date.now();
+    const check = setInterval(() => {
+      if (typeof pdfjsLib !== "undefined") {
+        clearInterval(check);
+        resolve(true);
+      } else if (window.__pdfJsUnavailable || Date.now() - start > timeoutMs) {
+        clearInterval(check);
+        resolve(false);
+      }
+    }, 200);
+  });
+}
+
+
 async function onTplPdfFileChosen(event) {
   const file = event.target.files[0];
   event.target.value = "";
   if (!file) return;
 
 
-  if (typeof pdfjsLib === "undefined") {
-    toast("Le lecteur PDF n'a pas pu se charger (connexion internet requise).");
-    return;
-  }
   if (file.type !== "application/pdf") {
     toast("Merci de choisir un fichier PDF.");
     return;
+  }
+
+
+  if (typeof pdfjsLib === "undefined") {
+    toast("Chargement du lecteur PDF...");
+    const ready = await waitForPdfJs(8000);
+    if (!ready) {
+      toast("Le lecteur PDF n'a pas pu se charger. Vérifie ta connexion internet et réessaie.");
+      return;
+    }
   }
   if (!confirm("Importer ce PDF va remplacer toutes les pages actuelles du modèle par une image de chaque page du PDF. Continuer ?")) {
     return;
