@@ -5458,11 +5458,39 @@ function renderDirectorTemplates() {
 let tplPages = [""];
 let tplActivePage = 0;
 let tplSavedRange = null;
+let tplSavedEditableTarget = null;
 
 
+/* Remonte jusqu'au plus proche élément réellement contenteditable="true"
+   (peut être la page elle-même, ou une zone de texte imbriquée dedans) */
+function closestEditableElement(node) {
+  let el = node && node.nodeType === 3 ? node.parentElement : node;
+  while (el) {
+    if (el.getAttribute && el.getAttribute("contenteditable") === "true") return el;
+    el = el.parentElement;
+  }
+  return null;
+}
+
+
+/* Toujours la page A4 entière de la page active : à utiliser pour tout
+   ce qui doit se placer au niveau de la page (image, zone de texte). */
+function getActiveTplPage() {
+  const page = document.getElementById(`tplEditorPage-${tplActivePage}`);
+  if (!page) return null;
+  page.focus();
+  return page;
+}
+
+
+/* Le champ éditable précis où se trouve le curseur : la page elle-même,
+   ou une zone de texte imbriquée dedans si on écrit dans l'une d'elles.
+   À utiliser pour tout ce qui doit s'appliquer au texte sélectionné
+   (police, taille, gras/italique/souligné, insertion d'un champ...). */
 function getActiveTplEditor() {
-  const editor = document.getElementById(`tplEditorPage-${tplActivePage}`);
-  if (!editor) return null;
+  const page = document.getElementById(`tplEditorPage-${tplActivePage}`);
+  if (!page) return null;
+  const target = (tplSavedEditableTarget && page.contains(tplSavedEditableTarget)) ? tplSavedEditableTarget : page;
   if (tplSavedRange) {
     try {
       const sel = window.getSelection();
@@ -5470,16 +5498,17 @@ function getActiveTplEditor() {
       sel.addRange(tplSavedRange);
     } catch {}
   }
-  editor.focus();
-  return editor;
+  target.focus();
+  return target;
 }
 
 
 function trackTplSelection(e) {
-  const editor = e.currentTarget;
+  const page = e.currentTarget;
   const sel = window.getSelection();
-  if (sel && sel.rangeCount > 0 && editor.contains(sel.anchorNode)) {
+  if (sel && sel.rangeCount > 0 && page.contains(sel.anchorNode)) {
     tplSavedRange = sel.getRangeAt(0).cloneRange();
+    tplSavedEditableTarget = closestEditableElement(sel.anchorNode) || page;
   }
 }
 
@@ -5583,6 +5612,7 @@ function switchTplPage(i) {
   syncActiveTplPageFromDom();
   tplActivePage = i;
   tplSavedRange = null;
+  tplSavedEditableTarget = null;
   renderTplEditor();
 }
 
@@ -5592,6 +5622,7 @@ function addTemplatePage() {
   tplPages.push("");
   tplActivePage = tplPages.length - 1;
   tplSavedRange = null;
+  tplSavedEditableTarget = null;
   renderTplEditor();
 }
 
@@ -5602,6 +5633,7 @@ function removeTemplatePage() {
   tplPages.splice(tplActivePage, 1);
   tplActivePage = Math.max(0, tplActivePage - 1);
   tplSavedRange = null;
+  tplSavedEditableTarget = null;
   renderTplEditor();
 }
 
@@ -5711,6 +5743,22 @@ function applyInlineStyleToSelection(styleText) {
 /* Champs texte libre / signature / nom du soignant */
 
 
+/* Réapplique la sélection sauvegardée juste avant d'insérer du texte :
+   nécessaire car un prompt()/confirm() entre-temps peut avoir fait
+   perdre la sélection active dans la page. */
+function insertTextAtSavedSelection(editor, text) {
+  editor.focus();
+  if (tplSavedRange) {
+    try {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(tplSavedRange);
+    } catch {}
+  }
+  document.execCommand("insertText", false, text);
+}
+
+
 function tplInsertField() {
   const editor = getActiveTplEditor();
   if (!editor) return;
@@ -5723,8 +5771,7 @@ function tplInsertField() {
     const opts = prompt("Options séparées par des points-virgules (ex : Oui;Non)");
     if (opts && opts.trim()) token = `{{${key}|${opts.trim()}}}`;
   }
-  editor.focus();
-  document.execCommand("insertText", false, token);
+  insertTextAtSavedSelection(editor, token);
   renderTplPreview();
 }
 
@@ -5732,7 +5779,7 @@ function tplInsertField() {
 function tplInsertSignature() {
   const editor = getActiveTplEditor();
   if (!editor) return;
-  document.execCommand("insertText", false, "{{signature}}");
+  insertTextAtSavedSelection(editor, "{{signature}}");
   renderTplPreview();
 }
 
@@ -5740,7 +5787,7 @@ function tplInsertSignature() {
 function tplInsertDoctor() {
   const editor = getActiveTplEditor();
   if (!editor) return;
-  document.execCommand("insertText", false, "{{nom_medecin}}");
+  insertTextAtSavedSelection(editor, "{{nom_medecin}}");
   renderTplPreview();
 }
 
@@ -5749,7 +5796,7 @@ function tplInsertDoctor() {
 
 
 function tplInsertImage() {
-  const editor = getActiveTplEditor();
+  const editor = getActiveTplPage();
   if (!editor) return;
   document.getElementById("tplImageFileInput").click();
 }
@@ -5820,7 +5867,7 @@ function insertTplTextBoxAt(editor, x, y, autoFocus) {
 
 
 function tplInsertTextBox() {
-  const editor = getActiveTplEditor();
+  const editor = getActiveTplPage();
   if (!editor) return;
   insertTplTextBoxAt(editor, 40, 40, false);
 }
@@ -5962,6 +6009,7 @@ async function onTplPdfFileChosen(event) {
     tplPages = newPages;
     tplActivePage = 0;
     tplSavedRange = null;
+  tplSavedEditableTarget = null;
     renderTplEditor();
     toast(`PDF importé (${newPages.length} page${newPages.length > 1 ? "s" : ""}). Double-clique sur la page pour écrire dessus.`);
   } catch (e) {
@@ -5983,7 +6031,7 @@ function tplRemovePageBackground() {
 
 
 function insertImageIntoActiveEditor(dataUrl) {
-  const editor = getActiveTplEditor();
+  const editor = getActiveTplPage();
   if (!editor) return;
   const id = "imgwrap-" + Math.random().toString(36).slice(2, 9);
   const html = `<span class="doc-img-wrap tpl-editing" id="${id}" contenteditable="false" ` +
@@ -6252,6 +6300,7 @@ function openNewTemplateModal() {
   tplPages = [""];
   tplActivePage = 0;
   tplSavedRange = null;
+  tplSavedEditableTarget = null;
   renderTplEditor();
   openModal("templateModal");
 }
@@ -6284,6 +6333,7 @@ function openEditTemplateModal(id) {
   }
   tplActivePage = 0;
   tplSavedRange = null;
+  tplSavedEditableTarget = null;
   renderTplEditor();
 
 
