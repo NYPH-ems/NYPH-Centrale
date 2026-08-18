@@ -1997,6 +1997,10 @@
             </select>
             <select id="tplSizeSelect" title="Taille du texte sélectionné" onchange="tplApplySize(this.value)">
               <option value="">Taille...</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
               <option value="10">10</option>
               <option value="11">11</option>
               <option value="12">12</option>
@@ -5545,6 +5549,7 @@ function renderTplEditor() {
     editor.addEventListener("focus", trackTplSelection);
     editor.addEventListener("input", renderTplPreview);
     editor.addEventListener("dblclick", onTplPageDoubleClick);
+    editor.addEventListener("paste", onTplEditorPaste);
     bindTplEditorDelegation(editor);
     pagesBox.appendChild(editor);
   });
@@ -5813,6 +5818,60 @@ function onTplImageFileChosen(event) {
   const reader = new FileReader();
   reader.onload = () => insertImageIntoActiveEditor(reader.result);
   reader.readAsDataURL(file);
+}
+
+
+/*
+  Collage (Ctrl+V) dans une page de document :
+  - une image collée (capture d'écran, image copiée depuis un dossier...)
+    est traitée exactement comme une image insérée via le bouton
+    🖼️ Image, donc elle obtient le même cadre avec le bouton ✕ pour la
+    supprimer si on s'est trompé ;
+  - un tableau/texte collé depuis Word/Excel/Google Sheets garde sa mise
+    en forme (gras, bordures, tailles...) mais perd ses couleurs de fond,
+    qui rendent mal une fois insérées dans le document (fond blanc du
+    papier). Le texte redevient donc lisible au lieu d'apparaître sur un
+    aplat de couleur.
+*/
+function onTplEditorPaste(e) {
+  const clipboard = e.clipboardData || window.clipboardData;
+  if (!clipboard) return;
+  e.preventDefault();
+
+  const items = Array.from(clipboard.items || []);
+  const imageItem = items.find(it => it.type && it.type.startsWith("image/"));
+  if (imageItem) {
+    const file = imageItem.getAsFile();
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => insertImageIntoActiveEditor(reader.result);
+      reader.readAsDataURL(file);
+    }
+    return;
+  }
+
+  const html = clipboard.getData("text/html");
+  if (html && html.trim()) {
+    document.execCommand("insertHTML", false, stripPastedBackgrounds(html));
+  } else {
+    const text = clipboard.getData("text/plain");
+    document.execCommand("insertText", false, text);
+  }
+  renderTplPreview();
+}
+
+
+/* Retire les couleurs de fond (style inline + attribut bgcolor, utilisé
+   par les tableaux Excel/Outlook) d'un fragment HTML collé. */
+function stripPastedBackgrounds(html) {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  div.querySelectorAll("[style]").forEach(el => {
+    el.style.removeProperty("background");
+    el.style.removeProperty("background-color");
+  });
+  div.querySelectorAll("[bgcolor]").forEach(el => el.removeAttribute("bgcolor"));
+  return div.innerHTML;
 }
 
 
