@@ -2016,7 +2016,7 @@
             <button type="button" onclick="tplExec('underline')" title="Souligné"><u>S</u></button>
             <div class="tpl-sep"></div>
             <button type="button" onclick="tplInsertImage()" title="Insérer une image">🖼️ Image</button>
-            <button type="button" onclick="tplInsertTextBox()" title="Insérer une zone de texte positionnée librement">📍 Zone positionnée</button>
+            <button type="button" onclick="tplInsertTextBox()" title="Insérer une zone de texte positionnée librement (ou double-clique directement sur la page)">📍 Zone positionnée</button>
             <button type="button" onclick="tplInsertField()" title="Insérer un champ texte libre">🔤 Champ libre</button>
             <button type="button" onclick="tplInsertSignature()" title="Insérer la signature">✍️ Signature</button>
             <button type="button" onclick="tplInsertDoctor()" title="Insérer le nom du soignant">🩺 Nom soignant</button>
@@ -2044,7 +2044,7 @@
                   Sélectionne du texte puis utilise la barre d'outils pour changer sa police, sa taille, ou le mettre en gras / italique / souligné.<br>
                   <code>🔤 Champ libre</code> insère un champ modifiable par l'utilisateur (ex : <code>{{nom_parametre}}</code>). Ajoute <code>|Option A;Option B</code> dans son nom pour en faire un menu déroulant.<br>
                   <code>🖼️ Image</code> insère une image : glisse-la où tu veux directement à la souris, utilise le petit carré rouge en bas à droite pour la redimensionner / rogner, ou les flèches et boutons ＋ / － pour un réglage précis.<br>
-                  <code>📄 Importer un PDF</code> remplace les pages du modèle par une image exacte de chaque page du PDF (même mise en page, même forme). Utilise ensuite <code>📍 Zone positionnée</code> pour placer un champ ou du texte pile à l'endroit voulu par-dessus le PDF.<br>
+                  <code>📄 Importer un PDF</code> remplace les pages du modèle par une image exacte de chaque page du PDF (même mise en page, même forme). <strong>Double-clique n'importe où sur la page</strong> (même par-dessus le PDF) pour écrire pile à cet endroit, ou utilise <code>📍 Zone positionnée</code>.<br>
                   La date du jour est ajoutée automatiquement en bas de chaque page et se met à jour toute seule à minuit.
                 </div>
               </details>
@@ -5515,6 +5515,7 @@ function renderTplEditor() {
     editor.addEventListener("keyup", trackTplSelection);
     editor.addEventListener("focus", trackTplSelection);
     editor.addEventListener("input", renderTplPreview);
+    editor.addEventListener("dblclick", onTplPageDoubleClick);
     pagesBox.appendChild(editor);
   });
 
@@ -5716,22 +5717,66 @@ function onTplImageFileChosen(event) {
 /* Zone de texte positionnée librement (utile par-dessus un fond PDF importé) */
 
 
-function tplInsertTextBox() {
-  const editor = getActiveTplEditor();
-  if (!editor) return;
+/*
+  Insère une zone de texte librement positionnée aux coordonnées (x, y)
+  données, en écrivant directement dans le DOM (plutôt que via
+  document.execCommand) : ça marche même quand toute la page est occupée
+  par un fond PDF non-éditable, où il n'y a pas toujours de "curseur"
+  valide pour execCommand.
+*/
+function insertTplTextBoxAt(editor, x, y, autoFocus) {
   const id = "textwrap-" + Math.random().toString(36).slice(2, 9);
   const html = `<span class="doc-text-wrap tpl-editing" id="${id}" contenteditable="false" ` +
-    `style="position:absolute;top:40px;left:40px;width:200px;min-height:26px;" ` +
+    `style="position:absolute;top:${Math.max(0, Math.round(y))}px;left:${Math.max(0, Math.round(x))}px;width:220px;min-height:26px;" ` +
     `onclick="selectTplImage(event,'${id}')">` +
     `<span class="tpl-text-drag-handle" onmousedown="startDragTplImage(event,'${id}')" title="Déplacer">⠿</span>` +
-    `<span class="doc-text-wrap-inner" contenteditable="true">{{champ}}</span>` +
+    `<span class="doc-text-wrap-inner" contenteditable="true"></span>` +
     `<span class="tpl-img-resize" onmousedown="startResizeTplImage(event,'${id}')"></span>` +
     `<span class="tpl-img-controls hidden">` +
     `<button type="button" onmousedown="event.stopPropagation()" onclick="removeTplImageWrap(event,'${id}')">✕</button>` +
-    `</span></span>&nbsp;`;
-  document.execCommand("insertHTML", false, html);
+    `</span></span>`;
+
+
+  editor.insertAdjacentHTML("beforeend", html);
   renderTplPreview();
-  toast("Zone de texte ajoutée : fais-la glisser par sa poignée ⠿ pour la placer, puis modifie son texte.");
+
+
+  const wrap = document.getElementById(id);
+  const inner = wrap?.querySelector(".doc-text-wrap-inner");
+  if (autoFocus && inner) {
+    selectTplImage({ stopPropagation() {} }, id);
+    inner.focus();
+    const range = document.createRange();
+    range.selectNodeContents(inner);
+    range.collapse(true);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  } else {
+    toast("Zone de texte ajoutée : écris directement dedans, fais-la glisser par sa poignée ⠿ pour la repositionner.");
+  }
+}
+
+
+function tplInsertTextBox() {
+  const editor = getActiveTplEditor();
+  if (!editor) return;
+  insertTplTextBoxAt(editor, 40, 40, false);
+}
+
+
+/*
+  Double-clic n'importe où sur la page (y compris par-dessus un fond PDF
+  importé) : ajoute une zone de texte pile à cet endroit, prête à écrire.
+  C'est la façon la plus directe d'"écrire sur le PDF".
+*/
+function onTplPageDoubleClick(event) {
+  if (event.target.closest(".doc-img-wrap") || event.target.closest(".doc-text-wrap")) return;
+  const editor = event.currentTarget;
+  const rect = editor.getBoundingClientRect();
+  const x = event.clientX - rect.left - 8;
+  const y = event.clientY - rect.top - 8;
+  insertTplTextBoxAt(editor, x, y, true);
 }
 
 
@@ -5812,7 +5857,7 @@ async function onTplPdfFileChosen(event) {
     tplActivePage = 0;
     tplSavedRange = null;
     renderTplEditor();
-    toast(`PDF importé (${newPages.length} page${newPages.length > 1 ? "s" : ""}). Utilise "📍 Zone positionnée" pour ajouter des champs par-dessus.`);
+    toast(`PDF importé (${newPages.length} page${newPages.length > 1 ? "s" : ""}). Double-clique sur la page pour écrire dessus.`);
   } catch (e) {
     toast("Impossible de lire ce PDF : " + e.message);
   }
