@@ -1859,6 +1859,50 @@ app.get(
 
 
 /* =========================================================
+   PERSONNEL EN SERVICE / HORS SERVICE (dashboard)
+========================================================= */
+
+
+app.get(
+  "/api/service/roster",
+  requireEMS,
+  (req, res) => {
+    const users =
+      db.prepare(`
+        SELECT
+          u.id,
+          u.username,
+          u.nickname,
+
+          EXISTS (
+            SELECT 1
+            FROM services s
+            WHERE s.user_id = u.id
+              AND s.ended_at IS NULL
+          ) AS currently_online
+
+        FROM users u
+        WHERE u.is_ems = 1 OR u.is_director = 1
+        ORDER BY currently_online DESC, u.username ASC
+      `).all();
+
+
+    const online = users.filter(u => u.currently_online);
+    const offline = users.filter(u => !u.currently_online);
+
+
+    res.json({
+      total: users.length,
+      online_count: online.length,
+      offline_count: offline.length,
+      online,
+      offline
+    });
+  }
+);
+
+
+/* =========================================================
    PRENDRE SERVICE
 ========================================================= */
 
