@@ -6,7 +6,7 @@
 <title>Los Santos Medical Services — LSMC Administration</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Carlito:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Carlito:ital,wght@0,400;0,700;1,400;1,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -29,9 +29,11 @@
   body {
     background: var(--black);
     color: var(--white);
-    font-family: Inter, Arial, Helvetica, sans-serif;
+    font-family: 'Plus Jakarta Sans', Inter, Arial, Helvetica, sans-serif;
     font-size: 14px;
     min-height: 100vh;
+    letter-spacing: -.005em;
+    font-feature-settings: "cv11", "ss01";
   }
 
 
@@ -240,7 +242,7 @@
   .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
   .card { background: var(--black-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; transition: border-color .15s ease; }
   .card-label { color: var(--gray); font-size: 12px; margin-bottom: 6px; font-weight: 500; }
-  .card-value { font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+  .card-value { font-size: 22px; font-weight: 600; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
 
 
   .grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; margin-bottom: 18px; }
@@ -263,6 +265,26 @@
     display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #555; margin-right: 7px;
   }
   .status-dot.online { background: var(--green); box-shadow: 0 0 10px rgba(111,207,151,.5); }
+
+
+  /* ROSTER (personnel en service) */
+
+
+  .roster-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .roster-grid:empty::after { content: "Personne pour le moment."; color: var(--gray); font-size: 12px; }
+  .roster-grid-offline:empty::after { content: "Personne hors service."; }
+  .roster-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--black); border: 1px solid var(--border); border-radius: 20px;
+    padding: 5px 12px 5px 5px; font-size: 12px; font-weight: 500;
+  }
+  .roster-chip-avatar {
+    width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: white; flex-shrink: 0;
+  }
+  .roster-chip.is-online .roster-chip-avatar { background: var(--green); color: #0d2318; }
+  .roster-chip.is-offline { opacity: .55; }
+  .roster-chip.is-offline .roster-chip-avatar { background: #3a3a40; color: #ccc; }
 
 
   .btn {
@@ -845,7 +867,7 @@
   .activity-item.static { cursor: default; }
   .activity-title { font-weight: 600; font-size: 13px; }
   .activity-sub { color: var(--gray); font-size: 11px; margin-top: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .activity-amount { color: var(--green); font-weight: 600; font-size: 12px; white-space: nowrap; }
+  .activity-amount { color: var(--green); font-weight: 600; font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 
   .rank-list { display: flex; flex-direction: column; gap: 6px; }
@@ -1127,6 +1149,22 @@
 
         <button class="btn btn-red btn-sm" id="profileSaveBtn" style="margin-top:10px;" onclick="saveProfile()">Enregistrer le profil</button>
         <div style="color:var(--gray);font-size:11px;margin-top:8px;" id="profileDirectorNote"></div>
+      </div>
+
+
+      <div class="service-box" id="rosterBox">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <div class="card-label" style="margin-bottom:0;">Personnel en service</div>
+          <div style="display:flex;gap:16px;font-size:12px;color:var(--gray);">
+            <span><span class="status-dot online"></span>En service : <strong id="rosterOnlineCount" style="color:white;">0</strong></span>
+            <span><span class="status-dot"></span>Hors service : <strong id="rosterOfflineCount" style="color:white;">0</strong></span>
+          </div>
+        </div>
+        <div class="roster-grid" id="rosterOnlineList"></div>
+        <div id="rosterOfflineWrap" style="margin-top:14px;">
+          <div class="card-label" style="margin-bottom:8px;">Hors service</div>
+          <div class="roster-grid roster-grid-offline" id="rosterOfflineList"></div>
+        </div>
       </div>
 
 
@@ -2608,6 +2646,49 @@ async function saveProfile() {
 /* ========================= DASHBOARD ========================= */
 
 
+function rosterInitials(name) {
+  return (name || "?").trim().slice(0, 2).toUpperCase();
+}
+
+
+function rosterChip(user, isOnline) {
+  const name = escapeHtml(user.nickname || user.username);
+  const chip = document.createElement("div");
+  chip.className = "roster-chip " + (isOnline ? "is-online" : "is-offline");
+  chip.innerHTML = `
+    <span class="roster-chip-avatar">${rosterInitials(user.nickname || user.username)}</span>
+    ${name}
+  `;
+  return chip;
+}
+
+
+async function loadRoster() {
+  const onlineList = document.getElementById("rosterOnlineList");
+  const offlineList = document.getElementById("rosterOfflineList");
+  if (!onlineList || !offlineList) return;
+
+
+  try {
+    const data = await api("/api/service/roster");
+
+
+    document.getElementById("rosterOnlineCount").textContent = data.online_count;
+    document.getElementById("rosterOfflineCount").textContent = data.offline_count;
+
+
+    onlineList.innerHTML = "";
+    data.online.forEach(u => onlineList.appendChild(rosterChip(u, true)));
+
+
+    offlineList.innerHTML = "";
+    data.offline.forEach(u => offlineList.appendChild(rosterChip(u, false)));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+
 async function loadDashboard() {
   try {
     const data = await api("/api/dashboard");
@@ -2617,6 +2698,9 @@ async function loadDashboard() {
     document.getElementById("statPatients").textContent = data.patients;
     document.getElementById("statInterventions").textContent = data.interventions;
     document.getElementById("statWeeklyInterventions").textContent = data.weeklyInterventionsCount;
+
+
+    loadRoster();
 
 
     const chart = document.getElementById("weekChart");
