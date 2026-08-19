@@ -380,16 +380,20 @@
   }
   .doc-row-value { flex: 1; min-width: 140px; font-size: 13px; color: #222; }
   .doc-paragraph { margin: 10px 0; font-size: 14px; line-height: 1.8; }
+  .doc-field, select.doc-field, textarea.doc-field,
+  .doc-field:disabled, .doc-field[disabled] {
+    background: transparent !important;
+  }
   .doc-field {
     font-family: inherit; font-size: 13px; border: none; border-bottom: 1px solid #ccc;
-    background: transparent; padding: 3px 4px; min-width: 130px; color: #111;
+    padding: 3px 4px; min-width: 130px; color: #111;
     vertical-align: middle;
   }
   .doc-field:focus { outline: none; border-bottom-color: var(--red); }
-  select.doc-field { border: 1px solid #ddd; border-radius: 5px; background: #fafafa; padding: 4px 8px; }
+  select.doc-field { border: 1px solid #ddd; border-radius: 5px; padding: 4px 8px; }
   textarea.doc-field {
     display: inline-block; resize: vertical; border: 1px solid #ddd; border-radius: 5px;
-    background: #fafafa; padding: 6px 8px; line-height: 1.5; vertical-align: top;
+    padding: 6px 8px; line-height: 1.5; vertical-align: top;
   }
   .doc-field-readonly {
     display: inline-block; padding: 3px 4px; border-bottom: 1px solid transparent; font-size: 13px; color: #111;
