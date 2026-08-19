@@ -388,6 +388,10 @@
     font-family: inherit; font-size: 13px; border: none; border-bottom: 1px solid #ccc;
     padding: 3px 4px; min-width: 130px; color: #111;
     vertical-align: middle;
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    border-radius: 0;
+    background-image: none;
+    box-shadow: none;
   }
   .doc-field:focus { outline: none; border-bottom-color: var(--red); }
   .doc-field:-webkit-autofill,
@@ -400,7 +404,7 @@
     caret-color: #111;
     transition: background-color 9999s ease-in-out 0s;
   }
-  select.doc-field { border: 1px solid #ddd; border-radius: 5px; padding: 4px 8px; }
+  select.doc-field { border: 1px solid #ddd; border-radius: 5px; padding: 4px 8px; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none; }
   textarea.doc-field {
     display: inline-block; resize: vertical; border: 1px solid #ddd; border-radius: 5px;
     padding: 6px 8px; line-height: 1.5; vertical-align: top;
