@@ -5348,7 +5348,7 @@ function downloadDocumentAsPng() {
     page.classList.remove("hidden");
 
 
-    html2canvas(page, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+    html2canvas(page, { backgroundColor: null, scale: 2 }).then(canvas => {
       page.classList.toggle("hidden", previouslyHiddenByIndex.get(realIndex));
 
 
