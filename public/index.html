@@ -874,6 +874,63 @@
   }
 
 
+  /* RDV — lignes compactes + navigation horizontale */
+
+
+  .rdv-block { margin-bottom: 22px; }
+  .rdv-block-title {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .rdv-block-title h3 { font-size: 14px; margin: 0; }
+  .rdv-line {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 9px 12px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 7px;
+    cursor: pointer; margin-bottom: 6px;
+  }
+  .rdv-line:hover { border-color: #444; }
+  .rdv-line-main { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+  .rdv-line-title { font-weight: 700; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rdv-line-sub { color: var(--gray); font-size: 11px; white-space: nowrap; }
+  .rdv-line-chevron { color: var(--gray); font-size: 11px; transition: transform .15s ease; flex-shrink: 0; }
+  .rdv-line.open .rdv-line-chevron { transform: rotate(180deg); }
+  .rdv-line-details { display: none; margin: -2px 0 10px; }
+  .rdv-line-details.open { display: block; }
+
+
+  .rdv-pager {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .rdv-pager button {
+    border: 1px solid var(--border); background: var(--black-2); color: #ddd;
+    padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12px;
+  }
+  .rdv-pager button:disabled { opacity: .35; cursor: default; }
+  .rdv-pager button:not(:disabled):hover { border-color: #444; color: white; }
+  .rdv-pager-label { color: var(--gray); font-size: 12px; font-weight: 700; min-width: 90px; text-align: center; }
+
+
+  /* Listes repliables ("afficher plus / réduire") */
+
+
+  .list-more-btn {
+    display: block; margin: 4px auto 0; border: 1px solid var(--border); background: var(--black-2);
+    color: #ddd; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 12px;
+  }
+  .list-more-btn:hover { color: white; border-color: #444; }
+
+
+  /* Semaines repliables (remboursements) */
+
+
+  .week-toggle-header { cursor: pointer; user-select: none; }
+  .week-toggle-chevron { display: inline-block; transition: transform .15s ease; margin-right: 6px; color: var(--gray); font-size: 11px; }
+  .week-toggle-header.open .week-toggle-chevron { transform: rotate(90deg); }
+  .week-toggle-body { display: none; }
+  .week-toggle-body.open { display: block; }
+
+
   /* MOBILE */
 
 
@@ -980,6 +1037,12 @@
         <div class="username" id="username">Chargement...</div>
       </div>
     </div>
+
+
+    <button class="btn btn-red hidden" id="globalServiceButton" style="width:100%;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="toggleService()">
+      <span id="globalServiceDot" class="status-dot"></span>
+      <span id="globalServiceButtonText">Prendre mon service</span>
+    </button>
 
 
     <nav id="mainNav">
@@ -1443,14 +1506,26 @@
       </div>
 
 
-      <div class="tabs">
-        <button class="tab-btn active" data-rdvtab="pending" onclick="switchRdvTab('pending')">RDV à traiter</button>
-        <button class="tab-btn" data-rdvtab="done" onclick="switchRdvTab('done')">RDV traité</button>
+      <div class="rdv-block">
+        <div class="rdv-block-title">
+          <h3>⏳ RDV à traiter <span id="rdvPendingCount" class="nav-badge hidden">0</span></h3>
+        </div>
+        <div id="gestionRdvListPending">
+          <div class="empty">Chargement...</div>
+        </div>
+        <div class="rdv-pager" id="rdvPagerPending"></div>
       </div>
 
+      <div class="section-divider"></div>
 
-      <div class="activity-list" id="gestionRdvList">
-        <div class="empty">Chargement...</div>
+      <div class="rdv-block">
+        <div class="rdv-block-title">
+          <h3>✅ RDV traités</h3>
+        </div>
+        <div id="gestionRdvListDone">
+          <div class="empty">Chargement...</div>
+        </div>
+        <div class="rdv-pager" id="rdvPagerDone"></div>
       </div>
     </section>
 
@@ -2144,7 +2219,9 @@ let interventionImageData = null;
 let availableWeeks = [];
 let myAppointments = [];
 let gestionRdvAll = [];
-let gestionRdvTab = "pending";
+let rdvOpenLineId = null;
+const rdvPageState = { pending: 0, done: 0 };
+const RDV_PAGE_SIZE = 5;
 let emsMembersForAssign = [];
 let sessionCheckInterval = null;
 let directorInvoicesGrouped = [];
@@ -2428,6 +2505,7 @@ async function loadUser() {
 
     if (currentUser.is_ems || currentUser.is_director) {
       document.getElementById("staffNavSection").classList.remove("hidden");
+      document.getElementById("globalServiceButton").classList.remove("hidden");
 
 
       document.getElementById("profileUsername").textContent = displayName;
@@ -2646,6 +2724,17 @@ function updateServiceUI() {
   const btn = document.getElementById("serviceButton");
   btn.textContent = text;
   btn.className = online ? "btn btn-dark" : "btn btn-red";
+
+
+  const globalBtn = document.getElementById("globalServiceButton");
+  const globalDot = document.getElementById("globalServiceDot");
+  const globalText = document.getElementById("globalServiceButtonText");
+  if (globalBtn && globalDot && globalText) {
+    globalDot.classList.toggle("online", online);
+    globalText.textContent = text;
+    globalBtn.classList.toggle("btn-dark", online);
+    globalBtn.classList.toggle("btn-red", !online);
+  }
 }
 
 
@@ -3597,7 +3686,7 @@ async function loadExpenses() {
 }
 
 
-function renderExpenseGroupInto(box, expenses, emptyMessage, showBadge) {
+function renderExpenseGroupInto(box, expenses, emptyMessage, showBadge, collapsible) {
   box.innerHTML = "";
 
 
@@ -3615,7 +3704,12 @@ function renderExpenseGroupInto(box, expenses, emptyMessage, showBadge) {
   });
 
 
-  Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(day => {
+  let dayKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+  const hiddenCount = collapsible && !expensesDaysExpanded ? Math.max(0, dayKeys.length - EXPENSES_DAYS_PAGE) : 0;
+  if (collapsible && !expensesDaysExpanded) dayKeys = dayKeys.slice(0, EXPENSES_DAYS_PAGE);
+
+
+  dayKeys.forEach(day => {
     const dayBox = document.createElement("div");
     dayBox.className = "table-container";
     dayBox.style.marginBottom = "14px";
@@ -3647,10 +3741,25 @@ function renderExpenseGroupInto(box, expenses, emptyMessage, showBadge) {
 
     box.appendChild(dayBox);
   });
+
+
+  if (collapsible && (hiddenCount > 0 || expensesDaysExpanded)) {
+    const btn = document.createElement("button");
+    btn.className = "list-more-btn";
+    btn.textContent = expensesDaysExpanded ? "🔽 Réduire" : `🔍 Afficher plus (${hiddenCount} jour${hiddenCount > 1 ? "s" : ""} de plus)`;
+    btn.onclick = () => { expensesDaysExpanded = !expensesDaysExpanded; renderExpenses(lastExpensesData); };
+    box.appendChild(btn);
+  }
 }
 
 
+const EXPENSES_DAYS_PAGE = 3;
+let expensesDaysExpanded = false;
+let lastExpensesData = [];
+
+
 function renderExpenses(expenses) {
+  lastExpensesData = expenses;
   const pending = expenses.filter(e => !e.refunded);
   const refunded = expenses.filter(e => e.refunded);
 
@@ -3659,7 +3768,8 @@ function renderExpenses(expenses) {
     document.getElementById("expensesList"),
     pending,
     "Aucune note de frais pour le moment. Ajoutez votre première dépense ci-dessus.",
-    false
+    false,
+    true
   );
 
 
@@ -3699,6 +3809,9 @@ function formatWeekLabel(info) {
 }
 
 
+let refundedWeeksOpen = {};
+
+
 function renderRefundedExpensesByWeek(container, expenses) {
   container.innerHTML = "";
 
@@ -3718,29 +3831,39 @@ function renderRefundedExpensesByWeek(container, expenses) {
   });
 
 
-  Object.values(weeks).sort((a, b) => b.sortKey - a.sortKey).forEach(w => {
+  const sortedWeeks = Object.entries(weeks).sort((a, b) => b[1].sortKey - a[1].sortKey);
+
+
+  sortedWeeks.forEach(([key, w], index) => {
     const weekBox = document.createElement("div");
     weekBox.className = "service-box";
     weekBox.style.marginBottom = "14px";
 
 
     const total = w.items.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+    const isOpen = !!refundedWeeksOpen[key] || (index === 0 && refundedWeeksOpen[key] !== false);
 
 
     const header = document.createElement("div");
+    header.className = "week-toggle-header" + (isOpen ? " open" : "");
     header.style.display = "flex";
     header.style.justifyContent = "space-between";
     header.style.alignItems = "center";
     header.style.flexWrap = "wrap";
     header.style.gap = "8px";
-    header.style.marginBottom = "12px";
     header.innerHTML = `
-      <div class="card-label" style="margin-bottom:0;">📅 ${w.label}</div>
+      <div class="card-label" style="margin-bottom:0;"><span class="week-toggle-chevron">▶</span>📅 ${w.label} <span style="color:var(--gray);font-weight:400;">(${w.items.length})</span></div>
       <div style="color:var(--green);font-weight:800;font-size:13px;">${money(total)}</div>
     `;
+    header.onclick = () => {
+      refundedWeeksOpen[key] = !isOpen;
+      renderRefundedExpensesByWeek(container, expenses);
+    };
 
 
     const body = document.createElement("div");
+    body.className = "week-toggle-body" + (isOpen ? " open" : "");
+    body.style.marginTop = isOpen ? "12px" : "0";
 
 
     weekBox.appendChild(header);
@@ -3748,7 +3871,7 @@ function renderRefundedExpensesByWeek(container, expenses) {
     container.appendChild(weekBox);
 
 
-    renderExpenseGroupInto(body, w.items, "", false);
+    if (isOpen) renderExpenseGroupInto(body, w.items, "", false);
   });
 }
 
@@ -3875,12 +3998,21 @@ async function loadMyInvoices() {
 }
 
 
+const MY_INVOICES_PAGE = 5;
+let myInvoicesExpanded = false;
+let lastInvoicesGrouped = [];
+
+
 function renderMyInvoices(invoicesList) {
+  lastInvoicesGrouped = groupInvoiceRows(invoicesList, ["service", "matricule"]);
+  renderMyInvoicesFromGrouped();
+}
+
+
+function renderMyInvoicesFromGrouped() {
   const box = document.getElementById("myInvoicesList");
+  const grouped = lastInvoicesGrouped;
   box.innerHTML = "";
-
-
-  const grouped = groupInvoiceRows(invoicesList, ["service", "matricule"]);
 
 
   if (!grouped.length) {
@@ -3889,7 +4021,11 @@ function renderMyInvoices(invoicesList) {
   }
 
 
-  grouped.forEach(inv => {
+  const hiddenCount = !myInvoicesExpanded ? Math.max(0, grouped.length - MY_INVOICES_PAGE) : 0;
+  const visible = myInvoicesExpanded ? grouped : grouped.slice(0, MY_INVOICES_PAGE);
+
+
+  visible.forEach(inv => {
     const div = document.createElement("div");
     div.className = "activity-item static";
     div.innerHTML = `
@@ -3901,6 +4037,15 @@ function renderMyInvoices(invoicesList) {
     `;
     box.appendChild(div);
   });
+
+
+  if (hiddenCount > 0 || myInvoicesExpanded) {
+    const btn = document.createElement("button");
+    btn.className = "list-more-btn";
+    btn.textContent = myInvoicesExpanded ? "🔽 Réduire" : `🔍 Afficher plus (${hiddenCount} de plus)`;
+    btn.onclick = () => { myInvoicesExpanded = !myInvoicesExpanded; renderMyInvoicesFromGrouped(); };
+    box.appendChild(btn);
+  }
 }
 
 
@@ -4346,11 +4491,14 @@ function rdvStatusBadgeHtml(status) {
 }
 
 
-function switchRdvTab(tab) {
-  gestionRdvTab = tab;
-  document.querySelectorAll("#page-gestion-rdv .tab-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.rdvtab === tab);
-  });
+function rdvGoToPage(tab, delta) {
+  rdvPageState[tab] = Math.max(0, rdvPageState[tab] + delta);
+  renderGestionRdv();
+}
+
+
+function toggleRdvLine(id) {
+  rdvOpenLineId = rdvOpenLineId === id ? null : id;
   renderGestionRdv();
 }
 
@@ -4395,88 +4543,114 @@ function updateGestionRdvBadge() {
 }
 
 
-function renderGestionRdv() {
-  const listEl = document.getElementById("gestionRdvList");
-  if (!listEl) return;
+function rdvLineDetailsHtml(a, isPending) {
+  const statusButtons = RDV_STATUS_BUTTONS.map(s => `
+    <button
+      class="btn-status ${s.css} ${a.status === s.value ? "active-status" : ""}"
+      onclick="markRdvStatus(${a.id}, '${s.value.replace(/'/g, "\\'")}')"
+    >${s.label}</button>
+  `).join("");
+
+  return `
+    <div class="patient-grid" style="margin-bottom:12px;">
+      <div><span class="k">Créneau 1</span><span class="v">${date(a.slot1)}</span></div>
+      <div><span class="k">Créneau 2</span><span class="v">${a.slot2 ? date(a.slot2) : "—"}</span></div>
+      <div><span class="k">Téléphone</span><span class="v">${escapeHtml(a.phone || "—")}</span></div>
+      <div><span class="k">Motif</span><span class="v">${escapeHtml(a.motif || "—")}</span></div>
+    </div>
+    <div class="form-grid" style="margin-bottom:10px;">
+      <div class="field">
+        <label>Créneau confirmé</label>
+        <select id="rdvConfirmed-${a.id}">
+          <option value="">Aucun</option>
+          <option value="slot1" ${a.confirmed_slot && a.confirmed_slot === a.slot1 ? "selected" : ""}>Créneau 1 — ${date(a.slot1)}</option>
+          ${a.slot2 ? `<option value="slot2" ${a.confirmed_slot && a.confirmed_slot === a.slot2 ? "selected" : ""}>Créneau 2 — ${date(a.slot2)}</option>` : ""}
+        </select>
+      </div>
+      <div class="field">
+        <label>Assigné à</label>
+        <select id="rdvAssign-${a.id}">
+          <option value="">Non assigné</option>
+          ${emsMembersForAssign.map(m => `<option value="${m.id}" ${a.assigned_to === m.id ? "selected" : ""}>${escapeHtml(m.nickname || m.username)}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    <div class="patient-actions" style="margin-bottom:10px;">
+      ${statusButtons}
+    </div>
+    <div class="patient-actions">
+      <button class="btn btn-dark btn-sm" onclick="saveRdvAssignment(${a.id})">💾 Enregistrer</button>
+      ${isPending
+        ? `<button class="btn btn-green btn-sm" onclick="markRdvStatus(${a.id}, 'Traité')">✔ Marquer traité</button>`
+        : `<button class="btn btn-outline btn-sm" onclick="markRdvStatus(${a.id}, 'A traiter')">↺ Remettre à traiter</button>`}
+      ${currentUser?.is_director ? `<button class="btn-delete btn-sm" onclick="deleteAppointment(${a.id})">🗑️ Supprimer</button>` : ""}
+    </div>
+  `;
+}
 
 
-  const filtered = gestionRdvAll.filter(a => {
-    const isPending = a.status === "A traiter" || !a.status;
-    return gestionRdvTab === "done" ? !isPending : isPending;
-  });
-
+function renderRdvBlock(tab, items, listElId, pagerElId) {
+  const listEl = document.getElementById(listElId);
+  const pagerEl = document.getElementById(pagerElId);
+  if (!listEl || !pagerEl) return;
 
   listEl.innerHTML = "";
+  pagerEl.innerHTML = "";
 
-
-  if (!filtered.length) {
+  if (!items.length) {
     listEl.innerHTML = `<div class="empty">Aucun rendez-vous ici.</div>`;
     return;
   }
 
+  const totalPages = Math.max(1, Math.ceil(items.length / RDV_PAGE_SIZE));
+  if (rdvPageState[tab] > totalPages - 1) rdvPageState[tab] = totalPages - 1;
+  const page = rdvPageState[tab];
+  const pageItems = items.slice(page * RDV_PAGE_SIZE, page * RDV_PAGE_SIZE + RDV_PAGE_SIZE);
 
-  filtered.forEach(a => {
-    const div = document.createElement("div");
-    div.className = "activity-item static";
-    div.style.flexDirection = "column";
-    div.style.alignItems = "stretch";
-    div.style.cursor = "default";
+  const isPending = tab === "pending";
 
+  pageItems.forEach(a => {
+    const isOpen = rdvOpenLineId === a.id;
 
-    const statusButtons = RDV_STATUS_BUTTONS.map(s => `
-      <button
-        class="btn-status ${s.css} ${a.status === s.value ? "active-status" : ""}"
-        onclick="markRdvStatus(${a.id}, '${s.value.replace(/'/g, "\\'")}')"
-      >${s.label}</button>
-    `).join("");
-
-
-    const isPending = a.status === "A traiter" || !a.status;
-
-
-    div.innerHTML = `
-      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
-        <div>
-          <div class="activity-title">#${a.id} · ${escapeHtml(a.requester || "Citoyen")}</div>
-          <div class="activity-sub">Créé le ${date(a.created_at)} · ${rdvStatusBadgeHtml(a.status)}</div>
-        </div>
+    const line = document.createElement("div");
+    line.className = "rdv-line" + (isOpen ? " open" : "");
+    line.onclick = () => toggleRdvLine(a.id);
+    line.innerHTML = `
+      <div class="rdv-line-main">
+        <span class="rdv-line-title">#${a.id} · ${escapeHtml(a.requester || "Citoyen")}</span>
+        <span class="rdv-line-sub">${date(a.slot1)}</span>
+        ${rdvStatusBadgeHtml(a.status)}
       </div>
-      <div class="patient-grid" style="margin-bottom:12px;">
-        <div><span class="k">Créneau 1</span><span class="v">${date(a.slot1)}</span></div>
-        <div><span class="k">Créneau 2</span><span class="v">${a.slot2 ? date(a.slot2) : "—"}</span></div>
-        <div><span class="k">Téléphone</span><span class="v">${escapeHtml(a.phone || "—")}</span></div>
-        <div><span class="k">Motif</span><span class="v">${escapeHtml(a.motif || "—")}</span></div>
-      </div>
-      <div class="form-grid" style="margin-bottom:10px;">
-        <div class="field">
-          <label>Créneau confirmé</label>
-          <select id="rdvConfirmed-${a.id}">
-            <option value="">Aucun</option>
-            <option value="slot1" ${a.confirmed_slot && a.confirmed_slot === a.slot1 ? "selected" : ""}>Créneau 1 — ${date(a.slot1)}</option>
-            ${a.slot2 ? `<option value="slot2" ${a.confirmed_slot && a.confirmed_slot === a.slot2 ? "selected" : ""}>Créneau 2 — ${date(a.slot2)}</option>` : ""}
-          </select>
-        </div>
-        <div class="field">
-          <label>Assigné à</label>
-          <select id="rdvAssign-${a.id}">
-            <option value="">Non assigné</option>
-            ${emsMembersForAssign.map(m => `<option value="${m.id}" ${a.assigned_to === m.id ? "selected" : ""}>${escapeHtml(m.nickname || m.username)}</option>`).join("")}
-          </select>
-        </div>
-      </div>
-      <div class="patient-actions" style="margin-bottom:10px;">
-        ${statusButtons}
-      </div>
-      <div class="patient-actions">
-        <button class="btn btn-dark btn-sm" onclick="saveRdvAssignment(${a.id})">💾 Enregistrer</button>
-        ${isPending
-          ? `<button class="btn btn-green btn-sm" onclick="markRdvStatus(${a.id}, 'Traité')">✔ Marquer traité</button>`
-          : `<button class="btn btn-outline btn-sm" onclick="markRdvStatus(${a.id}, 'A traiter')">↺ Remettre à traiter</button>`}
-        ${currentUser?.is_director ? `<button class="btn-delete btn-sm" onclick="deleteAppointment(${a.id})">🗑️ Supprimer</button>` : ""}
-      </div>
+      <span class="rdv-line-chevron">▾</span>
     `;
-    listEl.appendChild(div);
+    listEl.appendChild(line);
+
+    const details = document.createElement("div");
+    details.className = "rdv-line-details" + (isOpen ? " open" : "");
+    if (isOpen) details.innerHTML = rdvLineDetailsHtml(a, isPending);
+    listEl.appendChild(details);
   });
+
+  pagerEl.innerHTML = `
+    <button ${page === 0 ? "disabled" : ""} onclick="rdvGoToPage('${tab}', -1)">◀ Précédent</button>
+    <span class="rdv-pager-label">Page ${page + 1} / ${totalPages}</span>
+    <button ${page >= totalPages - 1 ? "disabled" : ""} onclick="rdvGoToPage('${tab}', 1)">Suivant ▶</button>
+  `;
+}
+
+
+function renderGestionRdv() {
+  const pending = gestionRdvAll.filter(a => a.status === "A traiter" || !a.status);
+  const done = gestionRdvAll.filter(a => !(a.status === "A traiter" || !a.status));
+
+  const pendingBadge = document.getElementById("rdvPendingCount");
+  if (pendingBadge) {
+    pendingBadge.textContent = pending.length;
+    pendingBadge.classList.toggle("hidden", pending.length === 0);
+  }
+
+  renderRdvBlock("pending", pending, "gestionRdvListPending", "rdvPagerPending");
+  renderRdvBlock("done", done, "gestionRdvListDone", "rdvPagerDone");
 }
 
 
