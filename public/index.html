@@ -390,6 +390,16 @@
     vertical-align: middle;
   }
   .doc-field:focus { outline: none; border-bottom-color: var(--red); }
+  .doc-field:-webkit-autofill,
+  .doc-field:-webkit-autofill:hover,
+  .doc-field:-webkit-autofill:focus,
+  .doc-field:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-text-fill-color: #111 !important;
+    caret-color: #111;
+    transition: background-color 9999s ease-in-out 0s;
+  }
   select.doc-field { border: 1px solid #ddd; border-radius: 5px; padding: 4px 8px; }
   textarea.doc-field {
     display: inline-block; resize: vertical; border: 1px solid #ddd; border-radius: 5px;
@@ -4881,7 +4891,7 @@ function renderDoctorField() {
 function renderPatientSearchField(key) {
   return `
     <span class="doc-patient-search-box">
-      <input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" data-doc-patient="1"
+      <input type="text" class="doc-field" autocomplete="off" data-doc-param="${escapeHtml(key)}" data-doc-patient="1"
              placeholder="Rechercher un patient..." autocomplete="off"
              oninput="onDocPatientSearchInput(this)" onfocus="onDocPatientSearchInput(this)">
       <div class="doc-patient-search-results hidden"></div>
@@ -5027,11 +5037,11 @@ function renderInlineContent(text, fieldWidth, fieldRows) {
       const optHtml = options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
       html += `<select class="doc-field" data-doc-param="${escapeHtml(key)}"><option value="">— Sélectionner —</option>${optHtml}</select>`;
     } else if (key.includes("date")) {
-      html += `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" placeholder="jj/mm/aaaa" maxlength="10" oninput="onDocDateInput(this)">`;
+      html += `<input type="text" class="doc-field" autocomplete="off" data-doc-param="${escapeHtml(key)}" placeholder="jj/mm/aaaa" maxlength="10" oninput="onDocDateInput(this)">`;
     } else if (rows > 1) {
       html += `<textarea class="doc-field" data-doc-param="${escapeHtml(key)}" rows="${rows}" style="width:${width}px;"></textarea>`;
     } else {
-      html += `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" style="width:${width}px;">`;
+      html += `<input type="text" class="doc-field" autocomplete="off" data-doc-param="${escapeHtml(key)}" style="width:${width}px;">`;
     }
 
 
@@ -5067,12 +5077,12 @@ function renderInlineContentHtml(html, fieldWidth, fieldRows) {
       return `<select class="doc-field" data-doc-param="${escapeHtml(key)}"><option value="">— Sélectionner —</option>${optHtml}</select>`;
     }
     if (key.includes("date")) {
-      return `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" placeholder="jj/mm/aaaa" maxlength="10" oninput="onDocDateInput(this)">`;
+      return `<input type="text" class="doc-field" autocomplete="off" data-doc-param="${escapeHtml(key)}" placeholder="jj/mm/aaaa" maxlength="10" oninput="onDocDateInput(this)">`;
     }
     if (rows > 1) {
       return `<textarea class="doc-field" data-doc-param="${escapeHtml(key)}" rows="${rows}" style="width:${width}px;"></textarea>`;
     }
-    return `<input type="text" class="doc-field" data-doc-param="${escapeHtml(key)}" style="width:${width}px;">`;
+    return `<input type="text" class="doc-field" autocomplete="off" data-doc-param="${escapeHtml(key)}" style="width:${width}px;">`;
   });
 }
 
