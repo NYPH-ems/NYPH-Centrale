@@ -504,24 +504,12 @@
 
   .tpl-editor-scroll { overflow-x: auto; padding: 10px 0; background: #2b2b2b; border-radius: 10px; }
   .tpl-editor-page {
-    background: transparent; color: #111; font-family: 'Poppins', Arial, Helvetica, sans-serif;
-    font-size: 14px; line-height: 1.7;
-    position: relative; outline: none; white-space: pre-wrap; word-wrap: break-word;
+    background: #fff; color: #111; width: var(--a4-width); min-height: var(--a4-height);
+    margin: 0 auto; padding: 40px; font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    font-size: 14px; line-height: 1.7; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.4);
+    position: relative;
   }
   .tpl-editor-page:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-  .tpl-editor-page-wrapper {
-    width: var(--a4-width);
-    margin: 0 auto;
-    min-height: var(--a4-height);
-    border-radius: 4px;
-    box-shadow: 0 6px 24px rgba(0,0,0,.4);
-    background: #fff;
-    position: relative;
-    overflow: hidden;
-  }
-  .tpl-editor-page-wrapper.hidden { display: none; }
-  .tpl-editor-content { padding: 0 40px 30px; font-size: 14px; line-height: 1.7; flex: 1; }
 
   .doc-img-wrap.tpl-editing { outline: 1px dashed #bbb; cursor: grab; }
   .doc-img-wrap.tpl-editing.tpl-img-selected { outline: 2px solid var(--accent); }
@@ -617,7 +605,6 @@
   /* Fond de page importé depuis un PDF (reproduit sa forme exacte) */
   .doc-sheet.doc-sheet-bg-page { padding: 0; }
   .doc-sheet-body.doc-sheet-body-bg { padding: 0; position: relative; min-height: var(--a4-height); }
-  .tpl-editor-page-wrapper.tpl-editor-page-bg { padding: 0; }
   .doc-page-bg-wrap { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
   .doc-page-bg-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; background: #fff; }
 
@@ -5873,51 +5860,62 @@ function renderTplEditor() {
     tabsBox.appendChild(btn);
 
     const hasBg = html.includes("doc-page-bg-wrap");
+    
+    const wrapper = document.createElement("div");
+    wrapper.className = `tpl-editor-wrapper ${i === tplActivePage ? "" : "hidden"}`;
+    wrapper.style.width = "var(--a4-width)";
+    wrapper.style.margin = "0 auto";
+    wrapper.style.minHeight = "var(--a4-height)";
+    wrapper.style.borderRadius = "4px";
+    wrapper.style.boxShadow = "0 6px 24px rgba(0,0,0,.4)";
+    wrapper.style.background = "#fff";
+    
+    if (!hasBg) {
+      const bar1 = document.createElement("div");
+      bar1.style.height = "6px";
+      bar1.style.background = accent;
+      bar1.style.flexShrink = "0";
+      wrapper.appendChild(bar1);
+      
+      const header = document.createElement("div");
+      header.className = "doc-sheet-header";
+      header.innerHTML = renderDocumentLogoHtml();
+      wrapper.appendChild(header);
+      
+      const bar2 = document.createElement("div");
+      bar2.style.height = "6px";
+      bar2.style.background = accent;
+      bar2.style.flexShrink = "0";
+      wrapper.appendChild(bar2);
+      
+      if (i === 0) {
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "doc-sheet-title";
+        titleDiv.style.color = accent;
+        titleDiv.textContent = title;
+        wrapper.appendChild(titleDiv);
+      } else {
+        const spacer = document.createElement("div");
+        spacer.style.height = "14px";
+        wrapper.appendChild(spacer);
+      }
+    }
 
-    const pageWrapper = document.createElement("div");
-    pageWrapper.className = `tpl-editor-page-wrapper ${i === tplActivePage ? "" : "hidden"} ${hasBg ? "tpl-editor-page-bg" : ""}`;
-    pageWrapper.id = `tplEditorPageWrapper-${i}`;
-    pageWrapper.style.width = "var(--a4-width)";
-    pageWrapper.style.margin = "0 auto";
-    pageWrapper.style.minHeight = "var(--a4-height)";
-    pageWrapper.style.borderRadius = "4px";
-    pageWrapper.style.boxShadow = "0 6px 24px rgba(0,0,0,.4)";
-    pageWrapper.style.background = "#fff";
-    pageWrapper.style.position = "relative";
-
-    const headerHtml = !hasBg ? `
-      <div class="doc-sheet-bar" style="background:${accent};"></div>
-      <div class="doc-sheet-header">${renderDocumentLogoHtml()}</div>
-      <div class="doc-sheet-bar" style="background:${accent};"></div>
-      ${i === 0 ? `<div class="doc-sheet-title" style="color:${accent};">${escapeHtml(title)}</div>` : `<div style="height:14px;"></div>`}
-    ` : "";
-
-    pageWrapper.innerHTML = `
-      ${headerHtml}
-      <div class="tpl-editor-content" style="padding: 0 40px 30px; font-size: 14px; line-height: 1.7; flex: 1;"></div>
-    `;
-
-    const contentDiv = pageWrapper.querySelector(".tpl-editor-content");
     const editor = document.createElement("div");
     editor.className = `tpl-editor-page`;
     editor.id = `tplEditorPage-${i}`;
     editor.contentEditable = "true";
     editor.innerHTML = html;
-    editor.style.fontFamily = "'Poppins', Arial, Helvetica, sans-serif";
-    editor.style.fontSize = "14px";
-    editor.style.lineHeight = "1.7";
-    editor.style.color = "#111";
-
     editor.addEventListener("mouseup", trackTplSelection);
     editor.addEventListener("keyup", trackTplSelection);
     editor.addEventListener("focus", trackTplSelection);
     editor.addEventListener("input", renderTplPreview);
     editor.addEventListener("dblclick", onTplPageDoubleClick);
     editor.addEventListener("paste", onTplEditorPaste);
-
-    contentDiv.appendChild(editor);
     bindTplEditorDelegation(editor);
-    pagesBox.appendChild(pageWrapper);
+    wrapper.appendChild(editor);
+    
+    pagesBox.appendChild(wrapper);
   });
 
   renderTplPreview();
