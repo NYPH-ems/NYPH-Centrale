@@ -2419,7 +2419,7 @@ document.querySelectorAll(".modal-overlay").forEach(overlay => {
     if (e.target !== overlay) return;
     if (overlay.id === "confirmModal") {
       closeConfirmModal(false);
-    } else {
+    } else if (overlay.id !== "templateModal" && overlay.id !== "patientModal" && overlay.id !== "interventionModal" && overlay.id !== "interventionDetailsModal" && overlay.id !== "detailsModal") {
       overlay.classList.remove("open");
     }
   });
@@ -4860,7 +4860,7 @@ let documentFieldValues = {};
     {{cle|Option A;Option B}}  -> menu déroulant
 */
 function extractDocumentParams(content) {
-  const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
+  const regex = /\{\{\s*([a-zA-Z0-9_\(\)\[\]\{\},.\-]+)\s*(\|[^}]*)?\}\}/g;
   const matches = [...(content || "").matchAll(regex)];
   const seen = new Map();
   matches.forEach(m => {
@@ -5366,7 +5366,7 @@ function renderInlineContent(text, fieldWidth, fieldRows) {
   ne fait ici qu'une substitution directe dans la chaîne HTML.
 */
 function renderInlineContentHtml(html, fieldWidth, fieldRows) {
-  const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
+  const regex = /\{\{\s*([a-zA-Z0-9_\(\)\[\]\{\},.\-]+)\s*(\|[^}]*)?\}\}/g;
   const width = Math.max(60, Number(fieldWidth) || 220);
   const rows = Math.max(1, Number(fieldRows) || 1);
 
@@ -5398,7 +5398,7 @@ function renderPageBodyHtml(pageText, fieldValues) {
 
 
   const resolveText = (text) => {
-    const regex = /\{\{\s*([a-zA-Z0-9_]+)\s*(\|[^}]*)?\}\}/g;
+    const regex = /\{\{\s*([a-zA-Z0-9_\(\)\[\]\{\},.\-]+)\s*(\|[^}]*)?\}\}/g;
     let out = "";
     let lastIndex = 0;
     let m;
@@ -5782,6 +5782,7 @@ let tplPages = [""];
 let tplActivePage = 0;
 let tplSavedRange = null;
 let tplSavedEditableTarget = null;
+let tplIsInteracting = false;
 
 
 /* Remonte jusqu'au plus proche élément réellement contenteditable="true"
@@ -5966,6 +5967,7 @@ function removeTemplatePage() {
 function renderTplPreview() {
   const previewBox = document.getElementById("tplPreviewSheet");
   if (!previewBox) return;
+  if (tplIsInteracting) return;
 
 
   const accent = document.getElementById("templateColorInput").value || "#e5352b";
@@ -6452,6 +6454,7 @@ function startDragTplImage(event, id) {
   selectTplImage(event, id);
 
 
+  tplIsInteracting = true;
   const startX = event.clientX;
   const startY = event.clientY;
   const startTop = parseInt(wrap.style.top || "0", 10) || 0;
@@ -6469,6 +6472,8 @@ function startDragTplImage(event, id) {
     document.body.style.userSelect = "";
     document.removeEventListener("mousemove", onMove);
     document.removeEventListener("mouseup", onUp);
+    tplIsInteracting = false;
+    syncActiveTplPageFromDom();
     renderTplPreview();
   }
   document.addEventListener("mousemove", onMove);
