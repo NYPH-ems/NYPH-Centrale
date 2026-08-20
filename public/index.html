@@ -505,7 +505,7 @@
   .tpl-editor-scroll { overflow-x: auto; padding: 10px 0; background: #2b2b2b; border-radius: 10px; }
   .tpl-editor-page {
     background: #fff; color: #111; width: var(--a4-width); min-height: var(--a4-height);
-    margin: 0 auto; padding: 30px 40px; font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    margin: 0 auto; padding: 0 40px 30px; font-family: 'Poppins', Arial, Helvetica, sans-serif;
     font-size: 14px; line-height: 1.7; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.4);
     position: relative;
   }
@@ -6489,7 +6489,7 @@ function startResizeTplImage(event, id) {
   if (!wrap) return;
   selectTplImage(event, id);
 
-
+  tplIsInteracting = true;
   const startX = event.clientX;
   const startY = event.clientY;
   const startWidth = wrap.offsetWidth;
@@ -6507,6 +6507,7 @@ function startResizeTplImage(event, id) {
     document.body.style.userSelect = "";
     document.removeEventListener("mousemove", onMove);
     document.removeEventListener("mouseup", onUp);
+    tplIsInteracting = false;
     renderTplPreview();
   }
   document.addEventListener("mousemove", onMove);
